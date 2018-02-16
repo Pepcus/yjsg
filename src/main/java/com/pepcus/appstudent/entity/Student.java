@@ -90,6 +90,12 @@ public class Student {
 
 	@Column(name = "marks_2017")
 	private String marks2017;
+	
+	@Column(name = "course_2018")
+	private String course2018;
+	
+	@Column(name = "opt_in_2018")
+	private Integer optIn2018;
 
 	@Column(name = "created_date")
 	@Temporal(TemporalType.DATE)

@@ -25,7 +25,7 @@ import com.pepcus.appstudent.service.StudentService;
  *
  */
 @RestController
-@RequestMapping("/v1/student")
+@RequestMapping("/v1/students")
 public class StudentController {
 
 	@Autowired
