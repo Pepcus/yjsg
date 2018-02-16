@@ -1,0 +1,102 @@
+{
+	"id": "5fc8f385-74f8-35c4-0af5-ccd10ff5713a",
+	"name": "StudentService",
+	"description": "",
+	"order": [
+		"2b17f41b-b527-16d9-6288-f1efc19a906c",
+		"ce7c60e0-c701-d69c-c9b2-05285f7cfcb1",
+		"3742638c-e565-c219-c98b-58968646080e"
+	],
+	"folders": [],
+	"folders_order": [],
+	"timestamp": 1518453915801,
+	"owner": 0,
+	"public": false,
+	"events": [],
+	"variables": [],
+	"auth": null,
+	"requests": [
+		{
+			"id": "2b17f41b-b527-16d9-6288-f1efc19a906c",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8080/v1/students",
+			"queryParams": [],
+			"events": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"auth": null,
+			"time": 1518809986658,
+			"name": "POST",
+			"description": "",
+			"collectionId": "5fc8f385-74f8-35c4-0af5-ccd10ff5713a",
+			"responses": [],
+			"currentHelper": null,
+			"helperAttributes": null,
+			"rawModeData": "{\n        \"name\": \"Shubham Gupta\",\n        \"fatherName\": \"Manish Kumar Jain\",\n        \"gender\": \"M\",\n        \"age\": \"10\",\n        \"education\": \"4th\",\n        \"occupation\": \"\",\n        \"motherMobile\": \"\",\n        \"fatherMobile\": \"9826022402\",\n        \"email\": \"shubhamgupta@gmail.com\",\n        \"address\": \"Palsia Indore\",\n        \"busStop\": \"\",\n        \"classAttended2016\": \"\",\n        \"classRoomNo2016\": \"\",\n        \"attendance2016\": \"\",\n        \"marks2016\": \"\",\n        \"classAttended2017\": \"BALBODH - 1\",\n        \"classRoomNo2017\": \"103\",\n        \"attendance2017\": \"2\",\n        \"marks2017\": \"\",\n        \"course2018\": \"Level 1\",\n        \"optIn2018\": 1\n}"
+		},
+		{
+			"id": "3742638c-e565-c219-c98b-58968646080e",
+			"headers": "",
+			"headerData": [],
+			"url": "http://localhost:8080/v1/students/3020",
+			"queryParams": [],
+			"events": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": null,
+			"dataMode": "params",
+			"version": 2,
+			"auth": null,
+			"time": 1518810021042,
+			"name": "GET",
+			"description": "",
+			"collectionId": "5fc8f385-74f8-35c4-0af5-ccd10ff5713a",
+			"responses": [],
+			"currentHelper": null,
+			"helperAttributes": null
+		},
+		{
+			"id": "ce7c60e0-c701-d69c-c9b2-05285f7cfcb1",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8080/v1/students/3020",
+			"queryParams": [],
+			"events": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"auth": null,
+			"time": 1518810012495,
+			"name": "PUT",
+			"description": "",
+			"collectionId": "5fc8f385-74f8-35c4-0af5-ccd10ff5713a",
+			"responses": [],
+			"currentHelper": null,
+			"helperAttributes": null,
+			"rawModeData": "{\n        \"name\": \"Shubham Gupta\",\n        \"fatherName\": \"Manish Kumar Jain\",\n        \"gender\": \"M\",\n        \"age\": \"10\",\n        \"education\": \"4th\",\n        \"occupation\": \"\",\n        \"motherMobile\": \"\",\n        \"fatherMobile\": \"9826022402\",\n        \"email\": \"shubhamgupta@gmail.com\",\n        \"address\": \"Palsia Indore\",\n        \"busStop\": \"\",\n        \"classAttended2016\": \"\",\n        \"classRoomNo2016\": \"\",\n        \"attendance2016\": \"\",\n        \"marks2016\": \"\",\n        \"classAttended2017\": \"BALBODH - 1\",\n        \"classRoomNo2017\": \"103\",\n        \"attendance2017\": \"2\",\n        \"marks2017\": \"\",\n        \"course2018\": \"Level 1\",\n        \"optIn2018\": 1\n}"
+		}
+	]
+}
