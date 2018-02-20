@@ -96,6 +96,10 @@ public class Student {
 	
 	@Column(name = "opt_in_2018")
 	private Integer optIn2018;
+	
+	@Column(name = "secret_key")
+	@JsonProperty(access = Access.READ_ONLY)
+	private String secretKey;
 
 	@Column(name = "created_date")
 	@Temporal(TemporalType.DATE)

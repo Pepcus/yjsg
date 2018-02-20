@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,7 @@ public class StudentService {
 	private StudentRepository studentRepository;
 
 	/**
+	 * Method to get student details
 	 * 
 	 * @param studentId
 	 * @return
@@ -52,6 +54,7 @@ public class StudentService {
 	}
 
 	/**
+	 * Method to create student record
 	 * 
 	 * @param student
 	 * @return
@@ -60,10 +63,26 @@ public class StudentService {
 		Date currentDate = Calendar.getInstance().getTime();
 		student.setCreatedDate(currentDate); 
 		student.setLastModifiedDate(currentDate);
-		return studentRepository.save(student); 
+		Student savedStudent =  studentRepository.save(student); 
+		String secretKey = generateSecretKey(savedStudent.getId());
+		savedStudent.setSecretKey(secretKey); 
+		return studentRepository.save(savedStudent);
+	}
+	
+	/**
+	 * Method to encrypt studentId
+	 * 
+	 * @param studentId
+	 * @return
+	 */
+	public String generateSecretKey(Integer studentId) {
+		Hashids hashids = new Hashids("YJSG");
+		String secretKey = hashids.encode(studentId);
+		return secretKey;
 	}
 
 	/**
+	 * Method to update student details
 	 * 
 	 * @param student
 	 * @param studentId

@@ -1,6 +1,7 @@
 package com.pepcus.appstudent.controller;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,10 +38,11 @@ public class StudentController {
 	 * @param studentId
 	 * @return
 	 */
-	@GetMapping(value = "/{studentId}")
-	public ResponseEntity<Student> getStudent(@PathVariable(value = "studentId") Integer studentId) {
-
-		Student student = studentService.getStudent(studentId);
+	@GetMapping(value = "/{studentId}/{secretKey}")
+	public ResponseEntity<Student> getStudent(@PathVariable Map<String, String> pathVars) {
+		
+		Integer studentId = Integer.valueOf(pathVars.get("studentId"));
+		Student student = studentService.getStudent(studentId); 
 		return new ResponseEntity<Student>(student, HttpStatus.OK);
 	}
 
@@ -66,10 +68,11 @@ public class StudentController {
 	 * @throws JsonProcessingException
 	 * @throws IOException
 	 */
-	@PutMapping(value = "/{studentId}")
-	public ResponseEntity<Student> updateStudent(@PathVariable(value = "studentId") Integer studentId,
+	@PutMapping(value = "/{studentId}/{secretKey}")
+	public ResponseEntity<Student> updateStudent(@PathVariable Map<String, String> pathVars,
 			@RequestBody String student) throws JsonProcessingException, IOException {
 		
+		Integer studentId = Integer.valueOf(pathVars.get("studentId"));
 		Student updatedStudent = studentService.updateStudent(student, studentId);
 		return new ResponseEntity<Student>(updatedStudent, HttpStatus.OK);
 	}

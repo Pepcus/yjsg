@@ -50,7 +50,7 @@
 			"id": "3742638c-e565-c219-c98b-58968646080e",
 			"headers": "",
 			"headerData": [],
-			"url": "http://localhost:8080/v1/students/3020",
+			"url": "http://localhost:8080/v1/students/3020/ef34",
 			"queryParams": [],
 			"events": [],
 			"pathVariables": {},
@@ -79,7 +79,7 @@
 					"enabled": true
 				}
 			],
-			"url": "http://localhost:8080/v1/students/3020",
+			"url": "http://localhost:8080/v1/students/3020/ef34",
 			"queryParams": [],
 			"events": [],
 			"pathVariables": {},

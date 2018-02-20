@@ -12,5 +12,7 @@ import com.pepcus.appstudent.entity.Student;
  *
  */
 public interface StudentRepository extends JpaRepository<Student, Integer> {
+	
+	public Student findByIdAndSecretKey(Integer id, String secretKey);
 
 }
