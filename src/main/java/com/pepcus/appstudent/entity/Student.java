@@ -10,8 +10,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
@@ -103,14 +104,20 @@ public class Student {
 
 	@Column(name = "created_date")
 	@Temporal(TemporalType.DATE)
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
-	@JsonProperty(access = Access.READ_ONLY)
-	private Date createdDate;
+	@JsonIgnore
+	private Date dateCreated;
 
 	@Column(name = "last_modified_date")
 	@Temporal(TemporalType.DATE)
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+	@JsonIgnore
+	private Date dateLastModified;
+	
+	@Transient
 	@JsonProperty(access = Access.READ_ONLY)
-	private Date lastModifiedDate;
+	private String createdDate;
+	
+	@Transient
+	@JsonProperty(access = Access.READ_ONLY)
+	private String lastModifiedDate;
 
 }

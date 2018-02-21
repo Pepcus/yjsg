@@ -1,5 +1,7 @@
 package com.pepcus.appstudent.service;
 
+import static com.pepcus.appstudent.util.CommonUtil.convertDateToString;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -36,6 +38,18 @@ public class StudentService {
 	 */
 	public Student getStudent(Integer studentId) {
 		Student student = validateStudent(studentId);
+		
+		// convert created date to string
+		String createdDate = convertDateToString(student.getDateCreated());
+		
+		// Set created date for student
+		student.setCreatedDate(createdDate);
+		
+		// convert last modified date to string
+		String lastModifiedDate = convertDateToString(student.getDateLastModified());
+		
+		// Set last modified date for student
+		student.setLastModifiedDate(lastModifiedDate); 
 		return student;
 	}
 
@@ -61,16 +75,30 @@ public class StudentService {
 	 */
 	public Student createStudent(Student student) {
 		Date currentDate = Calendar.getInstance().getTime();
-		student.setCreatedDate(currentDate); 
-		student.setLastModifiedDate(currentDate);
-		Student savedStudent =  studentRepository.save(student); 
+		student.setDateCreated(currentDate); 
+		student.setDateLastModified(currentDate); 
+		Student savedStudent =  studentRepository.save(student);
+		
+		// convert created date to string
+		String createdDate = convertDateToString(savedStudent.getDateCreated());
+		
+		// Set created date for student
+		savedStudent.setCreatedDate(createdDate);
+		
+		// convert last modified date to string
+		String lastModifiedDate = convertDateToString(savedStudent.getDateLastModified());
+		
+		// Set last modified date for student
+		savedStudent.setLastModifiedDate(lastModifiedDate);
+		
+		// Generate secretKey from studentId
 		String secretKey = generateSecretKey(savedStudent.getId());
 		savedStudent.setSecretKey(secretKey); 
 		return studentRepository.save(savedStudent);
 	}
 	
 	/**
-	 * Method to encrypt studentId
+	 * Method to generate secretKey by studentId
 	 * 
 	 * @param studentId
 	 * @return
@@ -94,8 +122,21 @@ public class StudentService {
 		Student std = validateStudent(studentId);
 		Student updatedStudent = update(student, std);
 		Date currentDate = Calendar.getInstance().getTime();
-		updatedStudent.setLastModifiedDate(currentDate); 
-		return studentRepository.save(updatedStudent);
+		updatedStudent.setDateLastModified(currentDate);  
+		Student studentInDB = studentRepository.save(updatedStudent);
+		
+		// convert created date to string
+		String createdDate = convertDateToString(studentInDB.getDateCreated());
+		
+		// Set created date for student
+		studentInDB.setCreatedDate(createdDate);
+		
+		// convert last modified date to string
+		String lastModifiedDate = convertDateToString(studentInDB.getDateLastModified());
+		
+		// Set last modified date for student
+		studentInDB.setLastModifiedDate(lastModifiedDate);
+		return studentInDB;
 	}
 	
 	/**
