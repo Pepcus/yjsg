@@ -5,8 +5,8 @@ import static com.pepcus.appstudent.util.CommonUtil.convertDateToString;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 
-import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,20 +37,14 @@ public class StudentService {
 	 * @return
 	 */
 	public Student getStudent(Integer studentId) {
-		Student student = validateStudent(studentId);
-		
-		// convert created date to string
-		String createdDate = convertDateToString(student.getDateCreated());
-		
-		// Set created date for student
-		student.setCreatedDate(createdDate);
-		
-		// convert last modified date to string
-		String lastModifiedDate = convertDateToString(student.getDateLastModified());
-		
-		// Set last modified date for student
-		student.setLastModifiedDate(lastModifiedDate); 
-		return student;
+		Student savedStudent = validateStudent(studentId);
+		if (null !=savedStudent.getDateLastModifiedInDB()) {
+			savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
+		}
+		if (null != savedStudent.getDateLastModifiedInDB()) {
+			savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
+		}
+		return savedStudent;
 	}
 
 	/**
@@ -75,21 +69,13 @@ public class StudentService {
 	 */
 	public Student createStudent(Student student) {
 		Date currentDate = Calendar.getInstance().getTime();
-		student.setDateCreated(currentDate); 
-		student.setDateLastModified(currentDate); 
+		student.setDateCreatedInDB(currentDate); 
+		student.setDateLastModifiedInDB(currentDate); 
 		Student savedStudent =  studentRepository.save(student);
-		
-		// convert created date to string
-		String createdDate = convertDateToString(savedStudent.getDateCreated());
-		
-		// Set created date for student
-		savedStudent.setCreatedDate(createdDate);
-		
-		// convert last modified date to string
-		String lastModifiedDate = convertDateToString(savedStudent.getDateLastModified());
-		
-		// Set last modified date for student
-		savedStudent.setLastModifiedDate(lastModifiedDate);
+
+		savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
+		savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
+	
 		
 		// Generate secretKey from studentId
 		String secretKey = generateSecretKey(savedStudent.getId());
@@ -104,9 +90,8 @@ public class StudentService {
 	 * @return
 	 */
 	public String generateSecretKey(Integer studentId) {
-		Hashids hashids = new Hashids("YJSG");
-		String secretKey = hashids.encode(studentId);
-		return secretKey;
+		Random random = new Random();
+		return String.format("%04d", random.nextInt(10000));
 	}
 
 	/**
@@ -122,20 +107,16 @@ public class StudentService {
 		Student std = validateStudent(studentId);
 		Student updatedStudent = update(student, std);
 		Date currentDate = Calendar.getInstance().getTime();
-		updatedStudent.setDateLastModified(currentDate);  
+		updatedStudent.setDateLastModifiedInDB(currentDate);  
 		Student studentInDB = studentRepository.save(updatedStudent);
 		
-		// convert created date to string
-		String createdDate = convertDateToString(studentInDB.getDateCreated());
-		
-		// Set created date for student
-		studentInDB.setCreatedDate(createdDate);
-		
-		// convert last modified date to string
-		String lastModifiedDate = convertDateToString(studentInDB.getDateLastModified());
-		
-		// Set last modified date for student
-		studentInDB.setLastModifiedDate(lastModifiedDate);
+		if (null != studentInDB.getDateCreatedInDB()) {
+			String createdDate = convertDateToString(studentInDB.getDateCreatedInDB());
+			studentInDB.setCreatedDate(createdDate);
+		}
+				
+		studentInDB.setDateLastModifiedInDB(new Date());
+		studentInDB.setLastModifiedDate(convertDateToString(studentInDB.getDateLastModifiedInDB()));
 		return studentInDB;
 	}
 	

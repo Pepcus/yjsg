@@ -5,14 +5,15 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.AllArgsConstructor;
+
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import com.pepcus.appstudent.exception.AuthorizationFailedException;
 import com.pepcus.appstudent.service.AuthorizationManager;
-
-import lombok.AllArgsConstructor;
 
 /**
  * This layer is used to intercept requests coming from client and 
@@ -33,24 +34,26 @@ public class ApiSecretKeyInterceptor extends HandlerInterceptorAdapter {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
 		
+		if (request.getMethod().equals(RequestMethod.POST.name())) {
+			return true;
+		}
+		
 		Map<String, String> pathVariables = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 		
 		Integer studentId = null;
 		String id = pathVariables.get("studentId");
 		String secretKey = pathVariables.get("secretKey");
 		
+		if (StringUtils.isEmpty(secretKey) || StringUtils.isEmpty(id)) {
+            throw new AuthorizationFailedException("Unauthorized to access the service");
+		}
+		if (secretKey.equals(adminSecretKey)) { // admin doesn't require individual security code for access
+			return true;
+		} 
+				
 		if (!StringUtils.isEmpty(id)) {
 			studentId = Integer.valueOf(id);
 		}
-		
-		if (adminSecretKey.equals(secretKey)) {
-			return true;
-		}
-		
-		if (request.getMethod().equals(RequestMethod.POST.name())) {
-			return true;
-		}
-		
 		return authManager.checkAuthorization(studentId, secretKey); 
 	}
 

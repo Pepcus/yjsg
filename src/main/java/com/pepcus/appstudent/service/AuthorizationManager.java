@@ -29,7 +29,7 @@ public class AuthorizationManager {
 	public boolean checkAuthorization(Integer studentId, String secretKey) {
 
         //Validate studentId and secretKey
-        if (StringUtils.isEmpty(studentId) || StringUtils.isEmpty(secretKey) || null == studentRepository.findByIdAndSecretKey(studentId, secretKey)) {  
+        if (null == studentRepository.findByIdAndSecretKey(studentId, secretKey)) {  
             throw new AuthorizationFailedException("Unauthorized to access the service");
         }
         

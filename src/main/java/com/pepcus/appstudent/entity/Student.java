@@ -105,12 +105,12 @@ public class Student {
 	@Column(name = "created_date")
 	@Temporal(TemporalType.DATE)
 	@JsonIgnore
-	private Date dateCreated;
+	private Date dateCreatedInDB;
 
 	@Column(name = "last_modified_date")
 	@Temporal(TemporalType.DATE)
 	@JsonIgnore
-	private Date dateLastModified;
+	private Date dateLastModifiedInDB;
 	
 	@Transient
 	@JsonProperty(access = Access.READ_ONLY)
