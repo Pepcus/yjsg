@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.repository.StudentRepository;
+import com.pepcus.appstudent.util.SMSUtil;
 
 /**
  * This is a service layer which generates response 
@@ -29,6 +31,9 @@ public class StudentService {
 
 	@Autowired
 	private StudentRepository studentRepository;
+	
+	@Value("${com.pepcus.appstudent.admin.sendSMS}")
+	private boolean isSendSMS;
 
 	/**
 	 * Method to get student details
@@ -80,9 +85,17 @@ public class StudentService {
 		// Generate secretKey from studentId
 		String secretKey = generateSecretKey(savedStudent.getId());
 		savedStudent.setSecretKey(secretKey); 
+		
+		//send SMS only if isSendSMS = true
+		if (isSendSMS) {
+			SMSUtil.sendSMS(student);
+		}
+		
 		return studentRepository.save(savedStudent);
 	}
 	
+
+
 	/**
 	 * Method to generate secretKey by studentId
 	 * 

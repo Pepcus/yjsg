@@ -57,7 +57,7 @@ public class Student {
 	private String motherMobile;
 
 	@Column(name = "father_mobile")
-	private String fatherMobile;
+	private String mobile;
 
 	@Column(name = "email")
 	private String email;

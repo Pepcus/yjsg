@@ -4,7 +4,6 @@
 
   <groupId>yjsgApp</groupId>
   <artifactId>yjsgApp</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>yjsgApp</name>
@@ -68,6 +67,12 @@
 		    <artifactId>hashids</artifactId>
 		    <version>1.0.1</version>
 	</dependency>
+	<dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpclient</artifactId>
+    <version>4.5.3</version>
+	</dependency>
+		
   </dependencies>
   
   <build>
