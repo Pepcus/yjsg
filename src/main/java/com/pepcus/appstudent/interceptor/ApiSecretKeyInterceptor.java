@@ -13,6 +13,7 @@ import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.pepcus.appstudent.exception.AuthorizationFailedException;
+import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.service.AuthorizationManager;
 
 /**
@@ -51,8 +52,10 @@ public class ApiSecretKeyInterceptor extends HandlerInterceptorAdapter {
 			return true;
 		} 
 				
-		if (!StringUtils.isEmpty(id)) {
+		try {
 			studentId = Integer.valueOf(id);
+		} catch (NumberFormatException e) {
+			throw new BadRequestException(id + " is not a valid studentId");
 		}
 		return authManager.checkAuthorization(studentId, secretKey); 
 	}
