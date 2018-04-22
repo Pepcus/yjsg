@@ -1,6 +1,7 @@
 package com.pepcus.appstudent.controller;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,7 +37,7 @@ public class StudentController {
 	/**
 	 * Used to fetch student record by studentId
 	 * 
-	 * @param studentId
+	 * @param pathVars
 	 * @return
 	 */
 	@GetMapping(value = "/{studentId}/{secretKey}")
@@ -44,6 +46,18 @@ public class StudentController {
 		Integer studentId = Integer.valueOf(pathVars.get("studentId"));
 		Student student = studentService.getStudent(studentId); 
 		return new ResponseEntity<Student>(student, HttpStatus.OK);
+	}
+	
+	/**
+	 * Used to fetch all students based on specific search criteria.
+	 * 
+	 * @param pathVars
+	 * @return
+	 */
+	@GetMapping(value = "/{secretKey}")
+	public List<Student> getAllStudents(@PathVariable Map<String, String> pathVars, 
+			@RequestParam Map<String, String> allRequestParams) {
+		return studentService.getAllStudents(allRequestParams); 
 	}
 
 	/**
@@ -62,7 +76,7 @@ public class StudentController {
 	/**
 	 * Used to update student record by studentId
 	 * 
-	 * @param studentId
+	 * @param pathVars
 	 * @param student
 	 * @return
 	 * @throws JsonProcessingException

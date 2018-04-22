@@ -1,5 +1,10 @@
 package com.pepcus.appstudent.response;
 
+import static com.pepcus.appstudent.util.CommonUtil.TOTAL_RECORDS;
+import static com.pepcus.appstudent.util.CommonUtil.getRequestAttribute;
+
+import java.util.List;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -73,8 +78,20 @@ public class ResponseHandler implements ResponseBodyAdvice<Object> {
 			apiResponse.setStudent((Student) body);
 		}
 
-		if (httpRequest.getMethod().equals(HttpMethod.GET) && body instanceof Student) {
-			apiResponse.setStudent((Student) body);
+		if (httpRequest.getMethod().equals(HttpMethod.GET)) {
+			if (body instanceof Student) {
+				apiResponse.setStudent((Student) body);
+			} else if (body instanceof List){
+				if ((List)body == null || ((List)body).isEmpty()) {
+					apiResponse.setMessage("No records found for request.");
+				} else {
+					Object totalRecObj = getRequestAttribute(TOTAL_RECORDS);
+			        if (totalRecObj != null) {
+			            apiResponse.setTotalRecords(String.valueOf(totalRecObj));
+			        }
+					apiResponse.setStudents((List)body);
+				}
+			}
 		}
 		return apiResponse;
 	}

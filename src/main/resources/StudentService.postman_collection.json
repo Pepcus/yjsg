@@ -2,23 +2,25 @@
 	"id": "5fc8f385-74f8-35c4-0af5-ccd10ff5713a",
 	"name": "StudentService",
 	"description": "",
+	"auth": null,
+	"events": [],
+	"variables": [],
 	"order": [
 		"2b17f41b-b527-16d9-6288-f1efc19a906c",
 		"ce7c60e0-c701-d69c-c9b2-05285f7cfcb1",
-		"3742638c-e565-c219-c98b-58968646080e"
+		"3742638c-e565-c219-c98b-58968646080e",
+		"81c63310-a926-4043-bf7a-601b05674ba7"
 	],
-	"folders": [],
 	"folders_order": [],
-	"timestamp": 1518453915801,
-	"owner": 0,
-	"public": false,
-	"events": [],
-	"variables": [],
-	"auth": null,
+	"folders": [],
 	"requests": [
 		{
 			"id": "2b17f41b-b527-16d9-6288-f1efc19a906c",
-			"headers": "Content-Type: application/json\n",
+			"name": "Create Student",
+			"url": "http://localhost:8080/v1/students",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
 			"headerData": [
 				{
 					"key": "Content-Type",
@@ -27,50 +29,79 @@
 					"enabled": true
 				}
 			],
-			"url": "http://localhost:8080/v1/students",
-			"queryParams": [],
-			"events": [],
-			"pathVariables": {},
-			"pathVariableData": [],
 			"method": "POST",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
+			"pathVariableData": [],
+			"queryParams": [],
 			"auth": null,
-			"time": 1518809986658,
-			"name": "POST",
-			"description": "",
-			"collectionId": "5fc8f385-74f8-35c4-0af5-ccd10ff5713a",
-			"responses": [],
-			"currentHelper": null,
-			"helperAttributes": null,
-			"rawModeData": "{\n        \"name\": \"Shubham Gupta\",\n        \"fatherName\": \"Manish Kumar Jain\",\n        \"gender\": \"M\",\n        \"age\": \"10\",\n        \"education\": \"4th\",\n        \"occupation\": \"\",\n        \"motherMobile\": \"\",\n        \"fatherMobile\": \"9826022402\",\n        \"email\": \"shubhamgupta@gmail.com\",\n        \"address\": \"Palsia Indore\",\n        \"busStop\": \"\",\n        \"classAttended2016\": \"\",\n        \"classRoomNo2016\": \"\",\n        \"attendance2016\": \"\",\n        \"marks2016\": \"\",\n        \"classAttended2017\": \"BALBODH - 1\",\n        \"classRoomNo2017\": \"103\",\n        \"attendance2017\": \"2\",\n        \"marks2017\": \"\",\n        \"course2018\": \"Level 1\",\n        \"optIn2018\": 1\n}"
+			"events": [],
+			"folder": null,
+			"rawModeData": "{\n        \"name\": \"Vinay Gupta\",\n        \"fatherName\": \"Ajay Gupta\",\n        \"gender\": \"M\",\n        \"age\": \"10\",\n        \"education\": \"4th\",\n        \"occupation\": \"\",\n        \"motherMobile\": \"\",\n        \"mobile\": \"9826022402\",\n        \"email\": \"vinaygupta@gmail.com\",\n        \"address\": \"Palsia Indore\",\n        \"busStop\": \"\",\n        \"classAttended2016\": \"\",\n        \"classRoomNo2016\": \"\",\n        \"attendance2016\": \"\",\n        \"marks2016\": \"\",\n        \"classAttended2017\": \"BALBODH - 1\",\n        \"classRoomNo2017\": \"103\",\n        \"attendance2017\": \"2\",\n        \"marks2017\": \"\",\n        \"course2018\": \"Level 4\",\n        \"optIn2018\": 0\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
 		},
 		{
 			"id": "3742638c-e565-c219-c98b-58968646080e",
-			"headers": "",
+			"name": "Get Student",
+			"url": "http://localhost:8080/v1/students/3020/2770",
+			"description": "",
+			"data": [],
+			"dataMode": "params",
 			"headerData": [],
-			"url": "http://localhost:8080/v1/students/3020/ef34",
-			"queryParams": [],
-			"events": [],
-			"pathVariables": {},
-			"pathVariableData": [],
 			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [],
+			"auth": null,
+			"events": [],
+			"folder": null,
+			"headers": "",
+			"pathVariables": {}
+		},
+		{
+			"id": "81c63310-a926-4043-bf7a-601b05674ba7",
+			"name": "Get All Students Based On Filter",
+			"url": "http://localhost:8080/v1/students/451725?id=3020&name=An&mobile=9826022402",
+			"description": "",
 			"data": null,
 			"dataMode": "params",
-			"version": 2,
+			"headerData": [],
+			"method": "GET",
+			"pathVariableData": [],
+			"queryParams": [
+				{
+					"key": "id",
+					"value": "3020",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "name",
+					"value": "An",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "mobile",
+					"value": "9826022402",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
 			"auth": null,
-			"time": 1518810021042,
-			"name": "GET",
-			"description": "",
-			"collectionId": "5fc8f385-74f8-35c4-0af5-ccd10ff5713a",
-			"responses": [],
-			"currentHelper": null,
-			"helperAttributes": null
+			"events": [],
+			"folder": null,
+			"headers": "",
+			"pathVariables": {}
 		},
 		{
 			"id": "ce7c60e0-c701-d69c-c9b2-05285f7cfcb1",
-			"headers": "Content-Type: application/json\n",
+			"name": "Update Student",
+			"url": "http://localhost:8080/v1/students/3020/2770",
+			"description": "",
+			"data": [],
+			"dataMode": "raw",
 			"headerData": [
 				{
 					"key": "Content-Type",
@@ -79,24 +110,15 @@
 					"enabled": true
 				}
 			],
-			"url": "http://localhost:8080/v1/students/3020/ef34",
-			"queryParams": [],
-			"events": [],
-			"pathVariables": {},
-			"pathVariableData": [],
 			"method": "PUT",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
+			"pathVariableData": [],
+			"queryParams": [],
 			"auth": null,
-			"time": 1518810012495,
-			"name": "PUT",
-			"description": "",
-			"collectionId": "5fc8f385-74f8-35c4-0af5-ccd10ff5713a",
-			"responses": [],
-			"currentHelper": null,
-			"helperAttributes": null,
-			"rawModeData": "{\n        \"name\": \"Shubham Gupta\",\n        \"fatherName\": \"Manish Kumar Jain\",\n        \"gender\": \"M\",\n        \"age\": \"10\",\n        \"education\": \"4th\",\n        \"occupation\": \"\",\n        \"motherMobile\": \"\",\n        \"fatherMobile\": \"9826022402\",\n        \"email\": \"shubhamgupta@gmail.com\",\n        \"address\": \"Palsia Indore\",\n        \"busStop\": \"\",\n        \"classAttended2016\": \"\",\n        \"classRoomNo2016\": \"\",\n        \"attendance2016\": \"\",\n        \"marks2016\": \"\",\n        \"classAttended2017\": \"BALBODH - 1\",\n        \"classRoomNo2017\": \"103\",\n        \"attendance2017\": \"2\",\n        \"marks2017\": \"\",\n        \"course2018\": \"Level 1\",\n        \"optIn2018\": 1\n}"
+			"events": [],
+			"folder": null,
+			"rawModeData": "{\n        \"name\": \"Shubham Gupta\",\n        \"fatherName\": \"Manish Kumar Jain\",\n        \"gender\": \"M\",\n        \"age\": \"10\",\n        \"education\": \"4th\",\n        \"occupation\": \"\",\n        \"motherMobile\": \"\",\n        \"mobile\": \"9826022402\",\n        \"email\": \"shubhamgupta@gmail.com\",\n        \"address\": \"Palsia Indore\",\n        \"busStop\": \"\",\n        \"classAttended2016\": \"\",\n        \"classRoomNo2016\": \"\",\n        \"attendance2016\": \"\",\n        \"marks2016\": \"\",\n        \"classAttended2017\": \"BALBODH - 1\",\n        \"classRoomNo2017\": \"103\",\n        \"attendance2017\": \"2\",\n        \"marks2017\": \"\",\n        \"course2018\": \"Level 1\",\n        \"optIn2018\": 1,\n        \"remark\": \"This is test remark.\"\n}",
+			"headers": "Content-Type: application/json\n",
+			"pathVariables": {}
 		}
 	]
 }

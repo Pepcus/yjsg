@@ -1,15 +1,26 @@
 package com.pepcus.appstudent.service;
 
+import static com.pepcus.appstudent.util.CommonUtil.TOTAL_RECORDS;
 import static com.pepcus.appstudent.util.CommonUtil.convertDateToString;
+import static com.pepcus.appstudent.util.CommonUtil.setRequestAttribute;
+import static com.pepcus.appstudent.util.EntitySearchUtil.getEntitySearchSpecification;
 
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,6 +43,9 @@ public class StudentService {
 	@Autowired
 	private StudentRepository studentRepository;
 	
+	@PersistenceContext
+	private EntityManager em;
+	
 	@Value("${com.pepcus.appstudent.admin.sendSMS}")
 	private boolean isSendSMS;
 
@@ -43,11 +57,11 @@ public class StudentService {
 	 */
 	public Student getStudent(Integer studentId) {
 		Student savedStudent = validateStudent(studentId);
-		if (null !=savedStudent.getDateLastModifiedInDB()) {
+		if (null != savedStudent.getDateLastModifiedInDB()) {
 			savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
 		}
-		if (null != savedStudent.getDateLastModifiedInDB()) {
-			savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
+		if (null != savedStudent.getDateCreatedInDB()) {
+			savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateCreatedInDB()));
 		}
 		return savedStudent;
 	}
@@ -72,37 +86,42 @@ public class StudentService {
 	 * @param student
 	 * @return
 	 */
+	@Transactional(propagation = Propagation.REQUIRED)
 	public Student createStudent(Student student) {
 		Date currentDate = Calendar.getInstance().getTime();
 		student.setDateCreatedInDB(currentDate); 
-		student.setDateLastModifiedInDB(currentDate); 
+		student.setDateLastModifiedInDB(currentDate);
+		
+		// Generate secretKey for student
+		String secretKey = generateSecretKey();
+		student.setSecretKey(secretKey);
+				
 		Student savedStudent =  studentRepository.save(student);
 
 		savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
-		savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
+		savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateCreatedInDB()));
 	
-		
-		// Generate secretKey from studentId
-		String secretKey = generateSecretKey(savedStudent.getId());
-		savedStudent.setSecretKey(secretKey); 
-		
 		//send SMS only if isSendSMS = true
 		if (isSendSMS) {
-			SMSUtil.sendSMS(student);
+			SMSUtil.sendSMS(savedStudent);
 		}
-		
-		return studentRepository.save(savedStudent);
+	
+		// This is required otherwise insertable=false field (remark) is not synced with 
+        // database when remark field is passed in payload .
+        em.flush();
+        em.refresh(savedStudent);
+        
+		return savedStudent;
 	}
 	
 
 
 	/**
-	 * Method to generate secretKey by studentId
+	 * Method to generate secretKey for student
 	 * 
-	 * @param studentId
 	 * @return
 	 */
-	public String generateSecretKey(Integer studentId) {
+	public String generateSecretKey() {
 		Random random = new Random();
 		return String.format("%04d", random.nextInt(10000));
 	}
@@ -124,11 +143,10 @@ public class StudentService {
 		Student studentInDB = studentRepository.save(updatedStudent);
 		
 		if (null != studentInDB.getDateCreatedInDB()) {
-			String createdDate = convertDateToString(studentInDB.getDateCreatedInDB());
-			studentInDB.setCreatedDate(createdDate);
+			studentInDB.setCreatedDate(convertDateToString(studentInDB.getDateCreatedInDB()));
 		}
 				
-		studentInDB.setDateLastModifiedInDB(new Date());
+		//studentInDB.setDateLastModifiedInDB(new Date());
 		studentInDB.setLastModifiedDate(convertDateToString(studentInDB.getDateLastModifiedInDB()));
 		return studentInDB;
 	}
@@ -148,5 +166,30 @@ public class StudentService {
 
         return updater.readValue(json);
     }
+
+    /**
+     * Method to get all students based on specific search criteria 
+     * 
+     * @param allRequestParams
+     * @return
+     */
+	public List<Student> getAllStudents(Map<String, String> allRequestParams) {
+		Specification<Student> spec = getEntitySearchSpecification(allRequestParams, Student.class, new Student());
+
+		//Get and set the total number of records
+        setRequestAttribute(TOTAL_RECORDS, studentRepository.count(spec));
+        
+		List<Student> students = studentRepository.findAll(spec);
+		students.forEach(student -> {
+			if (null != student.getDateLastModifiedInDB()) {
+				student.setLastModifiedDate(convertDateToString(student.getDateLastModifiedInDB()));
+			}
+			if (null != student.getDateCreatedInDB()) {
+				student.setCreatedDate(convertDateToString(student.getDateCreatedInDB()));
+			}
+		});
+		
+		return students;
+	}
 	
 }

@@ -1,5 +1,7 @@
 package com.pepcus.appstudent.response;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.pepcus.appstudent.entity.Student;
@@ -21,4 +23,6 @@ public class ApiResponse {
 	private String code;
 	private Student student;
 	private String message;
+	private String totalRecords;
+	private List<Student> students;
 }

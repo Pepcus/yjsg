@@ -45,13 +45,18 @@ public class ApiSecretKeyInterceptor extends HandlerInterceptorAdapter {
 		String id = pathVariables.get("studentId");
 		String secretKey = pathVariables.get("secretKey");
 		
-		if (StringUtils.isEmpty(secretKey) || StringUtils.isEmpty(id)) {
+		if (StringUtils.isEmpty(secretKey)) {
             throw new AuthorizationFailedException("Unauthorized to access the service");
 		}
+		
 		if (secretKey.equals(adminSecretKey)) { // admin doesn't require individual security code for access
 			return true;
 		} 
 				
+		if (StringUtils.isEmpty(id)) {
+			throw new AuthorizationFailedException("Unauthorized to access the service");
+		}
+		
 		try {
 			studentId = Integer.valueOf(id);
 		} catch (NumberFormatException e) {

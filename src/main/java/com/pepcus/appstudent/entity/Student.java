@@ -13,6 +13,8 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
@@ -28,6 +30,7 @@ import lombok.Data;
 @Entity
 @Table(name = "student")
 @Data
+@JsonInclude(Include.NON_EMPTY)
 public class Student {
 
 	@Id
@@ -101,6 +104,9 @@ public class Student {
 	@Column(name = "secret_key")
 	@JsonProperty(access = Access.READ_ONLY)
 	private String secretKey;
+	
+	@Column(name = "remark", insertable = false)
+	private String remark;
 
 	@Column(name = "created_date")
 	@Temporal(TemporalType.DATE)

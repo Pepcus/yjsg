@@ -2414,5 +2414,9 @@ insert into `student` (`id`,`name`,`father_name`,`gender`,`age`,`education`,`occ
 
 ALTER TABLE `student` ADD COLUMN `secret_key` varchar(255) AFTER `opt_in_2018`;
 
+/*Add a new column `remark` for table `student` */
+
+ALTER TABLE `student` ADD COLUMN `remark` varchar(255) AFTER `secret_key`;
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
