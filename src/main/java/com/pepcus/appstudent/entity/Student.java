@@ -70,6 +70,9 @@ public class Student {
 
 	@Column(name = "bus_stop")
 	private String busStop;
+	
+	@Column(name = "bus_num")
+	private String busNumber;
 
 	@Column(name = "class_attended_2016")
 	private String classAttended2016;
@@ -94,6 +97,9 @@ public class Student {
 
 	@Column(name = "marks_2017")
 	private String marks2017;
+	
+	@Column(name = "class_room_no_2018")
+	private Integer classRoomNo2018;
 	
 	@Column(name = "course_2018")
 	private String course2018;

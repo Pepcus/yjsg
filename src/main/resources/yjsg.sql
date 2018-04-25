@@ -2418,5 +2418,13 @@ ALTER TABLE `student` ADD COLUMN `secret_key` varchar(255) AFTER `opt_in_2018`;
 
 ALTER TABLE `student` ADD COLUMN `remark` varchar(255) AFTER `secret_key`;
 
+/*Add a new column `bus_num` for table `student` */
+
+ALTER TABLE `student` ADD COLUMN `bus_num` varchar(20) AFTER `bus_stop`;
+
+/*Add a new column `class_room_no_2018` for table `student` */
+
+ALTER TABLE `student` ADD COLUMN `class_room_no_2018` int AFTER `marks_2017`;
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
