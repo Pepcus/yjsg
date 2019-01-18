@@ -157,8 +157,8 @@ public class StudentController {
 
 	@RequestMapping(value = "/update_opt_in_2019/uploadfile", method = RequestMethod.POST)
 	public ResponseEntity<ApiResponse> updateUploadFile(
-			@RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request) {
-		fileImportService.updateStudentOptIn(file, request);
+			@RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request)throws IOException, IllegalAccessException, InvocationTargetException {
+		fileImportService.uploadStudentAttendance(file, request);
 		return new ResponseEntity<ApiResponse>(HttpStatus.OK);
 	}
 

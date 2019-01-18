@@ -226,13 +226,30 @@ System.out.println(" bulkupdateStudentAttendance Caledddddddddddddddddddddd");
 		for(Student s : stds){
 			BeanPropertyValueEqualsPredicate predicate = new BeanPropertyValueEqualsPredicate("id", s.getId());
 			Student s1 = (Student) org.apache.commons.collections.CollectionUtils.find(student, predicate);
+			if(s1.getDay1()!=null){
 			s.setDay1(s1.getDay1());
+			}
+			if(s1.getDay2()!=null){
 			s.setDay2(s1.getDay2());
+			}
+			if(s1.getDay3()!=null){
 			s.setDay3(s1.getDay3());
+			}
+			if(s1.getDay4()!=null){
 			s.setDay4(s1.getDay4());
+			}
+			if(s1.getDay5()!=null){
 			s.setDay5(s1.getDay5());
-			s.setDay6(s1.getDay6());			
+			}
+			if(s1.getDay6()!=null){
+			s.setDay6(s1.getDay6());
+			}
+			if(s1.getDay7()!=null){
 			s.setDay7(s1.getDay7());
+			}
+			if(s1.getOptIn2019()!=null && !s1.getOptIn2019().isEmpty()){
+				s.setOptIn2019(s1.getOptIn2019());
+				}
 		}
 		
 		studentRepository.save(stds);
