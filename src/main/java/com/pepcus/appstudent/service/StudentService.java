@@ -4,34 +4,54 @@ import static com.pepcus.appstudent.util.CommonUtil.TOTAL_RECORDS;
 import static com.pepcus.appstudent.util.CommonUtil.convertDateToString;
 import static com.pepcus.appstudent.util.CommonUtil.setRequestAttribute;
 import static com.pepcus.appstudent.util.EntitySearchUtil.getEntitySearchSpecification;
+import static com.pepcus.appstudent.exception.ApplicationException.*;
+import static com.pepcus.appstudent.util.ApplicationConstants.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Root;
 
+import org.apache.commons.beanutils.BeanPropertyValueEqualsPredicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.pepcus.appstudent.entity.Customer;
 import com.pepcus.appstudent.entity.Student;
+import com.pepcus.appstudent.entity.StudentUploadAttendance;
+import com.pepcus.appstudent.exception.APIErrorCodes;
+import com.pepcus.appstudent.exception.ApplicationException;
 import com.pepcus.appstudent.exception.BadRequestException;
+import com.pepcus.appstudent.repository.CustomerRepository;
 import com.pepcus.appstudent.repository.StudentRepository;
 import com.pepcus.appstudent.util.SMSUtil;
+import com.pepcus.appstudent.controller.*;
 
 /**
- * This is a service layer which generates response 
+ * This is a service layer which generates response
  * 
  * @author Shubham Solanki
  * @since 12-02-2018
@@ -42,10 +62,13 @@ public class StudentService {
 
 	@Autowired
 	private StudentRepository studentRepository;
-	
+
+	@Autowired
+	private CustomerRepository customerRepository;
+
 	@PersistenceContext
 	private EntityManager em;
-	
+
 	@Value("${com.pepcus.appstudent.admin.sendSMS}")
 	private boolean isSendSMS;
 
@@ -79,6 +102,23 @@ public class StudentService {
 		}
 		return student;
 	}
+	
+	private List<Student> validateListStudent(List<Integer> ids) {
+		List<Student> students = studentRepository.findByIdIn(ids);
+		if (null == students) {
+			throw new BadRequestException("student not found by studentId=" + ids);
+		}
+		return students;
+	}
+	
+	/*private List<StudentUploadAttendance> validateListStudentUplload(List<Integer> ids) {
+		
+		List<StudentUploadAttendance> students = studentRepository.findByIdIn(ids);
+		if (null == students) {
+			throw new BadRequestException("student not found by studentId=" + ids);
+		}
+		return students;
+	}*/
 
 	/**
 	 * Method to create student record
@@ -89,32 +129,31 @@ public class StudentService {
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Student createStudent(Student student) {
 		Date currentDate = Calendar.getInstance().getTime();
-		student.setDateCreatedInDB(currentDate); 
+		student.setDateCreatedInDB(currentDate);
 		student.setDateLastModifiedInDB(currentDate);
-		
+
 		// Generate secretKey for student
 		String secretKey = generateSecretKey();
 		student.setSecretKey(secretKey);
-				
-		Student savedStudent =  studentRepository.save(student);
+
+		Student savedStudent = studentRepository.save(student);
 
 		savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
 		savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateCreatedInDB()));
-	
-		//send SMS only if isSendSMS = true
+
+		// send SMS only if isSendSMS = true
 		if (isSendSMS) {
-			SMSUtil.sendSMS(savedStudent);
+			// SMSUtil.sendSMS(savedStudent);
 		}
-	
-		// This is required otherwise insertable=false field (remark) is not synced with 
-        // database when remark field is passed in payload .
-        em.flush();
-        em.refresh(savedStudent);
-        
+
+		// This is required otherwise insertable=false field (remark) is not
+		// synced with
+		// database when remark field is passed in payload .
+		em.flush();
+		em.refresh(savedStudent);
+
 		return savedStudent;
 	}
-	
-
 
 	/**
 	 * Method to generate secretKey for student
@@ -137,48 +176,107 @@ public class StudentService {
 	 */
 	public Student updateStudent(String student, Integer studentId) throws JsonProcessingException, IOException {
 		Student std = validateStudent(studentId);
+
 		Student updatedStudent = update(student, std);
 		Date currentDate = Calendar.getInstance().getTime();
-		updatedStudent.setDateLastModifiedInDB(currentDate);  
+
+		updatedStudent.setDateLastModifiedInDB(currentDate);
+
 		Student studentInDB = studentRepository.save(updatedStudent);
-		
+
 		if (null != studentInDB.getDateCreatedInDB()) {
 			studentInDB.setCreatedDate(convertDateToString(studentInDB.getDateCreatedInDB()));
 		}
-				
-		//studentInDB.setDateLastModifiedInDB(new Date());
+
+		// studentInDB.setDateLastModifiedInDB(new Date());
 		studentInDB.setLastModifiedDate(convertDateToString(studentInDB.getDateLastModifiedInDB()));
 		return studentInDB;
 	}
+
+	
+	// for updating reprintId in bulk
+	public void bulkupdateStudent(List<Integer> studentIds,String reprintid) throws JsonProcessingException, IOException {
+		List<Student> stds = validateListStudent(studentIds);
+		
+		/*for(Student std:stds){
+			std.setReprint_id(reprintid);
+		}*/
+		List<Student> finalList=new ArrayList<Student>();
+		Iterator<Student> it=stds.iterator();
+		while (it.hasNext()) {
+			Student students = (Student) it.next();						
+			students.setReprint_id(reprintid);
+			finalList.add(students);
+		}
+		
+		studentRepository.save(finalList);
+	}
+	
+	
+	public void bulkupdateStudentAttendance(List<Student> student) throws JsonProcessingException, IOException {
+System.out.println(" bulkupdateStudentAttendance Caledddddddddddddddddddddd");
+		List<Integer> studentIdList = new ArrayList<Integer>();
+		List<Student> finalStudentList = new ArrayList<Student>();
+		for (Student studentObj : student) {
+			
+			studentIdList.add((studentObj.getId()));
+		}
+		
+		List<Student> stds = validateListStudent(studentIdList);
+		for(Student s : stds){
+			BeanPropertyValueEqualsPredicate predicate = new BeanPropertyValueEqualsPredicate("id", s.getId());
+			Student s1 = (Student) org.apache.commons.collections.CollectionUtils.find(student, predicate);
+			s.setDay1(s1.getDay1());
+			s.setDay2(s1.getDay2());
+			s.setDay3(s1.getDay3());
+			s.setDay4(s1.getDay4());
+			s.setDay5(s1.getDay5());
+			s.setDay6(s1.getDay6());			
+			s.setDay7(s1.getDay7());
+		}
+		
+		studentRepository.save(stds);
+	}
+	
+	
+	
+	
+	
+
+
+	/**
+	 * This function overwrites values from given json string in to given
+	 * objectToUpdate
+	 * 
+	 * @param json
+	 * @param objectToUpdate
+	 * @return
+	 * @throws IOException
+	 */
+	private <T> T update(String json, T objectToUpdate) throws IOException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.setDefaultMergeable(true); // This is required for deep
+												// update. Available in
+												// jackson-databind from 2.9
+												// version
+		ObjectReader updater = objectMapper.readerForUpdating(objectToUpdate);
+
+		return updater.readValue(json);
+	}
+	
 	
 	/**
-     * This function overwrites values from given json string in to given objectToUpdate
-     * 
-     * @param json
-     * @param objectToUpdate
-     * @return
-     * @throws IOException
-     */
-    private <T> T update(String json, T objectToUpdate) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setDefaultMergeable(true); // This is required for deep update. Available in jackson-databind from 2.9 version
-        ObjectReader updater = objectMapper.readerForUpdating(objectToUpdate);
-
-        return updater.readValue(json);
-    }
-
-    /**
-     * Method to get all students based on specific search criteria 
-     * 
-     * @param allRequestParams
-     * @return
-     */
+	 * Method to get all students based on specific search criteria
+	 * 
+	 * @param allRequestParams
+	 * @return
+	 */
 	public List<Student> getAllStudents(Map<String, String> allRequestParams) {
 		Specification<Student> spec = getEntitySearchSpecification(allRequestParams, Student.class, new Student());
 
-		//Get and set the total number of records
-        setRequestAttribute(TOTAL_RECORDS, studentRepository.count(spec));
-        
+		// Get and set the total number of records
+		setRequestAttribute(TOTAL_RECORDS, studentRepository.count(spec));
+
 		List<Student> students = studentRepository.findAll(spec);
 		students.forEach(student -> {
 			if (null != student.getDateLastModifiedInDB()) {
@@ -188,8 +286,68 @@ public class StudentService {
 				student.setCreatedDate(convertDateToString(student.getDateCreatedInDB()));
 			}
 		});
-		
+
 		return students;
 	}
-	
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void uploadStudentAttendance(List<StudentUploadAttendance> studentlist) {
+
+		CriteriaBuilder cb = this.em.getCriteriaBuilder();
+		Iterator itr = studentlist.iterator();
+		while (itr.hasNext()) {
+			StudentUploadAttendance student = (StudentUploadAttendance) itr.next();
+			// create update
+			CriteriaUpdate<Student> update = cb.createCriteriaUpdate(Student.class);
+			// set the root class
+			Root<Student> e = update.from(Student.class);
+			// set update and where clause
+			if(student.getDay1()!=null){
+			update.set("day1", student.getDay1());
+			}
+			if(student.getDay2()!=null){
+			update.set("day2", student.getDay2());
+			
+			}
+			if(student.getDay3()!=null){
+			update.set("day3", student.getDay3());
+			}
+			if(student.getDay4()!=null){
+			update.set("day4", student.getDay4());
+			}
+			if(student.getDay5()!=null){
+			update.set("day5", student.getDay5());
+			}
+			if(student.getDay6()!=null){
+			update.set("day6", student.getDay6());
+			}
+			if(student.getDay7()!=null){
+			update.set("day7", student.getDay7());
+			}
+			update.where(cb.equal(e.get("id"), (Integer.parseInt(student.getId()))));
+			// perform update
+			this.em.createQuery(update).executeUpdate();
+		
+		
+		}
+
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void updateStudentList(List<Student> li) {
+		CriteriaBuilder cb = this.em.getCriteriaBuilder();
+		Iterator itr = li.iterator();
+		while (itr.hasNext()) {
+			Student student = (Student) itr.next();
+			// create update
+			CriteriaUpdate<Student> update = cb.createCriteriaUpdate(Student.class);
+			// set the root class
+			Root<Student> e = update.from(Student.class);
+			// set update and where clause
+			update.set("optIn2019", student.getOptIn2019());
+			update.where(cb.equal(e.get("id"), student.getId()));
+			// perform update
+			this.em.createQuery(update).executeUpdate();
+		}
+	}
 }

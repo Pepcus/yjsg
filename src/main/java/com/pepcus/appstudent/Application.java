@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 12-02-2018
  *
  */
+//@EntityScan(basePackages = { "com.pepcus.appstudent.entity" })
 @SpringBootApplication
 public class Application {
 	

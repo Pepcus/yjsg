@@ -1,5 +1,7 @@
 package com.pepcus.appstudent.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -15,5 +17,8 @@ import com.pepcus.appstudent.entity.Student;
 public interface StudentRepository extends JpaRepository<Student, Integer>, JpaSpecificationExecutor<Student> {
 	
 	public Student findByIdAndSecretKey(Integer id, String secretKey);
+	public List<Student> findByIdIn(List<Integer> ids);
+	//public List<Student> findByIdIn(List<Integer> ids);
+	
 
 }

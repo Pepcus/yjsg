@@ -33,6 +33,16 @@ import lombok.Data;
 @JsonInclude(Include.NON_EMPTY)
 public class Student {
 
+	public Student(){
+		
+	}
+	public Student(Integer id, String name, String fatherName) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.fatherName = fatherName;
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
@@ -99,13 +109,13 @@ public class Student {
 	private String marks2017;
 	
 	@Column(name = "class_room_no_2018")
-	private Integer classRoomNo2018;
+	private String classRoomNo2018;
 	
 	@Column(name = "course_2018")
 	private String course2018;
 	
 	@Column(name = "opt_in_2018")
-	private Integer optIn2018;
+	private String optIn2018;
 	
 	@Column(name = "secret_key")
 	@JsonProperty(access = Access.READ_ONLY)
@@ -124,6 +134,46 @@ public class Student {
 	@JsonIgnore
 	private Date dateLastModifiedInDB;
 	
+	@Column(name="reprint_id")
+	private String reprint_id;
+
+	@Column(name = "opt_in_2019")
+	private String optIn2019;
+
+	@Column(name = "class_room_no_2019")
+	private String classRoomNo2019;
+
+	@Column(name = "attendance_2019")
+	private String attendance2019;
+
+	@Column(name = "marks_2019")
+	private String marks2019;
+	
+	@Column(name = "course_2019")
+	private String course2019;
+	
+	@Column(name="day1")
+	private String day1;
+	
+	@Column(name="day2")
+	private String day2;
+	
+	@Column(name="day3")
+	private String day3;
+	
+	@Column(name="day4")
+	private String day4;
+	
+	@Column(name="day5")
+	private String day5;
+	
+	@Column(name="day6")
+	private String day6;
+	
+	@Column(name="day7")
+	private String day7;
+	
+		
 	@Transient
 	@JsonProperty(access = Access.READ_ONLY)
 	private String createdDate;
