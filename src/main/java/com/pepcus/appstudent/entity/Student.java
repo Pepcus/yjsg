@@ -109,13 +109,13 @@ public class Student {
 	private String marks2017;
 	
 	@Column(name = "class_room_no_2018")
-	private String classRoomNo2018;
+	private Integer classRoomNo2018;
 	
 	@Column(name = "course_2018")
 	private String course2018;
 	
 	@Column(name = "opt_in_2018")
-	private String optIn2018;
+	private Integer optIn2018;
 	
 	@Column(name = "secret_key")
 	@JsonProperty(access = Access.READ_ONLY)
