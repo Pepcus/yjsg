@@ -36,80 +36,27 @@ public class FileImportService {
 	@Autowired
 	private StudentService studentService;
 	
-
-	
-	
-	public void updateStudentOptIn(MultipartFile file, HttpServletRequest request) {
-		File  serverFile=getServerFile(file, request);
-		System.out.println("updateStudentOptIn method calledddd");
-		List<Student> students = new ArrayList();
-		String[] nextLine;
-		try {
-			// read file
-			// CSVReader(fileReader, ';', '\'', 1) means
-			// using separator ; and using single quote ' . Skip first line when
-			// read
-			// starttime = System.currentTimeMillis() / 1000;
-			try (FileReader fileReader = new FileReader(serverFile);
-					CSVReader reader = new CSVReader(fileReader, ';', '\'', 0);) {
-				nextLine = reader.readNext();
-				while ((nextLine = reader.readNext()) != null) {
-					for (int i = 0; i < nextLine.length; i++) {
-						System.out.println(nextLine[i]);
-						if (!nextLine[i].trim().isEmpty()) {
-							String[] tokens = nextLine[i].split(",");
-							if (tokens.length > 0)
-								if (nextLine.length > 0 && !tokens[0].trim().isEmpty()
-										&& tokens[0].trim().length() > 0) {
-									Student student = new Student();
-									student.setId(Integer.parseInt(tokens[0].trim()));
-									student.setOptIn2019(tokens[1].trim());
-									students.add(student);
-								}
-						}
-					}
-
-				}
-				studentService.updateStudentList(students);
-			}
-		} catch (IOException e) {
-			System.out.println("error while reading csv and put to db : " + e.getMessage());
-		}
-
-	}	
-	
 	public void uploadStudentAttendance(MultipartFile file, HttpServletRequest request) throws IOException, IllegalAccessException, InvocationTargetException{
-		System.out.println(" uploadStudentAttendance method calleddd");
 		File serverFile=getServerFile(file, request);
-		List<StudentUploadAttendance> studentUploadAttendanceList = new ArrayList();
-		List<StudentUploadAttendance> stu = new ArrayList<>();
-		List<Student> student = new ArrayList<Student>();
-
+		List<StudentUploadAttendance> studentUploadAttendanceList = new ArrayList<StudentUploadAttendance>();
+		List<Student> studentList = new ArrayList<Student>();
 		try (Reader reader = Files.newBufferedReader(Paths.get(serverFile.getAbsolutePath()));) {
 			HeaderColumnNameMappingStrategy<StudentUploadAttendance> strategy = new HeaderColumnNameMappingStrategy<StudentUploadAttendance>();
 			strategy.setType(StudentUploadAttendance.class);			
 			CsvToBean<StudentUploadAttendance> csvToBean = new CsvToBean<StudentUploadAttendance>();
-			
-			
 			studentUploadAttendanceList = csvToBean.parse(strategy, reader);
-			//DozerBeanMapper map = new DozerBeanMapper();
-			//map.map(studentUploadAttendanceList,student);
-			BeanUtils.copyProperties(student, studentUploadAttendanceList);
-			
-			
-			for(StudentUploadAttendance sta: studentUploadAttendanceList){
-				Student s = new Student();
-				BeanUtils.copyProperties(s, sta);
-				student.add(s);
+			BeanUtils.copyProperties(studentList, studentUploadAttendanceList);
+			for(StudentUploadAttendance stuAttendance: studentUploadAttendanceList){
+				Student studentObj = new Student();
+				BeanUtils.copyProperties(studentObj, stuAttendance);
+				studentList.add(studentObj);
 			}
-			
-			studentService.bulkupdateStudentAttendance(student);	
+			studentService.bulkupdateStudentAttendance(studentList);	
 		}
 		
 	}
-
+// spend some time
 	public static File getServerFile(MultipartFile file, HttpServletRequest request) {
-		System.out.println("getServerFile method calledddd");
 		if (file.isEmpty() || file == null) {
 			// model.put("msg", "failed to upload file because its empty");
 			// throw new IOException();

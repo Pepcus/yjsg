@@ -106,7 +106,7 @@ public class StudentController {
 	@PostMapping
 	public ResponseEntity<Student> createStudent(@RequestBody Student student) {
 		System.out.println("create calledddddd");
-		student.setReprint_id("1");
+		student.setReprintId("1");
 		Student savedStudent = studentService.createStudent(student);
 		return new ResponseEntity<Student>(savedStudent, HttpStatus.CREATED);
 	}
@@ -129,24 +129,42 @@ public class StudentController {
 		return new ResponseEntity<Student>(updatedStudent, HttpStatus.OK);
 	}
 	
-	
-	@PutMapping(value = "/bulkupdate/{studentId}/{secretKey}")
-	public ResponseEntity<Student> updateStudentReprint(
-			@PathVariable(value = "studentId", required = true) String studentId[], @RequestParam String reprintId,
-			Map<String, String> pathVars) throws JsonProcessingException, IOException {
+	/**
+	 * Used to update reprint record by studentId
+	 * 	
+	 * @param pathVars
+	 * @param studentId
+	 * @return
+	 * @throws JsonProcessingException
+	 * @throws IOException
+	 */
+	@PutMapping(value = "/reprint/{studentId}/{secretKey}") // put studentId in body and remove studentId form url only pass key, pass int in array,set in api response
+	public ResponseEntity<Student> updateStudentReprint(@PathVariable(value = "studentId", required = true) String studentId[], 
+			@RequestParam String reprintId,Map<String, String> pathVars) throws JsonProcessingException, IOException {
 
+		//Arrays.asList(new ArrayList<Integer>(studentId));  
 		List<Integer> studentIdList = new ArrayList<Integer>();
 		for (String studId : studentId) {
 			studentIdList.add(Integer.parseInt(studId));
 		}
 		studentService.bulkupdateStudent(studentIdList, reprintId);
-		return new ResponseEntity<Student>(HttpStatus.OK);
+		return new ResponseEntity<Student>(HttpStatus.OK);  // set message also success
 	}
 	
-	@RequestMapping(value = "/uploadattendence", method = RequestMethod.POST)
+	/**
+	 * Used to update attendance record by CSV File
+	 * @param file
+	 * @return
+	 * @throws JsonProcessingException
+	 * @throws IOException
+	 */
+	@RequestMapping(value = "/attendance", method = RequestMethod.POST)
 	public ResponseEntity<ApiResponse> uploadFile(@RequestParam(value = "file", required = true) MultipartFile file,
 			HttpServletRequest request) throws IOException, IllegalAccessException {
 		try {
+			if (file == null) {
+	            throw ApplicationException.createBulkImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, null);
+	        }
 			fileImportService.uploadStudentAttendance(file, request);
 		} catch (InvocationTargetException e) {
 			// TODO Auto-generated catch block
@@ -157,8 +175,13 @@ public class StudentController {
 
 	@RequestMapping(value = "/update_opt_in_2019/uploadfile", method = RequestMethod.POST)
 	public ResponseEntity<ApiResponse> updateUploadFile(
-			@RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request)throws IOException, IllegalAccessException, InvocationTargetException {
-		fileImportService.uploadStudentAttendance(file, request);
+			@RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request) {
+		try {
+			fileImportService.uploadStudentAttendance(file, request);
+		} catch (IllegalAccessException | InvocationTargetException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return new ResponseEntity<ApiResponse>(HttpStatus.OK);
 	}
 

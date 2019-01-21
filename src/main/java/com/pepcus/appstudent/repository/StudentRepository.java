@@ -18,7 +18,6 @@ public interface StudentRepository extends JpaRepository<Student, Integer>, JpaS
 	
 	public Student findByIdAndSecretKey(Integer id, String secretKey);
 	public List<Student> findByIdIn(List<Integer> ids);
-	//public List<Student> findByIdIn(List<Integer> ids);
 	
 
 }

@@ -135,7 +135,7 @@ public class Student {
 	private Date dateLastModifiedInDB;
 	
 	@Column(name="reprint_id")
-	private String reprint_id;
+	private String reprintId;
 
 	@Column(name = "opt_in_2019")
 	private String optIn2019;
