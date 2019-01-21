@@ -9,23 +9,15 @@ import static com.pepcus.appstudent.util.ApplicationConstants.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Root;
-
 import org.apache.commons.beanutils.BeanPropertyValueEqualsPredicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,23 +25,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.pepcus.appstudent.entity.Customer;
 import com.pepcus.appstudent.entity.Student;
-import com.pepcus.appstudent.entity.StudentUploadAttendance;
-import com.pepcus.appstudent.exception.APIErrorCodes;
-import com.pepcus.appstudent.exception.ApplicationException;
 import com.pepcus.appstudent.exception.BadRequestException;
-import com.pepcus.appstudent.repository.CustomerRepository;
 import com.pepcus.appstudent.repository.StudentRepository;
-import com.pepcus.appstudent.util.SMSUtil;
-import com.pepcus.appstudent.controller.*;
-
 /**
  * This is a service layer which generates response
  * 
@@ -62,9 +43,6 @@ public class StudentService {
 
 	@Autowired
 	private StudentRepository studentRepository;
-
-	@Autowired
-	private CustomerRepository customerRepository;
 
 	@PersistenceContext
 	private EntityManager em;
@@ -111,15 +89,6 @@ public class StudentService {
 		return students;
 	}
 	
-	/*private List<StudentUploadAttendance> validateListStudentUplload(List<Integer> ids) {
-		
-		List<StudentUploadAttendance> students = studentRepository.findByIdIn(ids);
-		if (null == students) {
-			throw new BadRequestException("student not found by studentId=" + ids);
-		}
-		return students;
-	}*/
-
 	/**
 	 * Method to create student record
 	 * 
@@ -187,7 +156,6 @@ public class StudentService {
 		if (null != studentInDB.getDateCreatedInDB()) {
 			studentInDB.setCreatedDate(convertDateToString(studentInDB.getDateCreatedInDB()));
 		}
-
 		// studentInDB.setDateLastModifiedInDB(new Date());
 		studentInDB.setLastModifiedDate(convertDateToString(studentInDB.getDateLastModifiedInDB()));
 		return studentInDB;
@@ -197,28 +165,20 @@ public class StudentService {
 	// for updating reprintId in bulk
 	public void bulkupdateStudent(List<Integer> studentIds,String reprintid) throws JsonProcessingException, IOException {
 		List<Student> stds = validateListStudent(studentIds);
-		
-		/*for(Student std:stds){
-			std.setReprint_id(reprintid);
-		}*/
 		List<Student> finalList=new ArrayList<Student>();
 		Iterator<Student> it=stds.iterator();
 		while (it.hasNext()) {
 			Student students = (Student) it.next();						
-			students.setReprint_id(reprintid);
+			students.setReprintId(reprintid);
 			finalList.add(students);
 		}
-		
 		studentRepository.save(finalList);
 	}
 	
 	
 	public void bulkupdateStudentAttendance(List<Student> student) throws JsonProcessingException, IOException {
-System.out.println(" bulkupdateStudentAttendance Caledddddddddddddddddddddd");
 		List<Integer> studentIdList = new ArrayList<Integer>();
-		List<Student> finalStudentList = new ArrayList<Student>();
 		for (Student studentObj : student) {
-			
 			studentIdList.add((studentObj.getId()));
 		}
 		
@@ -251,14 +211,8 @@ System.out.println(" bulkupdateStudentAttendance Caledddddddddddddddddddddd");
 				s.setOptIn2019(s1.getOptIn2019());
 				}
 		}
-		
 		studentRepository.save(stds);
 	}
-	
-	
-	
-	
-	
 
 
 	/**
@@ -307,7 +261,7 @@ System.out.println(" bulkupdateStudentAttendance Caledddddddddddddddddddddd");
 		return students;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED)
+	/*@Transactional(propagation = Propagation.REQUIRED)
 	public void uploadStudentAttendance(List<StudentUploadAttendance> studentlist) {
 
 		CriteriaBuilder cb = this.em.getCriteriaBuilder();
@@ -324,7 +278,6 @@ System.out.println(" bulkupdateStudentAttendance Caledddddddddddddddddddddd");
 			}
 			if(student.getDay2()!=null){
 			update.set("day2", student.getDay2());
-			
 			}
 			if(student.getDay3()!=null){
 			update.set("day3", student.getDay3());
@@ -366,5 +319,5 @@ System.out.println(" bulkupdateStudentAttendance Caledddddddddddddddddddddd");
 			// perform update
 			this.em.createQuery(update).executeUpdate();
 		}
-	}
+	}*/
 }
