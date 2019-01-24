@@ -9,6 +9,8 @@ import static com.pepcus.appstudent.util.ApplicationConstants.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -19,6 +21,7 @@ import java.util.Random;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.apache.commons.beanutils.BeanPropertyValueEqualsPredicate;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
@@ -29,6 +32,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.pepcus.appstudent.entity.Student;
+import com.pepcus.appstudent.entity.StudentUploadAttendance;
 import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.repository.StudentRepository;
 /**
@@ -162,58 +166,99 @@ public class StudentService {
 	}
 
 	
-	// for updating reprintId in bulk
-	public void bulkupdateStudent(List<Integer> studentIds,String reprintid) throws JsonProcessingException, IOException {
-		List<Student> stds = validateListStudent(studentIds);
-		List<Student> finalList=new ArrayList<Student>();
-		Iterator<Student> it=stds.iterator();
+	/**
+	 * Method to update student reprintid
+	 * 
+	 * @param studentIds
+	 * @param reprintid
+	 * @return
+	 * @throws JsonProcessingException
+	 * @throws IOException
+	 */
+	public void updateStudentOptin(List<Integer> studentIds,Student student) throws JsonProcessingException, IOException {
+		List<Student> studentList = validateListStudent(studentIds);
+		List<Student> studentUpdatedList=new ArrayList<Student>();
+		Iterator<Student> iterator=studentList.iterator();
+		while (iterator.hasNext()) {
+			Student students = (Student) iterator.next();
+				students.setOptIn2019(student.getOptIn2019());
+			studentUpdatedList.add(students);
+		}
+		studentRepository.save(studentUpdatedList);
+	}
+	
+	
+	public void updateStudentPrintStatus(List<Integer> studentIds,Student student) throws JsonProcessingException, IOException {
+		List<Student> studentList = validateListStudent(studentIds);
+		List<Student> studentUpdatedList=new ArrayList<Student>();
+		Iterator<Student> iterator=studentList.iterator();
+		while (iterator.hasNext()) {
+			Student students = (Student) iterator.next();
+				students.setPrintStatus(student.getPrintStatus());
+			studentUpdatedList.add(students);
+		}
+		studentRepository.save(studentUpdatedList);
+	}
+	
+	
+	
+	public void updateStudentTodaysAttendance(List<Integer> studentIds,String ispresent,int day) throws JsonProcessingException, IOException {
+		List<Student> studentdList = validateListStudent(studentIds);
+		List<Student> updatedStudentList=new ArrayList<Student>();
+		//int differenceInDays=0;
+		//differenceInDays=getDayDifference();
+		//differenceInDays++;
+		Iterator<Student> it=studentdList.iterator();
 		while (it.hasNext()) {
 			Student students = (Student) it.next();						
-			students.setReprintId(reprintid);
-			finalList.add(students);
+			switch (day) {
+			case 1: students.setDay1(ispresent);
+			break;
+			case 2: students.setDay2(ispresent);
+			break;
+			case 3: students.setDay3(ispresent);
+			break;
+			case 4: students.setDay4(ispresent);
+			break;
+			case 5: students.setDay5(ispresent);
+			break;
+			case 6: students.setDay6(ispresent);
+			break;
+			case 7: students.setDay7(ispresent);
+			break;
+			}
+			
+			updatedStudentList.add(students);
 		}
-		studentRepository.save(finalList);
+		studentRepository.save(updatedStudentList);
 	}
 	
 	
-	public void bulkupdateStudentAttendance(List<Student> student) throws JsonProcessingException, IOException {
-		List<Integer> studentIdList = new ArrayList<Integer>();
-		for (Student studentObj : student) {
-			studentIdList.add((studentObj.getId()));
-		}
-		
-		List<Student> stds = validateListStudent(studentIdList);
-		for(Student s : stds){
-			BeanPropertyValueEqualsPredicate predicate = new BeanPropertyValueEqualsPredicate("id", s.getId());
-			Student s1 = (Student) org.apache.commons.collections.CollectionUtils.find(student, predicate);
-			if(s1.getDay1()!=null){
-			s.setDay1(s1.getDay1());
-			}
-			if(s1.getDay2()!=null){
-			s.setDay2(s1.getDay2());
-			}
-			if(s1.getDay3()!=null){
-			s.setDay3(s1.getDay3());
-			}
-			if(s1.getDay4()!=null){
-			s.setDay4(s1.getDay4());
-			}
-			if(s1.getDay5()!=null){
-			s.setDay5(s1.getDay5());
-			}
-			if(s1.getDay6()!=null){
-			s.setDay6(s1.getDay6());
-			}
-			if(s1.getDay7()!=null){
-			s.setDay7(s1.getDay7());
-			}
-			if(s1.getOptIn2019()!=null && !s1.getOptIn2019().isEmpty()){
-				s.setOptIn2019(s1.getOptIn2019());
-				}
-		}
-		studentRepository.save(stds);
-	}
+	/**
+	 * Method to update student atttendance in day1,day2..
+	 * 
+	 * @param List Of Students to be update from CSV
+	 * @return
+	 * @throws JsonProcessingException
+	 * @throws IOException
+	 * @throws InvocationTargetException 
+	 * @throws IllegalAccessException 
+	 */
+	public void updateStudentAttendance(List<StudentUploadAttendance> studentUploadAttendanceList) throws JsonProcessingException, IOException, IllegalAccessException, InvocationTargetException {
 
+		NullAwareBeanUtilsBean onlyNotNullCopyProperty = new NullAwareBeanUtilsBean();
+		List<Integer> studentIdList = new ArrayList<Integer>();
+		for (StudentUploadAttendance stuAttendance : studentUploadAttendanceList) {
+			studentIdList.add(Integer.parseInt(stuAttendance.getId()));
+		}
+		List<Student> studentListDB = validateListStudent(studentIdList);
+		for (Student studentDB : studentListDB) {
+			BeanPropertyValueEqualsPredicate predicate = new BeanPropertyValueEqualsPredicate("id",String.valueOf(studentDB.getId()));
+			StudentUploadAttendance stuAttendance = (StudentUploadAttendance) CollectionUtils.find(studentUploadAttendanceList, predicate);
+			onlyNotNullCopyProperty.copyProperties(studentDB, stuAttendance);
+		}
+		studentRepository.save(studentListDB);
+	}
 
 	/**
 	 * This function overwrites values from given json string in to given
@@ -261,63 +306,29 @@ public class StudentService {
 		return students;
 	}
 
-	/*@Transactional(propagation = Propagation.REQUIRED)
-	public void uploadStudentAttendance(List<StudentUploadAttendance> studentlist) {
-
-		CriteriaBuilder cb = this.em.getCriteriaBuilder();
-		Iterator itr = studentlist.iterator();
-		while (itr.hasNext()) {
-			StudentUploadAttendance student = (StudentUploadAttendance) itr.next();
-			// create update
-			CriteriaUpdate<Student> update = cb.createCriteriaUpdate(Student.class);
-			// set the root class
-			Root<Student> e = update.from(Student.class);
-			// set update and where clause
-			if(student.getDay1()!=null){
-			update.set("day1", student.getDay1());
+	
+	/**
+	 * Method to get difference in between today's date and day1 date
+	 * @return differenceDays
+	 */
+	public static int getDayDifference() {
+		String Day1="14/01/2019";
+		int differenceDays = 0;
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		Date day1DateInDateType,todaysDateInDateType;
+		String todaysDate = dateFormat.format(new Date());
+		try {
+			day1DateInDateType = dateFormat.parse(Day1);
+			todaysDateInDateType = dateFormat.parse(todaysDate);
+			int diff = (int)todaysDateInDateType.getTime() - (int)day1DateInDateType.getTime();
+			differenceDays = diff / (24 * 60 * 60 * 1000);
+			System.out.print(differenceDays + " days ");
+			if(differenceDays>=7 || differenceDays<0){
+				differenceDays=0;
 			}
-			if(student.getDay2()!=null){
-			update.set("day2", student.getDay2());
-			}
-			if(student.getDay3()!=null){
-			update.set("day3", student.getDay3());
-			}
-			if(student.getDay4()!=null){
-			update.set("day4", student.getDay4());
-			}
-			if(student.getDay5()!=null){
-			update.set("day5", student.getDay5());
-			}
-			if(student.getDay6()!=null){
-			update.set("day6", student.getDay6());
-			}
-			if(student.getDay7()!=null){
-			update.set("day7", student.getDay7());
-			}
-			update.where(cb.equal(e.get("id"), (Integer.parseInt(student.getId()))));
-			// perform update
-			this.em.createQuery(update).executeUpdate();
-		
-		
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-
+		return differenceDays;
 	}
-
-	@Transactional(propagation = Propagation.REQUIRED)
-	public void updateStudentList(List<Student> li) {
-		CriteriaBuilder cb = this.em.getCriteriaBuilder();
-		Iterator itr = li.iterator();
-		while (itr.hasNext()) {
-			Student student = (Student) itr.next();
-			// create update
-			CriteriaUpdate<Student> update = cb.createCriteriaUpdate(Student.class);
-			// set the root class
-			Root<Student> e = update.from(Student.class);
-			// set update and where clause
-			update.set("optIn2019", student.getOptIn2019());
-			update.where(cb.equal(e.get("id"), student.getId()));
-			// perform update
-			this.em.createQuery(update).executeUpdate();
-		}
-	}*/
 }

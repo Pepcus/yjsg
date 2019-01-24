@@ -30,7 +30,7 @@ import lombok.Data;
 @Entity
 @Table(name = "student")
 @Data
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.ALWAYS)
 public class Student {
 
 	public Student(){
@@ -134,8 +134,8 @@ public class Student {
 	@JsonIgnore
 	private Date dateLastModifiedInDB;
 	
-	@Column(name="reprint_id")
-	private String reprintId;
+	@Column(name="printStatus")
+	private String printStatus;
 
 	@Column(name = "opt_in_2019")
 	private String optIn2019;

@@ -72,13 +72,20 @@
     <artifactId>httpclient</artifactId>
     <version>4.5.3</version>
 	</dependency>
-		<!-- https://mvnrepository.com/artifact/net.sf.dozer/dozer -->
+	<!-- https://mvnrepository.com/artifact/net.sf.dozer/dozer -->
+	<dependency>
+		<groupId>net.sf.dozer</groupId>
+		<artifactId>dozer</artifactId>
+		<version>5.5.1</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/org.json/json -->
 <dependency>
-    <groupId>net.sf.dozer</groupId>
-    <artifactId>dozer</artifactId>
-    <version>5.5.1</version>
+    <groupId>org.json</groupId>
+    <artifactId>json</artifactId>
+    <version>20170516</version>
 </dependency>
-		
+
 		<!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
 <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->
 <!-- https://mvnrepository.com/artifact/com.opencsv/opencsv -->

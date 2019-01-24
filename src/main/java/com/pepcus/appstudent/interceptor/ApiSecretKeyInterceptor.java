@@ -38,12 +38,13 @@ public class ApiSecretKeyInterceptor extends HandlerInterceptorAdapter {
 		if (request.getMethod().equals(RequestMethod.POST.name())) {
 			return true;
 		}
-		
+		String key=request.getHeader("secretKey");
+		System.out.println("KEYYYYYYYYYYYY= "+key);
 		Map<String, String> pathVariables = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 		
 		Integer studentId = null;
 		String id = pathVariables.get("studentId");
-		String secretKey = pathVariables.get("secretKey");
+		String secretKey = key;
 		
 		if (StringUtils.isEmpty(secretKey)) {
             throw new AuthorizationFailedException("Unauthorized to access the service");

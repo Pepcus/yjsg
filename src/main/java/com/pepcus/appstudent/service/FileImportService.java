@@ -1,4 +1,4 @@
-package com.pepcus.appstudent.service;
+/*package com.pepcus.appstudent.service;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -16,10 +16,14 @@ import java.util.Iterator;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.beanutils.BeanPropertyValueEqualsPredicate;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.collections.CollectionUtils;
 import org.dozer.DozerBeanMapper;
 import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.util.NullableWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +33,8 @@ import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.entity.StudentUploadAttendance;
+import com.pepcus.appstudent.exception.BadRequestException;
+import com.pepcus.appstudent.repository.StudentRepository;
 
 @Service
 public class FileImportService {
@@ -36,24 +42,19 @@ public class FileImportService {
 	@Autowired
 	private StudentService studentService;
 	
+	@Autowired
+	private StudentRepository studentRepository;
+	
 	public void uploadStudentAttendance(MultipartFile file, HttpServletRequest request) throws IOException, IllegalAccessException, InvocationTargetException{
 		File serverFile=getServerFile(file, request);
 		List<StudentUploadAttendance> studentUploadAttendanceList = new ArrayList<StudentUploadAttendance>();
-		List<Student> studentList = new ArrayList<Student>();
 		try (Reader reader = Files.newBufferedReader(Paths.get(serverFile.getAbsolutePath()));) {
 			HeaderColumnNameMappingStrategy<StudentUploadAttendance> strategy = new HeaderColumnNameMappingStrategy<StudentUploadAttendance>();
 			strategy.setType(StudentUploadAttendance.class);			
 			CsvToBean<StudentUploadAttendance> csvToBean = new CsvToBean<StudentUploadAttendance>();
 			studentUploadAttendanceList = csvToBean.parse(strategy, reader);
-			BeanUtils.copyProperties(studentList, studentUploadAttendanceList);
-			for(StudentUploadAttendance stuAttendance: studentUploadAttendanceList){
-				Student studentObj = new Student();
-				BeanUtils.copyProperties(studentObj, stuAttendance);
-				studentList.add(studentObj);
-			}
-			studentService.bulkupdateStudentAttendance(studentList);	
+			studentService.updateStudentAttendance(studentUploadAttendanceList);	
 		}
-		
 	}
 // spend some time
 	public static File getServerFile(MultipartFile file, HttpServletRequest request) {
@@ -88,5 +89,12 @@ public class FileImportService {
 	return serverFile;
 	}
 	
-	
+	private List<Student> validateListStudent(List<Integer> ids) {
+		List<Student> students = studentRepository.findByIdIn(ids);
+		if (null == students) {
+			throw new BadRequestException("student not found by studentId=" + ids);
+		}
+		return students;
+	}
 }
+*/
