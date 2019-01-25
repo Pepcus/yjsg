@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,11 +45,6 @@ public class StudentController {
 	@Autowired
 	private StudentService studentService;
 	
-	@Autowired
-	private FileImportUtil fileImportService;
-
-	private Logger logger = LoggerFactory.getLogger(StudentController.class);
-
 	/**
 	 * Used to fetch student record by studentId
 	 * 
@@ -105,27 +101,24 @@ public class StudentController {
 	/**
 	 * Used to update attendance record by CSV File
 	 * @param file
-	 * @return
-	 * @throws JsonProcessingException
-	 * @throws IOException
+	 * @return response
 	 */
 	@RequestMapping(value="/bulk-attendance", method = RequestMethod.PATCH)
 	public ResponseEntity<ApiResponse> uploadAttendance(@RequestParam(value = "file", required = true) MultipartFile file){
-			fileImportService.uploadStudentAttendance(file);
-			return new ResponseEntity<ApiResponse>(HttpStatus.OK);
+			ApiResponse response = studentService.updateStudentAttendance(file,"attendance");
+			return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
 	}
 
 	/**
 	 * Used to update Opt In 2019 record by CSV File
-	 * @param file
-	 * @return
-	 * @throws JsonProcessingException
-	 * @throws IOException
+	 * @param MultipartFile
+	 * @return response
+	 * 
 	 */
 	@RequestMapping(value = "/bulk-optin", method = RequestMethod.PATCH)
-	public ResponseEntity<ApiResponse> updateOptInViaCSV(@RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request) {
-			fileImportService.uploadStudentAttendance(file);
-		return new ResponseEntity<ApiResponse>(HttpStatus.OK);
+	public ResponseEntity<ApiResponse> updateOptInViaCSV(@RequestParam(value = "file", required = true) MultipartFile file) {
+		ApiResponse response = studentService.updateStudentAttendance(file,"optin");
+		return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
 	}
 		
 	/**
@@ -138,13 +131,13 @@ public class StudentController {
 	 * @throws IOException
 	 */
 
-	@PutMapping(value="/attendance") // put studentId in body and remove studentId form url only pass key, pass int in array,set in api response
-	public ResponseEntity<Student> updateTodaysStudentAttendance(@RequestParam(value = "id", required = true) Integer studentId[], 
-			@RequestBody String json) throws JsonProcessingException, IOException {
+	@PutMapping(value="/attendance") 
+	public ResponseEntity<Student> updateStudentAttendance(@RequestParam(value = "id", required = true) Integer studentId[], 
+			@RequestBody String json)  {
 		JSONObject js=new JSONObject(json);
 		String ispresent="Y";
-		studentService.updateStudentTodaysAttendance(Arrays.asList(studentId), ispresent,js.getInt("day"));
-		return new ResponseEntity<Student>(HttpStatus.OK);  // set message also success
+		studentService.updateStudentAttendance(Arrays.asList(studentId), ispresent,js.getInt("day"));
+		return new ResponseEntity<Student>(HttpStatus.OK);
 	}
 
 	/**
@@ -158,13 +151,13 @@ public class StudentController {
 	 */
 	@RequestMapping(value="/reprint",method = RequestMethod.PATCH)
 	public ResponseEntity<ApiResponse> updateReprint(@RequestParam(value = "id", required = true) Integer studentId[],@RequestBody Student student) throws JsonProcessingException, IOException  {
-		studentService.updateStudentPrintStatus(Arrays.asList(studentId),student);
-		return new ResponseEntity<ApiResponse>(HttpStatus.OK);
+		ApiResponse response=studentService.updateStudentPrintStatus(Arrays.asList(studentId),student);
+		return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
 	}
 
 	@RequestMapping(value="/optin",method = RequestMethod.PATCH)
 	public ResponseEntity<ApiResponse> updateOptin(@RequestParam(value = "id", required = true) Integer studentId[],@RequestBody Student student) throws JsonProcessingException, IOException  {
-		studentService.updateStudentOptin(Arrays.asList(studentId),student);
-		return new ResponseEntity<ApiResponse>(HttpStatus.OK);
+		ApiResponse response=studentService.updateStudentOptin(Arrays.asList(studentId),student);
+		return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
 	}
 }

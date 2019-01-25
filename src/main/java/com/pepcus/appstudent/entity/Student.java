@@ -172,7 +172,9 @@ public class Student {
 	
 	@Column(name="day7")
 	private String day7;
-	
+
+	@Column(name="day8")
+	private String day8;
 		
 	@Transient
 	@JsonProperty(access = Access.READ_ONLY)

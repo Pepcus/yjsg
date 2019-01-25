@@ -9,8 +9,17 @@ public class StudentUploadAttendance {
 	private String day5;
 	private String day6;
 	private String day7;
+	private String day8;
 	private String today;
 	private String optIn2019;
+
+	public String getDay8() {
+		return day8;
+	}
+
+	public void setDay8(String day8) {
+		this.day8 = day8;
+	}
 
 	public String getOptIn2019() {
 		return optIn2019;

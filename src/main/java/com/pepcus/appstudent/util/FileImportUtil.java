@@ -10,21 +10,22 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import com.pepcus.appstudent.entity.StudentUploadAttendance;
 import com.pepcus.appstudent.service.StudentService;
+
+import lombok.extern.apachecommons.CommonsLog;
+
 import com.pepcus.appstudent.exception.*;
 
-@Service
+@Component
 public class FileImportUtil {
 
-	@Autowired
-	private StudentService studentService;
-
-	public void uploadStudentAttendance(MultipartFile file) {
+	public static List<StudentUploadAttendance> convertToStudentCSVBean(MultipartFile file,String flag) {
 		try {
 			if (file == null) {
 				throw ApplicationException.createBulkImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, null);
@@ -40,22 +41,37 @@ public class FileImportUtil {
 			if (fileContents == null || fileContents.isEmpty() || fileContents.size() < 2) {
 				throw new ApplicationException("There is no Record in the file");
 			}
-			if (checkHeaders(headers)) {
+			
+			if (checkHeaders(headers,flag)) {
 				List<StudentUploadAttendance> studentUploadAttendanceList = new ArrayList<StudentUploadAttendance>();
 				HeaderColumnNameMappingStrategy<StudentUploadAttendance> strategy = new HeaderColumnNameMappingStrategy<StudentUploadAttendance>();
 				strategy.setType(StudentUploadAttendance.class);
 				CsvToBean<StudentUploadAttendance> csvToBean = new CsvToBean<StudentUploadAttendance>();
 				studentUploadAttendanceList = csvToBean.parse(strategy, reader);
-				studentService.updateStudentAttendance(studentUploadAttendanceList);
-			}else throw new ApplicationException("Headers in File are not correct");
-		} catch (IOException | IllegalAccessException | InvocationTargetException | NullPointerException e) {
+				return studentUploadAttendanceList;
+			}else {
+				throw new ApplicationException("Headers in CSV File are not correct");
+			}
+		} catch (IOException | NullPointerException e) {
 			throw new ApplicationException("YOUR FILE IS NOT VALID");
 		}
 	}
 
-	public static boolean checkHeaders(String[] headersInFile) {
+	public static boolean checkAttendanceHeaders(String[] headersInFile) {
 		List<String> required = new ArrayList<String>();
-		String[] requiredHeaders = ApplicationConstants.REQUIRED_HEADERS;
+		String[] requiredHeaders = ApplicationConstants.ATTENDANCE_REQUIRED_HEADERS;
+		required = Arrays.asList(requiredHeaders);
+		for (String header : headersInFile) {
+			if (!required.contains(header)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public static boolean checkoptInHeaders(String[] headersInFile) {
+		List<String> required = new ArrayList<String>();
+		String[] requiredHeaders = ApplicationConstants.OPTIN_REQUIRED_HEADERS;
 		required = Arrays.asList(requiredHeaders);
 		for (String header : headersInFile) {
 			if (!required.contains(header)) {
@@ -65,4 +81,15 @@ public class FileImportUtil {
 		return true;
 	}
 
+	
+	public static boolean checkHeaders(String headers[],String flag){
+		boolean result=false;
+		if(flag.equalsIgnoreCase("optin")){
+			result=checkoptInHeaders(headers);
+		}
+		else if(flag.equalsIgnoreCase("attendance")){
+			result=checkAttendanceHeaders(headers);
+		}
+		return result;
+	}
 }
