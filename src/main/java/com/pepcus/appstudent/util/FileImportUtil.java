@@ -30,9 +30,9 @@ public class FileImportUtil {
 			if (file == null) {
 				ApiErrorResponse errorResponse=new ApiErrorResponse();
 				//errorResponse.setMessage(message);
-				errorResponse.setMessage("File not found");
-				errorResponse.setStatus(1010);
-				throw ApplicationException.createBadRequest(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT,"File not found");
+//				errorResponse.setMessage("File not found");
+	//			errorResponse.setStatus(1010);
+				throw new ApplicationException("File not found..! Please select a file");
 			}
 
 			Reader reader = null;
