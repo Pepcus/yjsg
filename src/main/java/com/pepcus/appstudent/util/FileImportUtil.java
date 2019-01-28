@@ -28,7 +28,11 @@ public class FileImportUtil {
 	public static List<StudentUploadAttendance> convertToStudentCSVBean(MultipartFile file,String flag) {
 		try {
 			if (file == null) {
-				throw ApplicationException.createBulkImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, null);
+				ApiErrorResponse errorResponse=new ApiErrorResponse();
+				//errorResponse.setMessage(message);
+				errorResponse.setMessage("File not found");
+				errorResponse.setStatus(1010);
+				throw ApplicationException.createBadRequest(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT,"File not found");
 			}
 
 			Reader reader = null;

@@ -81,6 +81,9 @@ public class ResponseHandler implements ResponseBodyAdvice<Object> {
 		if (httpRequest.getMethod().equals(HttpMethod.PATCH) && body instanceof ApiResponse) {
 			return body;
 		}
+		if (httpRequest.getMethod().equals(HttpMethod.PUT) && body instanceof ApiResponse) {
+			return body;
+		}
 
 		if (httpRequest.getMethod().equals(HttpMethod.GET)) {
 			if (body instanceof Student) {

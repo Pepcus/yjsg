@@ -1,8 +1,11 @@
 package com.pepcus.appstudent.controller;
+
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.json.JSONObject;
@@ -44,7 +47,7 @@ public class StudentController {
 
 	@Autowired
 	private StudentService studentService;
-	
+
 	/**
 	 * Used to fetch student record by studentId
 	 * 
@@ -84,80 +87,116 @@ public class StudentController {
 
 	/**
 	 * Used to update student record by studentId
-	 * 	
-	 * @param pathVars
-	 * @param student
+	 * 
+	 * @param studentId
 	 * @return
 	 * @throws JsonProcessingException
 	 * @throws IOException
 	 */
-	@PutMapping(value = "/{studentId}",consumes=org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Student> updateStudent(@PathVariable(value="studentId")Integer studentId, Map<String, String> pathVars,
+	@PutMapping(value = "/{studentId}", consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Student> updateStudent(@PathVariable(value = "studentId") Integer studentId,
 			@RequestBody String student) throws JsonProcessingException, IOException {
 		Student updatedStudent = studentService.updateStudent(student, studentId);
 		return new ResponseEntity<Student>(updatedStudent, HttpStatus.OK);
 	}
-	
+
 	/**
 	 * Used to update attendance record by CSV File
+	 * 
 	 * @param file
 	 * @return response
 	 */
-	@RequestMapping(value="/bulk-attendance", method = RequestMethod.PATCH)
-	public ResponseEntity<ApiResponse> uploadAttendance(@RequestParam(value = "file", required = true) MultipartFile file){
-			ApiResponse response = studentService.updateStudentAttendance(file,"attendance");
-			return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
+	@RequestMapping(value = "/bulk-attendance", method = RequestMethod.PATCH)
+	public ResponseEntity<ApiResponse> uploadAttendance(
+			@RequestParam(value = "file", required = false) MultipartFile file) {
+		ApiResponse response = studentService.updateStudentAttendance(file, "attendance");
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
 	/**
 	 * Used to update Opt In 2019 record by CSV File
+	 * 
 	 * @param MultipartFile
 	 * @return response
-	 * 
 	 */
 	@RequestMapping(value = "/bulk-optin", method = RequestMethod.PATCH)
-	public ResponseEntity<ApiResponse> updateOptInViaCSV(@RequestParam(value = "file", required = true) MultipartFile file) {
-		ApiResponse response = studentService.updateStudentAttendance(file,"optin");
-		return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
+	public ResponseEntity<ApiResponse> updateOptIn(@RequestParam(value = "file", required = false) MultipartFile file) {
+		ApiResponse response = studentService.updateStudentAttendance(file, "optin");
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
-		
+
 	/**
 	 * Used to update days attendance
-	 * @param file
-	 * @param pathVars
-	 * @param presentabsent
-	 * @return
-	 * @throws JsonProcessingException
-	 * @throws IOException
+	 * 
+	 * @param studentId[]
+	 * @param json
+	 * @return response
 	 */
 
-	@PutMapping(value="/attendance") 
-	public ResponseEntity<Student> updateStudentAttendance(@RequestParam(value = "id", required = true) Integer studentId[], 
-			@RequestBody String json)  {
-		JSONObject js=new JSONObject(json);
-		String ispresent="Y";
-		studentService.updateStudentAttendance(Arrays.asList(studentId), ispresent,js.getInt("day"));
-		return new ResponseEntity<Student>(HttpStatus.OK);
+	@PutMapping(value = "/attendance")
+	public ResponseEntity<ApiResponse> updateStudentAttendance(
+			@RequestParam(value = "id", required = true) Integer studentId[], @RequestBody String json) {
+		ApiResponse response = new ApiResponse();
+		JSONObject js = new JSONObject(json);
+		System.out.println("get: "+js.get("day"));
+		//System.out.println("String: "+js.getString("day"));
+		if ((js.get("day").equals(null) || js.getString("day").equals(""))
+				|| (js.getInt("day") > 8 && js.getInt("day") < 1)) {
+			response.setMessage("Failed..! to update data is not valid");
+			response.setStatus("304");
+		} else {
+			response.setMessage("Updated Successfully");
+			response.setStatus("OK");
+			studentService.updateStudentAttendance(Arrays.asList(studentId), "Y", js.getInt("day"));
+		}
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
 	/**
-	 * Used to update optIn2019 and reprintId
+	 * Used to update reprint
+	 * 
 	 * @param studentId[]
 	 * @param student
-	 * @param pathVars
 	 * @return
-	 * @throws JsonProcessingException
-	 * @throws IOException
 	 */
-	@RequestMapping(value="/reprint",method = RequestMethod.PATCH)
-	public ResponseEntity<ApiResponse> updateReprint(@RequestParam(value = "id", required = true) Integer studentId[],@RequestBody Student student) throws JsonProcessingException, IOException  {
-		ApiResponse response=studentService.updateStudentPrintStatus(Arrays.asList(studentId),student);
-		return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
+	@RequestMapping(value = "/reprint", method = RequestMethod.PATCH)
+	public ResponseEntity<ApiResponse> updateReprintStatus(
+			@RequestParam(value = "id", required = true) Integer studentId[], @RequestBody Student student) {
+		ApiResponse response = new ApiResponse();
+		if (student.getPrintStatus() == null || (!student.getPrintStatus().equalsIgnoreCase("Y")
+				&& !student.getPrintStatus().equalsIgnoreCase("N"))) {
+			response.setMessage("Failed..! to update data is not valid");
+			response.setStatus("304");
+		} else {
+			studentService.updateStudentPrintStatus(Arrays.asList(studentId), student);
+			response.setMessage("Updated Successfully");
+			response.setStatus("OK");
+			response.setCode("200");
+		}
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
-	@RequestMapping(value="/optin",method = RequestMethod.PATCH)
-	public ResponseEntity<ApiResponse> updateOptin(@RequestParam(value = "id", required = true) Integer studentId[],@RequestBody Student student) throws JsonProcessingException, IOException  {
-		ApiResponse response=studentService.updateStudentOptin(Arrays.asList(studentId),student);
-		return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
+	/**
+	 * Used to update optIn
+	 * 
+	 * @param studentId[]
+	 * @param student
+	 * @return
+	 */
+	@RequestMapping(value = "/optin", method = RequestMethod.PATCH)
+	public ResponseEntity<ApiResponse> updateOptIn(@RequestParam(value = "id", required = true) Integer studentId[],
+			@RequestBody Student student) {
+		ApiResponse response = new ApiResponse();
+		if (student.getOptIn2019() == null
+				|| (!student.getOptIn2019().equalsIgnoreCase("Y") && !student.getOptIn2019().equalsIgnoreCase("N"))) {
+			response.setMessage("Failed..! to update data is not valid");
+			response.setStatus("304");
+		} else {
+			studentService.updateStudentOptin(Arrays.asList(studentId), student);
+			response.setMessage("Updated Successfully");
+			response.setStatus("OK");
+			response.setCode("200");
+		}
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 }

@@ -153,7 +153,6 @@ public class StudentService {
 
 	/**
 	 * Method to update student details
-	 * 
 	 * @param student
 	 * @param studentId
 	 * @return
@@ -179,18 +178,12 @@ public class StudentService {
 	}
 
 	/**
-	 * Method to update student reprintid
-	 * 
+	 * Method to update student OptIn
 	 * @param studentIds
-	 * @param reprintid
+	 * @param student
 	 * @return
-	 * @throws JsonProcessingException
-	 * @throws IOException
 	 */
-	public ApiResponse updateStudentOptin(List<Integer> studentIds, Student student)
-			throws JsonProcessingException, IOException {
-		ApiResponse response = new ApiResponse();
-		response.setMessage("Data updated successfully");
+	public void updateStudentOptin(List<Integer> studentIds, Student student){
 		if (student.getOptIn2019().equalsIgnoreCase("Y") || student.getOptIn2019().equalsIgnoreCase("N")) {
 			List<Student> studentList = validateListStudent(studentIds);
 			List<Student> studentUpdatedList = new ArrayList<Student>();
@@ -201,16 +194,17 @@ public class StudentService {
 				studentUpdatedList.add(students);
 			}
 			studentRepository.save(studentUpdatedList);
-		} else {
-			response.setMessage("Failed! Data is not valid");		
-		}
-		return response;
+		} 
 	}
 
-	public ApiResponse updateStudentPrintStatus(List<Integer> studentIds, Student student)
-			throws JsonProcessingException, IOException {
-		ApiResponse response = new ApiResponse();
-		response.setMessage("Data updated successfully");
+	
+	/**
+	 * Method to update student Print Status
+	 * @param studentIds
+	 * @param student
+	 * @return
+	 */
+	public void updateStudentPrintStatus(List<Integer> studentIds, Student student){
 		if (student.getPrintStatus().equalsIgnoreCase("Y") || student.getPrintStatus().equalsIgnoreCase("N")) {
 			List<Student> studentList = validateListStudent(studentIds);
 			List<Student> studentUpdatedList = new ArrayList<Student>();
@@ -221,13 +215,18 @@ public class StudentService {
 				studentUpdatedList.add(students);
 			}
 			studentRepository.save(studentUpdatedList);
-		}else{
-			response.setMessage("Failed! Data is not valid");			
 		}
-		return response;
 	}
 
+	/**
+	 * Method to update student attendance
+	 * @param studentIds
+	 * @param isPresent
+	 * @param day
+	 * @return
+	 */
 	public void updateStudentAttendance(List<Integer> studentIds, String ispresent, int day){
+		if(day>=1 && day<=8){
 		List<Student> studentdList = validateListStudent(studentIds);
 		List<Student> updatedStudentList = new ArrayList<Student>();
 		Iterator<Student> it = studentdList.iterator();
@@ -262,14 +261,15 @@ public class StudentService {
 
 			updatedStudentList.add(students);
 		}
+		
 		studentRepository.save(updatedStudentList);
+		}
 	}
 
 	/**
 	 * Method to update student atttendance in day1,day2..
-	 * 
-	 * @param List
-	 *            Of Students to be update from CSV
+	 * @param file
+	 * @param flag
 	 * @return response
 	 */
 	public ApiResponse updateStudentAttendance(MultipartFile file, String flag) {
@@ -307,6 +307,12 @@ public class StudentService {
 		return apiResponse;
 	}
 
+	/**
+	 * Method to remove student invalid data
+	 * @param studentListDB
+	 * @param invalidDataIdList
+	 * @return studentListDB
+	 */
 	private List<Student> removeInvalidDataFromList(List<Student> studentListDB, List<Integer> invalidDataIdList) {
 		for (Integer id : invalidDataIdList) {
 			BeanPropertyValueEqualsPredicate predicate = new BeanPropertyValueEqualsPredicate("id", String.valueOf(id));
@@ -319,7 +325,6 @@ public class StudentService {
 	/**
 	 * This function overwrites values from given json string in to given
 	 * objectToUpdate
-	 * 
 	 * @param json
 	 * @param objectToUpdate
 	 * @return
