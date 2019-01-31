@@ -39,7 +39,6 @@ public class ApiSecretKeyInterceptor extends HandlerInterceptorAdapter {
 			return true;
 		}
 		String key=request.getHeader("secretKey");
-		System.out.println("KEYYYYYYYYYYYY= "+key);
 		Map<String, String> pathVariables = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 		
 		Integer studentId = null;

@@ -16,16 +16,21 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.apache.commons.beanutils.BeanPropertyValueEqualsPredicate;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
@@ -100,8 +105,12 @@ public class StudentService {
 
 	private List<Student> validateListStudent(List<Integer> ids) {
 		List<Student> students = studentRepository.findByIdIn(ids);
-		if (null == students) {
-			throw new BadRequestException("student not found by studentId=" + ids);
+		//List<Integer> ids2 = students.stream().map(std -> std.getId()).collect(Collectors.toList());
+		
+		//ids.remove(ids2);
+		//if (!org.springframework.util.CollectionUtils.isEmpty(ids2)) {
+			if (students==null || students.isEmpty()) {
+			throw new BadRequestException("student not found by studentId=" + students);
 		}
 		return students;
 	}
@@ -183,39 +192,73 @@ public class StudentService {
 	 * @param student
 	 * @return
 	 */
-	public void updateStudentOptin(List<Integer> studentIds, Student student){
-		if (student.getOptIn2019().equalsIgnoreCase("Y") || student.getOptIn2019().equalsIgnoreCase("N")) {
+	public ApiResponse updateStudentOptin(List<Integer> studentIds, Student student) {
+		ApiResponse response = null;
+		
+		if (student.getOptIn2019()!=null && (student.getOptIn2019().equalsIgnoreCase("Y") || student.getOptIn2019().equalsIgnoreCase("N"))) {
+			
 			List<Student> studentList = validateListStudent(studentIds);
-			List<Student> studentUpdatedList = new ArrayList<Student>();
-			Iterator<Student> iterator = studentList.iterator();
+			Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
+			response = populateResponse(validVsInvalidMap);
+			
+			ListIterator<Student> iterator = studentList.listIterator();
 			while (iterator.hasNext()) {
 				Student students = (Student) iterator.next();
 				students.setOptIn2019(student.getOptIn2019());
-				studentUpdatedList.add(students);
+				iterator.add(students);
 			}
-			studentRepository.save(studentUpdatedList);
-		} 
+			studentRepository.save(studentList);
+			
+		}else{
+			throw new ApplicationException("Invalid data");
+		}
+		return response; 
 	}
 
 	
+	private ApiResponse populateResponse(Map<String, List<Integer>> validInvalidIdsMap) {
+		ApiResponse response = new ApiResponse();
+		if (!validInvalidIdsMap.get("invalid").isEmpty()) {
+			response.setCode("207");
+			response.setFailRecordIds(String.valueOf(validInvalidIdsMap.get("invalid")));
+			response.setSuccessRecordsIds(String.valueOf(validInvalidIdsMap.get("valid")));
+			response.setMessage("Some records failed and some updated");
+		}
+		else{
+			response.setCode("200");
+			response.setSuccessRecordsIds(String.valueOf(validInvalidIdsMap.get("valid")));
+			response.setMessage("Updated Successfully");
+		}
+		return response;
+	}
+
+	
+
 	/**
 	 * Method to update student Print Status
 	 * @param studentIds
 	 * @param student
 	 * @return
 	 */
-	public void updateStudentPrintStatus(List<Integer> studentIds, Student student){
-		if (student.getPrintStatus().equalsIgnoreCase("Y") || student.getPrintStatus().equalsIgnoreCase("N")) {
+	public ApiResponse updateStudentPrintStatus(List<Integer> studentIds, Student student){
+		ApiResponse response=new ApiResponse();
+		if (student.getPrintStatus()!=null && student.getPrintStatus().equalsIgnoreCase("Y") || student.getPrintStatus().equalsIgnoreCase("N")) {
 			List<Student> studentList = validateListStudent(studentIds);
-			List<Student> studentUpdatedList = new ArrayList<Student>();
-			Iterator<Student> iterator = studentList.iterator();
+			
+			Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
+			response = populateResponse(validVsInvalidMap);
+			
+			ListIterator<Student> iterator = studentList.listIterator();
 			while (iterator.hasNext()) {
 				Student students = (Student) iterator.next();
 				students.setPrintStatus(student.getPrintStatus());
-				studentUpdatedList.add(students);
+				iterator.add(students);
 			}
-			studentRepository.save(studentUpdatedList);
+			studentRepository.save(studentList);
+		}else{
+			throw new ApplicationException("Invalid data");
 		}
+		return response;
 	}
 
 	/**
@@ -225,11 +268,18 @@ public class StudentService {
 	 * @param day
 	 * @return
 	 */
-	public void updateStudentAttendance(List<Integer> studentIds, String ispresent, int day){
+	public ApiResponse updateStudentAttendance(List<Integer> studentIds, String ispresent, int day){
+		ApiResponse response = new ApiResponse();
 		if(day>=1 && day<=8){
-		List<Student> studentdList = validateListStudent(studentIds);
-		List<Student> updatedStudentList = new ArrayList<Student>();
-		Iterator<Student> it = studentdList.iterator();
+			
+			List<Student> studentList = validateListStudent(studentIds);
+			List<Student> updatedStudentList = new ArrayList<Student>();
+		
+
+		Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
+		response = populateResponse(validVsInvalidMap);
+		
+		Iterator<Student> it = studentList.iterator();
 		while (it.hasNext()) {
 			Student students = (Student) it.next();
 			switch (day) {
@@ -263,16 +313,19 @@ public class StudentService {
 		}
 		
 		studentRepository.save(updatedStudentList);
+		}else{
+			throw new ApplicationException("Invalid data");
 		}
+		return response;
 	}
 
 	/**
-	 * Method to update student atttendance in day1,day2..
+	 * Method to update student by file upload
 	 * @param file
 	 * @param flag
 	 * @return response
 	 */
-	public ApiResponse updateStudentAttendance(MultipartFile file, String flag) {
+	public ApiResponse updateStudent(MultipartFile file, String flag) {
 		ApiResponse apiResponse = new ApiResponse();
 		try {
 			List<StudentUploadAttendance> studentUploadAttendanceList = FileImportUtil.convertToStudentCSVBean(file,
@@ -282,7 +335,9 @@ public class StudentService {
 			for (StudentUploadAttendance stuAttendance : studentUploadAttendanceList) {
 				studentIdList.add(Integer.parseInt(stuAttendance.getId()));
 			}
+			
 			List<Student> studentListDB = validateListStudent(studentIdList);
+			
 			for (Student studentDB : studentListDB) {
 				BeanPropertyValueEqualsPredicate predicate = new BeanPropertyValueEqualsPredicate("id",
 						String.valueOf(studentDB.getId()));
@@ -292,15 +347,30 @@ public class StudentService {
 				onlyNotNullCopyProperty.copyProperties(studentDB, stuAttendance);
 
 			}
-
-			List<Integer> invalidDataIdList = onlyNotNullCopyProperty.getInvalidDataList();
+			Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIdList, studentListDB);
+			
+			ApiResponse response = populateResponse(validVsInvalidMap);
+			List<Integer> li=null;
+			Set<Integer> invalidDataIdList = onlyNotNullCopyProperty.getInvalidDataList();
+			if(!validVsInvalidMap.get("valid").isEmpty()){
+				 li=validVsInvalidMap.get("valid");
+				li.removeAll(invalidDataIdList);
+				System.out.println(li);
+			}
 			studentListDB = removeInvalidDataFromList(studentListDB, invalidDataIdList);
 			studentRepository.save(studentListDB);
+			
 			if (!invalidDataIdList.isEmpty()) {
-				apiResponse.setFailRecordIds(invalidDataIdList.toString());
+				apiResponse.setFailRecordIds(invalidDataIdList.toString() + response.getFailRecordIds());
+				apiResponse.setTotalRecords(String.valueOf(studentUploadAttendanceList.size()));
+				apiResponse.setSuccessRecordsIds(li+"");
+				apiResponse.setMessage("Successfully updated some records but either id is not valid or data is not valid of failed Id's");
+			}else{
+				apiResponse.setSuccessRecordsIds(validVsInvalidMap.get("valid")+"");
+				apiResponse.setFailRecordIds(response.getFailRecordIds());
+				apiResponse.setTotalRecords(String.valueOf(studentUploadAttendanceList.size()));
+				apiResponse.setMessage("Successfully updated some records but either id is not valid or data is not valid of failed Id's");
 			}
-			apiResponse.setMessage("Successfully Updated");
-			apiResponse.setTotalRecords(String.valueOf(studentUploadAttendanceList.size()));
 		} catch (InvocationTargetException | IllegalAccessException e) {
 			throw new ApplicationException("Failed to update record" + e);
 		}
@@ -313,11 +383,11 @@ public class StudentService {
 	 * @param invalidDataIdList
 	 * @return studentListDB
 	 */
-	private List<Student> removeInvalidDataFromList(List<Student> studentListDB, List<Integer> invalidDataIdList) {
+	private List<Student> removeInvalidDataFromList(List<Student> studentListDB, Set<Integer> invalidDataIdList) {
 		for (Integer id : invalidDataIdList) {
 			BeanPropertyValueEqualsPredicate predicate = new BeanPropertyValueEqualsPredicate("id", String.valueOf(id));
 			Student stuAttendance = (Student) CollectionUtils.find(studentListDB, predicate);
-			studentListDB.remove(stuAttendance);
+			studentListDB.remove(stuAttendance);			
 		}
 		return studentListDB;
 	}
@@ -365,31 +435,16 @@ public class StudentService {
 
 		return students;
 	}
-
-	/**
-	 * Method to get difference in between today's date and day1 date
-	 * 
-	 * @return differenceDays
-	 */
-	public static int getDayDifference() {
-		String Day1 = "14/01/2019";
-		int differenceDays = 0;
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-		Date day1DateInDateType, todaysDateInDateType;
-		String todaysDate = dateFormat.format(new Date());
-		try {
-			day1DateInDateType = dateFormat.parse(Day1);
-			todaysDateInDateType = dateFormat.parse(todaysDate);
-			int diff = (int) todaysDateInDateType.getTime() - (int) day1DateInDateType.getTime();
-			differenceDays = diff / (24 * 60 * 60 * 1000);
-			System.out.print(differenceDays + " days ");
-			if (differenceDays >= 7 || differenceDays < 0) {
-				differenceDays = 0;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+	
+	private Map<String,List<Integer>> getInvalidIdsList(List<Integer> studentIds,List<Student>studentList){
+		List<Integer> validIds = studentList.stream().map(std -> std.getId()).collect(Collectors.toList());
+		if (!validIds.isEmpty()) {
+			studentIds.removeAll(validIds);			
 		}
-		return differenceDays;
+		Map<String, List<Integer>>map=new HashMap<String, List<Integer>>();
+		map.put("valid", validIds);
+		map.put("invalid", studentIds);
+		return map;
 	}
-
+	
 }

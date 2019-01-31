@@ -1,21 +1,15 @@
 package com.pepcus.appstudent.controller;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -23,15 +17,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pepcus.appstudent.response.ApiResponse;
 import com.pepcus.appstudent.service.StudentService;
-import com.pepcus.appstudent.util.FileImportUtil;
-import com.pepcus.appstudent.exception.APIErrorCodes;
-import com.pepcus.appstudent.exception.ApplicationException;
 import com.pepcus.appstudent.entity.*;
 
 /**
@@ -102,26 +92,24 @@ public class StudentController {
 
 	/**
 	 * Used to update attendance record by CSV File
-	 * 
 	 * @param file
 	 * @return response
 	 */
 	@RequestMapping(value = "/bulk-attendance", method = RequestMethod.PATCH)
 	public ResponseEntity<ApiResponse> uploadAttendance(
 			@RequestParam(value = "file", required = false) MultipartFile file) {
-		ApiResponse response = studentService.updateStudentAttendance(file, "attendance");
+		ApiResponse response = studentService.updateStudent(file, "attendance");
 		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
 	/**
 	 * Used to update Opt In 2019 record by CSV File
-	 * 
 	 * @param MultipartFile
 	 * @return response
 	 */
 	@RequestMapping(value = "/bulk-optin", method = RequestMethod.PATCH)
 	public ResponseEntity<ApiResponse> updateOptIn(@RequestParam(value = "file", required = false) MultipartFile file) {
-		ApiResponse response = studentService.updateStudentAttendance(file, "optin");
+		ApiResponse response = studentService.updateStudent(file, "optin");
 		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
 	}
 
@@ -147,9 +135,9 @@ public class StudentController {
 		} else {
 			response.setMessage("Updated Successfully");
 			response.setStatus("OK");
-			studentService.updateStudentAttendance(Arrays.asList(studentId), "Y", js.getInt("day"));
+			response=studentService.updateStudentAttendance(new ArrayList<Integer>(Arrays.asList(studentId)), "Y", js.getInt("day"));
 		}
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.MULTI_STATUS);
 	}
 
 	/**
@@ -163,17 +151,8 @@ public class StudentController {
 	public ResponseEntity<ApiResponse> updateReprintStatus(
 			@RequestParam(value = "id", required = true) Integer studentId[], @RequestBody Student student) {
 		ApiResponse response = new ApiResponse();
-		if (student.getPrintStatus() == null || (!student.getPrintStatus().equalsIgnoreCase("Y")
-				&& !student.getPrintStatus().equalsIgnoreCase("N"))) {
-			response.setMessage("Failed..! to update data is not valid");
-			response.setStatus("304");
-		} else {
-			studentService.updateStudentPrintStatus(Arrays.asList(studentId), student);
-			response.setMessage("Updated Successfully");
-			response.setStatus("OK");
-			response.setCode("200");
-		}
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		response = studentService.updateStudentPrintStatus(new ArrayList<Integer>(Arrays.asList(studentId)), student);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.MULTI_STATUS);
 	}
 
 	/**
@@ -187,16 +166,7 @@ public class StudentController {
 	public ResponseEntity<ApiResponse> updateOptIn(@RequestParam(value = "id", required = true) Integer studentId[],
 			@RequestBody Student student) {
 		ApiResponse response = new ApiResponse();
-		if (student.getOptIn2019() == null
-				|| (!student.getOptIn2019().equalsIgnoreCase("Y") && !student.getOptIn2019().equalsIgnoreCase("N"))) {
-			response.setMessage("Failed..! to update data is not valid");
-			response.setStatus("304");
-		} else {
-			studentService.updateStudentOptin(Arrays.asList(studentId), student);
-			response.setMessage("Updated Successfully");
-			response.setStatus("OK");
-			response.setCode("200");
-		}
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		response = studentService.updateStudentOptin(new ArrayList<Integer>(Arrays.asList(studentId)), student);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.MULTI_STATUS);
 	}
 }

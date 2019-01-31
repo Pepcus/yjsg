@@ -26,4 +26,5 @@ public class ApiResponse {
 	private String totalRecords;
 	private List<Student> students;
 	private String failRecordIds;
+	private String successRecordsIds;
 }

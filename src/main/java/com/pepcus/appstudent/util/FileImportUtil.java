@@ -1,6 +1,8 @@
 package com.pepcus.appstudent.util;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -13,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.opencsv.CSVReader;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import com.pepcus.appstudent.entity.StudentUploadAttendance;
@@ -28,30 +32,27 @@ public class FileImportUtil {
 	public static List<StudentUploadAttendance> convertToStudentCSVBean(MultipartFile file,String flag) {
 		try {
 			if (file == null) {
-				ApiErrorResponse errorResponse=new ApiErrorResponse();
-				//errorResponse.setMessage(message);
-//				errorResponse.setMessage("File not found");
-	//			errorResponse.setStatus(1010);
 				throw new ApplicationException("File not found..! Please select a file");
 			}
-
 			Reader reader = null;
 			BufferedReader br = null;
-			reader = new InputStreamReader(file.getInputStream());
+			
+			reader= new InputStreamReader(file.getInputStream());
 			br = new BufferedReader(new InputStreamReader(file.getInputStream()));
 			List<String> fileContents = br.lines().collect(Collectors.toList());
-			String headerLine = fileContents.get(0);
-			String[] headers = headerLine.split(",");
+			System.out.println(fileContents);
 			if (fileContents == null || fileContents.isEmpty() || fileContents.size() < 2) {
 				throw new ApplicationException("There is no Record in the file");
 			}
 			
+			String headerLine = fileContents.get(0);
+			String[] headers = headerLine.split(",");			
 			if (checkHeaders(headers,flag)) {
 				List<StudentUploadAttendance> studentUploadAttendanceList = new ArrayList<StudentUploadAttendance>();
 				HeaderColumnNameMappingStrategy<StudentUploadAttendance> strategy = new HeaderColumnNameMappingStrategy<StudentUploadAttendance>();
 				strategy.setType(StudentUploadAttendance.class);
 				CsvToBean<StudentUploadAttendance> csvToBean = new CsvToBean<StudentUploadAttendance>();
-				studentUploadAttendanceList = csvToBean.parse(strategy, reader);
+				studentUploadAttendanceList = csvToBean.parse(strategy,reader);
 				return studentUploadAttendanceList;
 			}else {
 				throw new ApplicationException("Headers in CSV File are not correct");

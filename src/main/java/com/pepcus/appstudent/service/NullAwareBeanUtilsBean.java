@@ -2,7 +2,9 @@ package com.pepcus.appstudent.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 
@@ -10,10 +12,10 @@ import com.pepcus.appstudent.entity.Student;
 
 public class NullAwareBeanUtilsBean extends BeanUtilsBean{
 
-	public List<Integer> invalidDataList = new ArrayList<Integer>();
+	public Set<Integer> invalidDataList = new LinkedHashSet<Integer>();
 	
 	
-    public List<Integer> getInvalidDataList() {
+    public Set<Integer> getInvalidDataList() {
 		return invalidDataList;
 	}
 
@@ -24,7 +26,7 @@ public class NullAwareBeanUtilsBean extends BeanUtilsBean{
         if(value==null){
         	return;
         }
-        else if (value !=null && !name.equals("id") && (!value.equals("Y") && !value.equals("N"))){
+        else if (value !=null && !name.trim().equalsIgnoreCase("id") && (!value.toString().equalsIgnoreCase("Y") && !value.toString().equalsIgnoreCase("N"))){
         	Student invalidStudent = (Student) dest;
         	invalidDataList.add(invalidStudent.getId());
         	return;
