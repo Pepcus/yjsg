@@ -143,8 +143,6 @@ public class Student {
 	@Column(name = "class_room_no_2019")
 	private String classRoomNo2019;
 
-	@Column(name = "attendance_2019")
-	private String attendance2019;
 
 	@Column(name = "marks_2019")
 	private String marks2019;

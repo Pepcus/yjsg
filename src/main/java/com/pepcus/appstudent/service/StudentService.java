@@ -105,10 +105,6 @@ public class StudentService {
 
 	private List<Student> validateListStudent(List<Integer> ids) {
 		List<Student> students = studentRepository.findByIdIn(ids);
-		//List<Integer> ids2 = students.stream().map(std -> std.getId()).collect(Collectors.toList());
-		
-		//ids.remove(ids2);
-		//if (!org.springframework.util.CollectionUtils.isEmpty(ids2)) {
 			if (students==null || students.isEmpty()) {
 			throw new BadRequestException("student not found by studentId=" + students);
 		}
@@ -350,20 +346,23 @@ public class StudentService {
 			Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIdList, studentListDB);
 			
 			ApiResponse response = populateResponse(validVsInvalidMap);
-			List<Integer> li=null;
+			List<Integer> successRecordList=new ArrayList<Integer>();
 			Set<Integer> invalidDataIdList = onlyNotNullCopyProperty.getInvalidDataList();
 			if(!validVsInvalidMap.get("valid").isEmpty()){
-				 li=validVsInvalidMap.get("valid");
-				li.removeAll(invalidDataIdList);
-				System.out.println(li);
+				successRecordList=validVsInvalidMap.get("valid");
+				successRecordList.removeAll(invalidDataIdList);
 			}
 			studentListDB = removeInvalidDataFromList(studentListDB, invalidDataIdList);
 			studentRepository.save(studentListDB);
 			
 			if (!invalidDataIdList.isEmpty()) {
-				apiResponse.setFailRecordIds(invalidDataIdList.toString() + response.getFailRecordIds());
+				if(response.getFailRecordIds()!=null){					
+					apiResponse.setFailRecordIds(invalidDataIdList.toString() + response.getFailRecordIds() );
+				}else{
+					apiResponse.setFailRecordIds(String.valueOf(invalidDataIdList));
+				}
 				apiResponse.setTotalRecords(String.valueOf(studentUploadAttendanceList.size()));
-				apiResponse.setSuccessRecordsIds(li+"");
+				apiResponse.setSuccessRecordsIds(successRecordList+"");
 				apiResponse.setMessage("Successfully updated some records but either id is not valid or data is not valid of failed Id's");
 			}else{
 				apiResponse.setSuccessRecordsIds(validVsInvalidMap.get("valid")+"");

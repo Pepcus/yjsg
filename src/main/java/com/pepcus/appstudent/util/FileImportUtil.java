@@ -1,64 +1,67 @@
 package com.pepcus.appstudent.util;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.opencsv.CSVReader;
 import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanFilter;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import com.pepcus.appstudent.entity.StudentUploadAttendance;
-import com.pepcus.appstudent.service.StudentService;
-
-import lombok.extern.apachecommons.CommonsLog;
-
 import com.pepcus.appstudent.exception.*;
 
 @Component
-public class FileImportUtil {
+public class FileImportUtil implements CsvToBeanFilter {
 
-	public static List<StudentUploadAttendance> convertToStudentCSVBean(MultipartFile file,String flag) {
+	@Override
+	public boolean allowLine(String[] line) {
+		
+		
+		if (ArrayUtils.getLength(line)<=1) {
+			return false;
+		}else {
+			return true;
+		}
+	}
+
+	public static List<StudentUploadAttendance> convertToStudentCSVBean(MultipartFile file, String flag) {
 		try {
 			if (file == null) {
 				throw new ApplicationException("File not found..! Please select a file");
 			}
-			Reader reader = null;
 			BufferedReader br = null;
+			BufferedReader brFileContent=null;
+			brFileContent = new BufferedReader(new InputStreamReader(file.getInputStream()));
+			br=new BufferedReader(new InputStreamReader(file.getInputStream()));
 			
-			reader= new InputStreamReader(file.getInputStream());
-			br = new BufferedReader(new InputStreamReader(file.getInputStream()));
 			List<String> fileContents = br.lines().collect(Collectors.toList());
-			System.out.println(fileContents);
 			if (fileContents == null || fileContents.isEmpty() || fileContents.size() < 2) {
 				throw new ApplicationException("There is no Record in the file");
 			}
 			
 			String headerLine = fileContents.get(0);
-			String[] headers = headerLine.split(",");			
-			if (checkHeaders(headers,flag)) {
+			String[] headers = headerLine.split(",");
+			if (checkHeaders(headers, flag)) {
 				List<StudentUploadAttendance> studentUploadAttendanceList = new ArrayList<StudentUploadAttendance>();
 				HeaderColumnNameMappingStrategy<StudentUploadAttendance> strategy = new HeaderColumnNameMappingStrategy<StudentUploadAttendance>();
 				strategy.setType(StudentUploadAttendance.class);
 				CsvToBean<StudentUploadAttendance> csvToBean = new CsvToBean<StudentUploadAttendance>();
-				studentUploadAttendanceList = csvToBean.parse(strategy,reader);
+				CsvToBeanFilter filter = new FileImportUtil();
+				studentUploadAttendanceList = csvToBean.parse(strategy, brFileContent, filter);
 				return studentUploadAttendanceList;
-			}else {
+
+			} else {
 				throw new ApplicationException("Headers in CSV File are not correct");
 			}
-		} catch (IOException | NullPointerException e) {
-			throw new ApplicationException("YOUR FILE IS NOT VALID");
+
+		} catch (NullPointerException | IOException e) {
+			throw new ApplicationException("Your file is not valid");
 		}
 	}
 
@@ -73,7 +76,7 @@ public class FileImportUtil {
 		}
 		return true;
 	}
-	
+
 	public static boolean checkoptInHeaders(String[] headersInFile) {
 		List<String> required = new ArrayList<String>();
 		String[] requiredHeaders = ApplicationConstants.OPTIN_REQUIRED_HEADERS;
@@ -86,14 +89,12 @@ public class FileImportUtil {
 		return true;
 	}
 
-	
-	public static boolean checkHeaders(String headers[],String flag){
-		boolean result=false;
-		if(flag.equalsIgnoreCase("optin")){
-			result=checkoptInHeaders(headers);
-		}
-		else if(flag.equalsIgnoreCase("attendance")){
-			result=checkAttendanceHeaders(headers);
+	public static boolean checkHeaders(String headers[], String flag) {
+		boolean result = false;
+		if (flag.equalsIgnoreCase("optin")) {
+			result = checkoptInHeaders(headers);
+		} else if (flag.equalsIgnoreCase("attendance")) {
+			result = checkAttendanceHeaders(headers);
 		}
 		return result;
 	}
