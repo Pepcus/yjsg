@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,8 +22,7 @@ public class FileImportUtil implements CsvToBeanFilter {
 
 	@Override
 	public boolean allowLine(String[] line) {
-		
-		
+		Arrays.stream(line).map(String::trim).toArray(unused -> line);
 		if (ArrayUtils.getLength(line)<=1) {
 			return false;
 		}else {
@@ -32,9 +32,16 @@ public class FileImportUtil implements CsvToBeanFilter {
 
 	public static List<StudentUploadAttendance> convertToStudentCSVBean(MultipartFile file, String flag) {
 		try {
+			
+			 // Validate if file has valid extension
+	        if (!FilenameUtils.isExtension(file.getOriginalFilename(),"csv")) {
+	        	throw new ApplicationException("Invalid file..! Please upload csv file only ");
+	        }
 			if (file == null) {
 				throw new ApplicationException("File not found..! Please select a file");
 			}
+			
+			
 			BufferedReader br = null;
 			BufferedReader brFileContent=null;
 			brFileContent = new BufferedReader(new InputStreamReader(file.getInputStream()));
@@ -54,6 +61,8 @@ public class FileImportUtil implements CsvToBeanFilter {
 				CsvToBean<StudentUploadAttendance> csvToBean = new CsvToBean<StudentUploadAttendance>();
 				CsvToBeanFilter filter = new FileImportUtil();
 				studentUploadAttendanceList = csvToBean.parse(strategy, brFileContent, filter);
+				br.close();
+				brFileContent.close();
 				return studentUploadAttendanceList;
 
 			} else {
