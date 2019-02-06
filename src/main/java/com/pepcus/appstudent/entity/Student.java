@@ -12,6 +12,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import org.springframework.core.annotation.Order;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -43,26 +45,33 @@ public class Student {
 		this.fatherName = fatherName;
 	}
 
+	@Order(value=1)
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
 	private Integer id;
 
+	@Order(value=2)
 	@Column(name = "name")
 	private String name;
 
+	@Order(value=3)
 	@Column(name = "father_name")
 	private String fatherName;
 
+	@Order(value=4)
 	@Column(name = "gender")
 	private String gender;
 
+	@Order(value=5)
 	@Column(name = "age")
 	private String age;
 
+	@Order(value=6)
 	@Column(name = "education")
 	private String education;
 
+	@Order(value=7)
 	@Column(name = "occupation")
 	private String occupation;
 
@@ -76,80 +85,78 @@ public class Student {
 	private String email;
 
 	@Column(name = "address")
-	private String address;
+	private String address	;
 
+	@Column(name = "bus_num")
+	private String busNumber;
+	
 	@Column(name = "bus_stop")
 	private String busStop;
 	
-	@Column(name = "bus_num")
-	private String busNumber;
+	@Column(name="printStatus")
+	private String printStatus;
 
-	@Column(name = "class_attended_2016")
-	private String classAttended2016;
-
-	@Column(name = "class_room_no_2016")
-	private String classRoomNo2016;
-
-	@Column(name = "attendance_2016")
-	private String attendance2016;
-
-	@Column(name = "marks_2016")
-	private String marks2016;
-
-	@Column(name = "class_attended_2017")
-	private String classAttended2017;
-
-	@Column(name = "class_room_no_2017")
-	private String classRoomNo2017;
-
-	@Column(name = "attendance_2017")
-	private String attendance2017;
-
-	@Column(name = "marks_2017")
-	private String marks2017;
-	
-	@Column(name = "class_room_no_2018")
-	private Integer classRoomNo2018;
-	
-	@Column(name = "course_2018")
-	private String course2018;
-	
-	@Column(name = "opt_in_2018")
-	private Integer optIn2018;
+	@Column(name = "remark", insertable = false)
+	private String remark;
 	
 	@Column(name = "secret_key")
 	@JsonProperty(access = Access.READ_ONLY)
 	private String secretKey;
 	
-	@Column(name = "remark", insertable = false)
-	private String remark;
+	@Column(name = "class_attended_2016")
+	private String classAttended2016;
 
-	@Column(name = "created_date")
-	@Temporal(TemporalType.DATE)
-	@JsonIgnore
-	private Date dateCreatedInDB;
-
-	@Column(name = "last_modified_date")
-	@Temporal(TemporalType.DATE)
-	@JsonIgnore
-	private Date dateLastModifiedInDB;
+	@Column(name = "class_attended_2017")
+	private String classAttended2017;
 	
-	@Column(name="printStatus")
-	private String printStatus;
+	@Column(name = "class_attended_2018")
+	private String classAttended2018;
+	
+	@Column(name = "class_attended_2019")
+	private String classAttended2019;
+	
+	@Column(name = "class_room_no_2016")
+	private String classRoomNo2016;
 
-	@Column(name = "opt_in_2019")
-	private String optIn2019;
+	@Column(name = "class_room_no_2017")
+	private String classRoomNo2017;
+
+	@Column(name = "class_room_no_2018")
+	private String classRoomNo2018;
 
 	@Column(name = "class_room_no_2019")
 	private String classRoomNo2019;
 
+	@Column(name = "attendance_2016")
+	private String attendance2016;
 
+	@Column(name = "attendance_2017")
+	private String attendance2017;
+	
+	@Column(name = "attendance_2018")
+	private String attendance2018;
+
+	@Column(name = "attendance_2019")
+	private String attendance2019;
+	
+	@Column(name = "marks_2016")
+	private String marks2016;
+
+	@Column(name = "marks_2017")
+	private String marks2017;
+	
+	@Column(name = "marks_2018")
+	private String marks2018;
+	
 	@Column(name = "marks_2019")
 	private String marks2019;
 	
-	@Column(name = "course_2019")
-	private String course2019;
+	@Column(name = "opt_in_2018")
+	private Integer optIn2018;
 	
+	@Column(name = "opt_in_2019")
+	private String optIn2019;
+
 	@Column(name="day1")
 	private String day1;
 	
@@ -173,6 +180,16 @@ public class Student {
 
 	@Column(name="day8")
 	private String day8;
+
+	@Column(name = "created_date")
+	@Temporal(TemporalType.DATE)
+	@JsonIgnore
+	private Date dateCreatedInDB;
+	
+	@Column(name = "last_modified_date")
+	@Temporal(TemporalType.DATE)
+	@JsonIgnore
+	private Date dateLastModifiedInDB;
 		
 	@Transient
 	@JsonProperty(access = Access.READ_ONLY)
