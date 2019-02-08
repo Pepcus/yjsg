@@ -5,9 +5,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pepcus.appstudent.response.ApiResponse;
 import com.pepcus.appstudent.service.StudentService;
+import com.pepcus.appstudent.util.ApplicationConstants;
 import com.pepcus.appstudent.entity.*;
 
 /**
@@ -99,7 +108,7 @@ public class StudentController {
 	public ResponseEntity<ApiResponse> uploadAttendance(
 			@RequestParam(value = "file", required = false) MultipartFile file) {
 		ApiResponse response = studentService.updateStudent(file, "attendance");
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.MULTI_STATUS);
 	}
 
 	/**
@@ -110,7 +119,7 @@ public class StudentController {
 	@RequestMapping(value = "/bulk-optin", method = RequestMethod.PATCH)
 	public ResponseEntity<ApiResponse> updateOptIn(@RequestParam(value = "file", required = false) MultipartFile file) {
 		ApiResponse response = studentService.updateStudent(file, "optin");
-		return new ResponseEntity<ApiResponse>(response, HttpStatus.OK);
+		return new ResponseEntity<ApiResponse>(response, HttpStatus.MULTI_STATUS);
 	}
 
 	/**
@@ -127,7 +136,6 @@ public class StudentController {
 		ApiResponse response = new ApiResponse();
 		JSONObject js = new JSONObject(json);
 		System.out.println("get: "+js.get("day"));
-		//System.out.println("String: "+js.getString("day"));
 		if ((js.get("day").equals(null) || js.getString("day").equals(""))
 				|| (js.getInt("day") > 8 && js.getInt("day") < 1)) {
 			response.setMessage("Failed..! to update data is not valid");
@@ -168,5 +176,42 @@ public class StudentController {
 		ApiResponse response = new ApiResponse();
 		response = studentService.updateStudentOptin(new ArrayList<Integer>(Arrays.asList(studentId)), student);
 		return new ResponseEntity<ApiResponse>(response, HttpStatus.MULTI_STATUS);
+	}
+	
+	
+	/**
+	 * Used to update print status record
+	 * which is 'Y' as 'N'
+	 * 
+	 * @return response
+	 */
+	@RequestMapping(value = "/reset-reprint", method = RequestMethod.PATCH)
+	public ResponseEntity<ApiResponse> resetPrintStatus() {
+		ApiResponse response = new ApiResponse();
+		studentService.updatePrint();
+		response.setCode("200");
+		response.setStatus("OK");
+		return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
+	}
+	
+	/**
+	 * Used to download duplicate data CSV 
+	 * 
+	 * @return response
+	 */
+	@RequestMapping(method = RequestMethod.GET, headers = "Accept=*/*", value = "/download-duplicate", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	public ResponseEntity<InputStreamResource> getDuplicateStudentData1(
+			@RequestParam(value = "file", required = false) MultipartFile file, HttpServletResponse response)
+			throws FileNotFoundException, IOException {
+		File generatedFile = studentService.getDuplicateCSV(file);
+		InputStreamResource resource=new InputStreamResource(new FileInputStream(generatedFile));
+		response.setContentLength((int) generatedFile.length());
+		response.setContentType(ApplicationConstants.APPLICATION_FORCEDOWNLOAD);
+		response.setHeader(ApplicationConstants.CONTENT_DISPOSITION, ApplicationConstants.ATTACHMENT_FILENAME + generatedFile.getName() + ApplicationConstants.DOUBL_QUOTE);// fileName);
+		return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                      "attachment;filename=" + generatedFile.getName())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM).contentLength(generatedFile.length())
+                .body(resource);
 	}
 }

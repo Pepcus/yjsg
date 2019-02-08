@@ -1,6 +1,8 @@
 package com.pepcus.appstudent.util;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -11,6 +13,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.opencsv.CSVWriter;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanFilter;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
@@ -107,4 +111,45 @@ public class FileImportUtil implements CsvToBeanFilter {
 		}
 		return result;
 	}
+
+public static List<String> getCSVData(MultipartFile file){
+		List<String> completeRecord=new ArrayList<>();
+		try {
+			// Validate if file has valid extension
+			if (!FilenameUtils.isExtension(file.getOriginalFilename(), "csv")) {
+				throw new ApplicationException("Invalid file..! Please upload csv file only ");
+			}
+			if (file == null) {
+				throw new ApplicationException("File not found..! Please select a file");
+			}
+			String line = "";
+			BufferedReader br = null;
+			br = new BufferedReader(new InputStreamReader(file.getInputStream()));
+			while ((line = br.readLine()) != null) {
+				String singleRecord[] = line.trim().split(",");
+				if (singleRecord != null && singleRecord.length > 2 && !singleRecord.equals("")) {
+					completeRecord.add(line);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return completeRecord;
+	}
+
+public static File getDuplicateDataCSV(String[] headers,List<String[]>finalDuplicateList){
+	File duplicateCSVData = new File("StudentDuplicateData.csv");
+	FileWriter outputfile;
+	try {
+		outputfile = new FileWriter(duplicateCSVData);
+		CSVWriter csvWriter = new CSVWriter(outputfile);
+		csvWriter.writeNext(headers);
+		csvWriter.writeAll(finalDuplicateList);
+		csvWriter.close();
+	} catch (IOException e) {
+		throw new ApplicationException("Failed to write duplicate data");
+	}
+	return duplicateCSVData;
+}
+
 }

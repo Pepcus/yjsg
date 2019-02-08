@@ -8,13 +8,20 @@ import static com.pepcus.appstudent.exception.ApplicationException.*;
 import static com.pepcus.appstudent.util.ApplicationConstants.*;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,10 +37,16 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.apache.commons.beanutils.BeanPropertyValueEqualsPredicate;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.coyote.Response;
+import org.apache.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +55,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.opencsv.CSVWriter;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import com.pepcus.appstudent.entity.Student;
@@ -52,6 +66,7 @@ import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.repository.StudentRepository;
 import com.pepcus.appstudent.response.ApiResponse;
 import com.pepcus.appstudent.util.FileImportUtil;
+import com.pepcus.appstudent.util.Sortbyname;
 
 /**
  * This is a service layer which generates response
@@ -192,11 +207,9 @@ public class StudentService {
 		ApiResponse response = null;
 		
 		if (student.getOptIn2019()!=null && (student.getOptIn2019().equalsIgnoreCase("Y") || student.getOptIn2019().equalsIgnoreCase("N"))) {
-			
 			List<Student> studentList = validateListStudent(studentIds);
 			Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
 			response = populateResponse(validVsInvalidMap);
-			
 			ListIterator<Student> iterator = studentList.listIterator();
 			while (iterator.hasNext()) {
 				Student students = (Student) iterator.next();
@@ -215,13 +228,17 @@ public class StudentService {
 	private ApiResponse populateResponse(Map<String, List<Integer>> validInvalidIdsMap) {
 		ApiResponse response = new ApiResponse();
 		if (!validInvalidIdsMap.get("invalid").isEmpty()) {
-			response.setCode("207");
+			response.setCode(String.valueOf(HttpStatus.MULTI_STATUS));
 			response.setFailRecordIds(String.valueOf(validInvalidIdsMap.get("invalid")));
+			int total=validInvalidIdsMap.get("invalid").size()+validInvalidIdsMap.get("valid").size();
 			response.setSuccessRecordsIds(String.valueOf(validInvalidIdsMap.get("valid")));
+			response.setTotalRecords(String.valueOf(total));
 			response.setMessage("Some records failed and some updated");
 		}
 		else{
-			response.setCode("200");
+			response.setCode(String.valueOf(HttpStatus.OK));
+			int total=validInvalidIdsMap.get("valid").size();
+			response.setTotalRecords(String.valueOf(total));
 			response.setSuccessRecordsIds(String.valueOf(validInvalidIdsMap.get("valid")));
 			response.setMessage("Updated Successfully");
 		}
@@ -324,8 +341,7 @@ public class StudentService {
 	public ApiResponse updateStudent(MultipartFile file, String flag) {
 		ApiResponse apiResponse = new ApiResponse();
 		try {
-			List<StudentUploadAttendance> studentUploadAttendanceList = FileImportUtil.convertToStudentCSVBean(file,
-					flag);
+			List<StudentUploadAttendance> studentUploadAttendanceList = FileImportUtil.convertToStudentCSVBean(file,flag);
 			NullAwareBeanUtilsBean onlyNotNullCopyProperty = new NullAwareBeanUtilsBean();
 			List<Integer> studentIdList = new ArrayList<Integer>();
 			for (StudentUploadAttendance stuAttendance : studentUploadAttendanceList) {
@@ -335,41 +351,35 @@ public class StudentService {
 			List<Student> studentListDB = validateListStudent(studentIdList);
 			
 			for (Student studentDB : studentListDB) {
-				BeanPropertyValueEqualsPredicate predicate = new BeanPropertyValueEqualsPredicate("id",
-						String.valueOf(studentDB.getId()));
-				StudentUploadAttendance stuAttendance = (StudentUploadAttendance) CollectionUtils
-						.find(studentUploadAttendanceList, predicate);
-
+				BeanPropertyValueEqualsPredicate predicate = new BeanPropertyValueEqualsPredicate("id",String.valueOf(studentDB.getId()));
+				StudentUploadAttendance stuAttendance = (StudentUploadAttendance) CollectionUtils.find(studentUploadAttendanceList, predicate);
 				onlyNotNullCopyProperty.copyProperties(studentDB, stuAttendance);
 
 			}
 			Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIdList, studentListDB);
-			
-			ApiResponse response = populateResponse(validVsInvalidMap);
 			List<Integer> successRecordList=new ArrayList<Integer>();
+			
+			//getting inValidIdList whose data is not correct 
 			Set<Integer> invalidDataIdList = onlyNotNullCopyProperty.getInvalidDataList();
+			
+			//removing invalidDataIdList from success list 
 			if(!validVsInvalidMap.get("valid").isEmpty()){
 				successRecordList=validVsInvalidMap.get("valid");
 				successRecordList.removeAll(invalidDataIdList);
+				
 			}
+			//converting Set<Integer> to List<Integer>
+			List<Integer> getInvalidList=new ArrayList<Integer>(invalidDataIdList);
+			getInvalidList.addAll(validVsInvalidMap.get("invalid"));
+			validVsInvalidMap.put("valid",successRecordList);
+			validVsInvalidMap.put("invalid",getInvalidList);
+			int totalRecords=successRecordList.size()+getInvalidList.size();
+			apiResponse.setTotalRecords(String.valueOf(totalRecords));
+			apiResponse = populateResponse(validVsInvalidMap);
+			//removing invalidStudent object 
 			studentListDB = removeInvalidDataFromList(studentListDB, invalidDataIdList);
 			studentRepository.save(studentListDB);
-			
-			if (!invalidDataIdList.isEmpty()) {
-				if(response.getFailRecordIds()!=null){					
-					apiResponse.setFailRecordIds(invalidDataIdList.toString() + response.getFailRecordIds() );
-				}else{
-					apiResponse.setFailRecordIds(String.valueOf(invalidDataIdList));
-				}
-				apiResponse.setTotalRecords(String.valueOf(studentUploadAttendanceList.size()));
-				apiResponse.setSuccessRecordsIds(successRecordList+"");
-				apiResponse.setMessage("Successfully updated some records but either id is not valid or data is not valid of failed Id's");
-			}else{
-				apiResponse.setSuccessRecordsIds(validVsInvalidMap.get("valid")+"");
-				apiResponse.setFailRecordIds(response.getFailRecordIds());
-				apiResponse.setTotalRecords(String.valueOf(studentUploadAttendanceList.size()));
-				apiResponse.setMessage("Successfully updated some records but either id is not valid or data is not valid of failed Id's");
-			}
+		
 		} catch (InvocationTargetException | IllegalAccessException e) {
 			throw new ApplicationException("Failed to update record" + e);
 		}
@@ -445,5 +455,81 @@ public class StudentService {
 		map.put("invalid", studentIds);
 		return map;
 	}
-	
+
+	public void updatePrint() {
+		studentRepository.resetPrintStatus();
+	}
+
+	public File getDuplicateCSV(MultipartFile file) {
+		List<String> originalRecords = FileImportUtil.getCSVData(file);
+		String headers[] = null;
+		try(BufferedReader brFileContent = new BufferedReader(new InputStreamReader(file.getInputStream()))){ 
+			List<String> fileContents = brFileContent.lines().collect(Collectors.toList());
+			headers = fileContents.get(0).split(",");
+		}
+		 catch (IOException e) {
+			throw new ApplicationException("Failed to read CSV file..!");
+		}
+		
+		//getting Duplicate records
+		List<String[]> duplicateRecords=getDuplicateRecords(originalRecords); 
+
+		List<String>duplicateList=getDuplicateRecordFromOriginal(duplicateRecords,originalRecords);
+		
+		// Sorting data by Student name and father name 
+		Collections.sort(duplicateList, new Sortbyname());
+		
+		List<String[]> finalDuplicateList = new ArrayList<>();
+
+		// adding single duplicate record to final list
+		for (String duplicateRecord : duplicateList) {
+			String duplicate[] = duplicateRecord.split(",");
+			finalDuplicateList.add(duplicate);   
+		}
+		File duplicateCSVData =FileImportUtil.getDuplicateDataCSV(headers,finalDuplicateList); 
+		System.out.println("**Complete**");
+		return duplicateCSVData;
+		
+	}
+
+	// taking out duplicate record from original record
+	private List<String> getDuplicateRecordFromOriginal(List<String[]> duplicateRecords,List<String> originalRecords) {
+		List<String> duplicateList =new ArrayList<>();
+		for (String singleduplicateRecord[] : duplicateRecords) {
+			for (String originalRecord : originalRecords) {
+				String singleOriginalRecord[] = originalRecord.split(",");
+				if (singleduplicateRecord[0].equals(singleOriginalRecord[0])) { //checking if duplicate record (s[0], id) equals to original data(original[0],id) & adding into List 
+					duplicateList.add(originalRecord);
+				}
+			}
+		}
+		return duplicateList;
+	}
+
+	private List<String[]> getDuplicateRecords(List<String> originalRecords) {
+		List<String[]> duplicateRecords = new ArrayList<>();
+		for (String record : originalRecords) {
+			String recordArray[] = record.split(",");
+			String fullname = recordArray[1].trim() + recordArray[2].trim();
+			fullname = fullname.replaceAll("\\s", "");
+			int count = 0;
+			int flag = 0;
+			for (String duplicate : originalRecords) {
+				String recordArrayDup[] = duplicate.split(",");
+				String fullnameDuplicate = recordArrayDup[1].trim() + recordArrayDup[2].trim();
+				fullnameDuplicate = fullnameDuplicate.replaceAll("\\s", "");  // removing additional space
+				if (fullname.equalsIgnoreCase(fullnameDuplicate)) {
+					count++;
+					if (count > 1 && flag == 0) {
+						flag++;
+						duplicateRecords.add(record.split(","));
+
+					}
+				}
+			}
+		}
+		return duplicateRecords;
+	}
 }
+
+

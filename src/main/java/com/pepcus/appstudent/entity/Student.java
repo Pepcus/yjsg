@@ -45,33 +45,27 @@ public class Student {
 		this.fatherName = fatherName;
 	}
 
-	@Order(value=1)
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
 	private Integer id;
-
-	@Order(value=2)
+	
 	@Column(name = "name")
 	private String name;
-
-	@Order(value=3)
+	
 	@Column(name = "father_name")
 	private String fatherName;
-
-	@Order(value=4)
+	
 	@Column(name = "gender")
 	private String gender;
-
-	@Order(value=5)
+	
 	@Column(name = "age")
 	private String age;
 
-	@Order(value=6)
 	@Column(name = "education")
 	private String education;
 
-	@Order(value=7)
 	@Column(name = "occupation")
 	private String occupation;
 

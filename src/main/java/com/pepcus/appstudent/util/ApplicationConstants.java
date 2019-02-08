@@ -18,4 +18,10 @@ public class ApplicationConstants {
             "day5", "day6", "day7","day8"};
 
   public static final String[] OPTIN_REQUIRED_HEADERS = { "id","optIn2019"};
+  
+  public static final String APPLICATION_FORCEDOWNLOAD="application/force-download";
+  public static final String CONTENT_DISPOSITION="Content-Disposition";
+  public static final String ATTACHMENT_FILENAME="attachment; filename=\"";
+  public static final String DOUBL_QUOTE="\"";
+  
 }

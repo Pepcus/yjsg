@@ -6,6 +6,8 @@ import static com.pepcus.appstudent.util.CommonUtil.getRequestAttribute;
 import java.util.List;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -59,12 +61,17 @@ public class ResponseHandler implements ResponseBodyAdvice<Object> {
 		if (body instanceof ApiErrorResponse || body instanceof Exception) {
 			return body;
 		}
+		
+		if(body instanceof Resource){
+			return body;
+		}
 
 		ServletServerHttpRequest httpRequest = (ServletServerHttpRequest) request;
 		ServletServerHttpResponse httpResponse = (ServletServerHttpResponse) response;
 
 		ApiResponse apiResponse = new ApiResponse();
 
+		
 		int statusCode = httpResponse.getServletResponse().getStatus();
 		apiResponse.setCode(String.valueOf(statusCode));
 		apiResponse.setStatus(HttpStatus.valueOf(statusCode).name());
@@ -88,6 +95,7 @@ public class ResponseHandler implements ResponseBodyAdvice<Object> {
 		if (httpRequest.getMethod().equals(HttpMethod.PATCH) && body instanceof ApiResponse) {
 			return body;
 		}
+
 		
 		if (httpRequest.getMethod().equals(HttpMethod.PUT) && body instanceof ApiResponse) {
 			return body;
