@@ -17,6 +17,7 @@ import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import com.pepcus.appstudent.entity.Person;
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.exception.ApiErrorResponse;
 
@@ -73,6 +74,12 @@ public class ResponseHandler implements ResponseBodyAdvice<Object> {
 			apiResponse.setStudent((Student) body);
 		}
 
+		if (httpRequest.getMethod().equals(HttpMethod.POST) && body instanceof Person) {
+			apiResponse.setMessage("Registration successful");
+			apiResponse.setPerson((Person) body);
+		}
+		
+		
 		if (httpRequest.getMethod().equals(HttpMethod.PUT) && body instanceof Student) {
 			apiResponse.setMessage("Student successfully updated");
 			apiResponse.setStudent((Student) body);
@@ -81,6 +88,7 @@ public class ResponseHandler implements ResponseBodyAdvice<Object> {
 		if (httpRequest.getMethod().equals(HttpMethod.PATCH) && body instanceof ApiResponse) {
 			return body;
 		}
+		
 		if (httpRequest.getMethod().equals(HttpMethod.PUT) && body instanceof ApiResponse) {
 			return body;
 		}
