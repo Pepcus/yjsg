@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.pepcus.appstudent.entity.Person;
-import com.pepcus.appstudent.exception.ApplicationException;
 import com.pepcus.appstudent.service.PersonService;
 
 @RestController
@@ -23,6 +22,7 @@ public class PersonController {
 	private PersonService personService ;
 
 	/**
+	 * Used to create Person record
 	 * 
 	 * @param person
 	 * @return
@@ -33,6 +33,13 @@ public class PersonController {
 		return new ResponseEntity<Person>(savedPerson, HttpStatus.CREATED);
 	}
 	
+	
+	/**
+	 * Used to get person record by personId
+	 * 
+	 * @param personId
+	 * @return
+	 * **/
 	@GetMapping(value = "/{personId}")
 	public ResponseEntity<Person> getPerson(@PathVariable Map<String, String> pathVars) {
 		Integer personId = Integer.valueOf(pathVars.get("personId"));
