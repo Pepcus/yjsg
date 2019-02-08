@@ -17,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.pepcus.appstudent.util.SearchableEntity;
 
 import lombok.Data;
 
@@ -25,7 +24,7 @@ import lombok.Data;
 @Table(name = "person")
 @Data
 @JsonInclude(Include.ALWAYS)
-public class Person implements SearchableEntity{
+public class Person{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
