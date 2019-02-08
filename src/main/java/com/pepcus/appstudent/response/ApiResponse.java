@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.pepcus.appstudent.entity.Person;
 import com.pepcus.appstudent.entity.Student;
 
 import lombok.Data;
@@ -27,4 +28,5 @@ public class ApiResponse {
 	private List<Student> students;
 	private String failRecordIds;
 	private String successRecordsIds;
+	private Person person;
 }
