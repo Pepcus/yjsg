@@ -24,7 +24,7 @@ public class PersonService {
 	private PersonRepository personRepository;
 		
 	@PersistenceContext
-	private EntityManager em;
+	private EntityManager entityManager;
 
 	
 	/**
@@ -38,14 +38,9 @@ public class PersonService {
 		Date currentDate = Calendar.getInstance().getTime();
 		person.setDateCreatedInDB(currentDate);
 		person.setDateLastModifiedInDB(currentDate);
-
 		Person savedPerson = personRepository.save(person);
-
 		savedPerson.setLastModifiedDate(convertDateToString(savedPerson.getDateLastModifiedInDB()));
 		savedPerson.setCreatedDate(convertDateToString(savedPerson.getDateCreatedInDB()));
-		em.flush();
-		em.refresh(savedPerson);
-
 		return person;
 	}
 	

@@ -65,6 +65,7 @@ import com.pepcus.appstudent.exception.ApplicationException;
 import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.repository.StudentRepository;
 import com.pepcus.appstudent.response.ApiResponse;
+import com.pepcus.appstudent.util.ApplicationConstants;
 import com.pepcus.appstudent.util.FileImportUtil;
 import com.pepcus.appstudent.util.Sortbyname;
 
@@ -445,6 +446,12 @@ public class StudentService {
 		return students;
 	}
 	
+	/**
+	 * Method to get Map of students invalid and valid list
+	 * 
+	 * @param allRequestParams
+	 * @return map
+	 */
 	private Map<String,List<Integer>> getInvalidIdsList(List<Integer> studentIds,List<Student>studentList){
 		List<Integer> validIds = studentList.stream().map(std -> std.getId()).collect(Collectors.toList());
 		if (!validIds.isEmpty()) {
@@ -460,12 +467,18 @@ public class StudentService {
 		studentRepository.resetPrintStatus();
 	}
 
-	public File getDuplicateCSV(MultipartFile file) {
+	/**
+	 * Method to get duplicate studentds records
+	 * 
+	 * @param allRequestParams
+	 * @return
+	 */
+	public File getDuplicateRecords(MultipartFile file) {
 		List<String> originalRecords = FileImportUtil.getCSVData(file);
 		String headers[] = null;
 		try(BufferedReader brFileContent = new BufferedReader(new InputStreamReader(file.getInputStream()))){ 
 			List<String> fileContents = brFileContent.lines().collect(Collectors.toList());
-			headers = fileContents.get(0).split(",");
+			headers = fileContents.get(0).split(ApplicationConstants.COMMA_SEPARATOR);
 		}
 		 catch (IOException e) {
 			throw new ApplicationException("Failed to read CSV file..!");
@@ -483,13 +496,11 @@ public class StudentService {
 
 		// adding single duplicate record to final list
 		for (String duplicateRecord : duplicateList) {
-			String duplicate[] = duplicateRecord.split(",");
+			String duplicate[] = duplicateRecord.split(ApplicationConstants.COMMA_SEPARATOR);
 			finalDuplicateList.add(duplicate);   
 		}
 		File duplicateCSVData =FileImportUtil.getDuplicateDataCSV(headers,finalDuplicateList); 
-		System.out.println("**Complete**");
 		return duplicateCSVData;
-		
 	}
 
 	// taking out duplicate record from original record
@@ -497,7 +508,7 @@ public class StudentService {
 		List<String> duplicateList =new ArrayList<>();
 		for (String singleduplicateRecord[] : duplicateRecords) {
 			for (String originalRecord : originalRecords) {
-				String singleOriginalRecord[] = originalRecord.split(",");
+				String singleOriginalRecord[] = originalRecord.split(ApplicationConstants.COMMA_SEPARATOR);
 				if (singleduplicateRecord[0].equals(singleOriginalRecord[0])) { //checking if duplicate record (s[0], id) equals to original data(original[0],id) & adding into List 
 					duplicateList.add(originalRecord);
 				}
@@ -509,21 +520,20 @@ public class StudentService {
 	private List<String[]> getDuplicateRecords(List<String> originalRecords) {
 		List<String[]> duplicateRecords = new ArrayList<>();
 		for (String record : originalRecords) {
-			String recordArray[] = record.split(",");
+			String recordArray[] = record.split(ApplicationConstants.COMMA_SEPARATOR);
 			String fullname = recordArray[1].trim() + recordArray[2].trim();
-			fullname = fullname.replaceAll("\\s", "");
+			fullname = fullname.replaceAll(ApplicationConstants.REGEX_FOR_SPACE, "");
 			int count = 0;
 			int flag = 0;
 			for (String duplicate : originalRecords) {
-				String recordArrayDup[] = duplicate.split(",");
+				String recordArrayDup[] = duplicate.split(ApplicationConstants.COMMA_SEPARATOR);
 				String fullnameDuplicate = recordArrayDup[1].trim() + recordArrayDup[2].trim();
-				fullnameDuplicate = fullnameDuplicate.replaceAll("\\s", "");  // removing additional space
+				fullnameDuplicate = fullnameDuplicate.replaceAll(ApplicationConstants.REGEX_FOR_SPACE, "");  // removing additional space
 				if (fullname.equalsIgnoreCase(fullnameDuplicate)) {
 					count++;
 					if (count > 1 && flag == 0) {
 						flag++;
-						duplicateRecords.add(record.split(","));
-
+						duplicateRecords.add(record.split(ApplicationConstants.COMMA_SEPARATOR));
 					}
 				}
 			}

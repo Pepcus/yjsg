@@ -38,7 +38,7 @@ public class FileImportUtil implements CsvToBeanFilter {
 		try {
 			
 			 // Validate if file has valid extension
-	        if (!FilenameUtils.isExtension(file.getOriginalFilename(),"csv")) {
+	        if (!FilenameUtils.isExtension(file.getOriginalFilename(),ApplicationConstants.VALID_FILE_EXTENSION_IMPORT)) {
 	        	throw new ApplicationException("Invalid file..! Please upload csv file only ");
 	        }
 			if (file == null) {
@@ -57,7 +57,7 @@ public class FileImportUtil implements CsvToBeanFilter {
 			}
 			
 			String headerLine = fileContents.get(0);
-			String[] headers = headerLine.split(",");
+			String[] headers = headerLine.split(ApplicationConstants.COMMA_SEPARATOR);
 			if (checkHeaders(headers, flag)) {
 				List<StudentUploadAttendance> studentUploadAttendanceList = new ArrayList<StudentUploadAttendance>();
 				HeaderColumnNameMappingStrategy<StudentUploadAttendance> strategy = new HeaderColumnNameMappingStrategy<StudentUploadAttendance>();
@@ -78,7 +78,7 @@ public class FileImportUtil implements CsvToBeanFilter {
 		}
 	}
 
-	public static boolean checkAttendanceHeaders(String[] headersInFile) {
+	private static boolean checkAttendanceHeaders(String[] headersInFile) {
 		List<String> required = new ArrayList<String>();
 		String[] requiredHeaders = ApplicationConstants.ATTENDANCE_REQUIRED_HEADERS;
 		required = Arrays.asList(requiredHeaders);
@@ -90,7 +90,7 @@ public class FileImportUtil implements CsvToBeanFilter {
 		return true;
 	}
 
-	public static boolean checkoptInHeaders(String[] headersInFile) {
+	private static boolean checkoptInHeaders(String[] headersInFile) {
 		List<String> required = new ArrayList<String>();
 		String[] requiredHeaders = ApplicationConstants.OPTIN_REQUIRED_HEADERS;
 		required = Arrays.asList(requiredHeaders);
@@ -102,7 +102,7 @@ public class FileImportUtil implements CsvToBeanFilter {
 		return true;
 	}
 
-	public static boolean checkHeaders(String headers[], String flag) {
+	private static boolean checkHeaders(String headers[], String flag) {
 		boolean result = false;
 		if (flag.equalsIgnoreCase("optin")) {
 			result = checkoptInHeaders(headers);
@@ -112,27 +112,28 @@ public class FileImportUtil implements CsvToBeanFilter {
 		return result;
 	}
 
-public static List<String> getCSVData(MultipartFile file){
-		List<String> completeRecord=new ArrayList<>();
+	public static List<String> getCSVData(MultipartFile file) {
+		List<String> completeRecord = new ArrayList<>();
+
+		// Validate if file has valid extension
+		if (!FilenameUtils.isExtension(file.getOriginalFilename(), ApplicationConstants.VALID_FILE_EXTENSION_IMPORT)) {
+			throw new ApplicationException("Invalid file..! Please upload csv file only ");
+		}
+		if (file == null) {
+			throw new ApplicationException("File not found..! Please select a file");
+		}
+		String line = "";
 		try {
-			// Validate if file has valid extension
-			if (!FilenameUtils.isExtension(file.getOriginalFilename(), "csv")) {
-				throw new ApplicationException("Invalid file..! Please upload csv file only ");
-			}
-			if (file == null) {
-				throw new ApplicationException("File not found..! Please select a file");
-			}
-			String line = "";
 			BufferedReader br = null;
 			br = new BufferedReader(new InputStreamReader(file.getInputStream()));
 			while ((line = br.readLine()) != null) {
-				String singleRecord[] = line.trim().split(",");
+				String singleRecord[] = line.trim().split(ApplicationConstants.COMMA_SEPARATOR);
 				if (singleRecord != null && singleRecord.length > 2 && !singleRecord.equals("")) {
 					completeRecord.add(line);
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IOException e) {
+			throw new ApplicationException("File is not correct, Not able to read data");
 		}
 		return completeRecord;
 	}

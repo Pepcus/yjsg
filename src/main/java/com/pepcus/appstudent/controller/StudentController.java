@@ -32,6 +32,7 @@ import com.pepcus.appstudent.response.ApiResponse;
 import com.pepcus.appstudent.service.StudentService;
 import com.pepcus.appstudent.util.ApplicationConstants;
 import com.pepcus.appstudent.entity.*;
+import com.pepcus.appstudent.exception.ApplicationException;
 
 /**
  * This is a controller for handling/delegating requests to service layer.
@@ -199,19 +200,21 @@ public class StudentController {
 	 * 
 	 * @return response
 	 */
-	@RequestMapping(method = RequestMethod.GET, headers = "Accept=*/*", value = "/download-duplicate", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-	public ResponseEntity<InputStreamResource> getDuplicateStudentData1(
-			@RequestParam(value = "file", required = false) MultipartFile file, HttpServletResponse response)
-			throws FileNotFoundException, IOException {
-		File generatedFile = studentService.getDuplicateCSV(file);
-		InputStreamResource resource=new InputStreamResource(new FileInputStream(generatedFile));
+	@RequestMapping(method = RequestMethod.GET, value = "/download-duplicate", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	public ResponseEntity<InputStreamResource> findDuplicate(@RequestParam(value = "file", required = false) MultipartFile file, HttpServletResponse response){
+		File generatedFile = studentService.getDuplicateRecords(file);
+		InputStreamResource resource;
+		try {
+			resource = new InputStreamResource(new FileInputStream(generatedFile));
+		} catch (FileNotFoundException e) {
+			throw new ApplicationException("Failed to generate duplicate CSV file");
+		}
 		response.setContentLength((int) generatedFile.length());
 		response.setContentType(ApplicationConstants.APPLICATION_FORCEDOWNLOAD);
-		response.setHeader(ApplicationConstants.CONTENT_DISPOSITION, ApplicationConstants.ATTACHMENT_FILENAME + generatedFile.getName() + ApplicationConstants.DOUBL_QUOTE);// fileName);
+		response.setHeader(ApplicationConstants.CONTENT_DISPOSITION,
+				ApplicationConstants.ATTACHMENT_FILENAME+ApplicationConstants.DOUBLE_QUOTE + generatedFile.getName() + ApplicationConstants.DOUBLE_QUOTE);// fileName);
 		return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                      "attachment;filename=" + generatedFile.getName())
-                .contentType(MediaType.APPLICATION_OCTET_STREAM).contentLength(generatedFile.length())
-                .body(resource);
+				.header(HttpHeaders.CONTENT_DISPOSITION, ApplicationConstants.ATTACHMENT_FILENAME + generatedFile.getName())
+				.contentType(MediaType.APPLICATION_OCTET_STREAM).contentLength(generatedFile.length()).body(resource);
 	}
 }
