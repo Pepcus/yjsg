@@ -67,6 +67,7 @@ import com.pepcus.appstudent.repository.StudentRepository;
 import com.pepcus.appstudent.response.ApiResponse;
 import com.pepcus.appstudent.util.ApplicationConstants;
 import com.pepcus.appstudent.util.FileImportUtil;
+import com.pepcus.appstudent.util.SMSUtil;
 import com.pepcus.appstudent.util.Sortbyname;
 
 /**
@@ -150,7 +151,7 @@ public class StudentService {
 
 		// send SMS only if isSendSMS = true
 		if (isSendSMS) {
-			// SMSUtil.sendSMS(savedStudent);
+			SMSUtil.sendSMS(savedStudent);
 		}
 
 		// This is required otherwise insertable=false field (remark) is not
@@ -463,6 +464,11 @@ public class StudentService {
 		return map;
 	}
 
+	/**
+	 * Method to reset print status
+	 * 
+	 * @return
+	 */
 	public void updatePrint() {
 		studentRepository.resetPrintStatus();
 	}
