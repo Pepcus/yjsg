@@ -49,7 +49,7 @@ public class SMSUtil {
 				if (!"".equals(numbers)) {
 					String message = "Dear " + student.getName() + ", We have received your registration for "
 								  + "'Jain Bal & Yuva Sanskar Sikshan Shivir' in Sanmati School from "
-								  + "28 April to 6 May, 2019. Your ID number is  "+ student.getId()+". "
+								  + "28 April to 5 May, 2019. Your ID number is  "+ student.getId()+". "
 								  + "Thanks! YJSG Group.";
 				queryParamMap.put("number", numbers);
 				queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
