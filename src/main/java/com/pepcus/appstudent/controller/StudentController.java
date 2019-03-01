@@ -108,7 +108,7 @@ public class StudentController {
 	@RequestMapping(value = "/bulk-attendance", method = RequestMethod.PATCH)
 	public ResponseEntity<ApiResponse> uploadAttendance(
 			@RequestParam(value = "file", required = false) MultipartFile file) {
-		ApiResponse response = studentService.updateStudent(file, "attendance");
+		ApiResponse response = studentService.updateStudent(file, ApplicationConstants.ATTENDANCE);
 		return new ResponseEntity<ApiResponse>(response, HttpStatus.MULTI_STATUS);
 	}
 
@@ -119,7 +119,7 @@ public class StudentController {
 	 */
 	@RequestMapping(value = "/bulk-optin", method = RequestMethod.PATCH)
 	public ResponseEntity<ApiResponse> updateOptIn(@RequestParam(value = "file", required = false) MultipartFile file) {
-		ApiResponse response = studentService.updateStudent(file, "optin");
+		ApiResponse response = studentService.updateStudent(file, ApplicationConstants.OPTIN);
 		return new ResponseEntity<ApiResponse>(response, HttpStatus.MULTI_STATUS);
 	}
 

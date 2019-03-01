@@ -25,5 +25,7 @@ public class ApplicationConstants {
   public static final String DOUBLE_QUOTE="\"";
   public static final String VALID_FILE_EXTENSION_IMPORT = "csv";
   public static final String COMMA_SEPARATOR = ",";
+  public static final String OPTIN = "optin";
+  public static final String ATTENDANCE = "attendance";
   
 }

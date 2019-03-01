@@ -221,7 +221,7 @@ public class StudentService {
 			studentRepository.save(studentList);
 			
 		}else{
-			throw new ApplicationException("Invalid data");
+			throw new BadRequestException("Invalid data");
 		}
 		return response; 
 	}
@@ -271,7 +271,7 @@ public class StudentService {
 			}
 			studentRepository.save(studentList);
 		}else{
-			throw new ApplicationException("Invalid data");
+			throw new BadRequestException("Invalid data");
 		}
 		return response;
 	}

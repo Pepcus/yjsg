@@ -13,7 +13,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.opencsv.CSVWriter;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanFilter;
@@ -39,10 +38,10 @@ public class FileImportUtil implements CsvToBeanFilter {
 			
 			 // Validate if file has valid extension
 	        if (!FilenameUtils.isExtension(file.getOriginalFilename(),ApplicationConstants.VALID_FILE_EXTENSION_IMPORT)) {
-	        	throw new ApplicationException("Invalid file..! Please upload csv file only ");
+	        	throw new BadRequestException("Upload is supported only for 'CSV' data files");
 	        }
 			if (file == null) {
-				throw new ApplicationException("File not found..! Please select a file");
+				throw new BadRequestException("File not found..! Please select a file");
 			}
 			
 			
@@ -70,11 +69,14 @@ public class FileImportUtil implements CsvToBeanFilter {
 				return studentUploadAttendanceList;
 
 			} else {
-				throw new ApplicationException("Headers in CSV File are not correct");
+				if(flag.equals(ApplicationConstants.OPTIN)){
+					throw new BadRequestException("Uploaded file should contain column as '"+Arrays.toString(ApplicationConstants.OPTIN_REQUIRED_HEADERS)+"'");
+				}else{
+					throw new BadRequestException("Uploaded file should contain column as '"+Arrays.toString(ApplicationConstants.ATTENDANCE_REQUIRED_HEADERS)+"'");
+				}
 			}
-
 		} catch (NullPointerException | IOException e) {
-			throw new ApplicationException("Your file is not valid");
+			throw new BadRequestException("Please select a file or your file is not valid file");
 		}
 	}
 
