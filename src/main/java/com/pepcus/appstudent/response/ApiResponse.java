@@ -29,4 +29,5 @@ public class ApiResponse {
 	private String failRecordIds;
 	private String successRecordsIds;
 	private Person person;
+	private String idNotExist;
 }

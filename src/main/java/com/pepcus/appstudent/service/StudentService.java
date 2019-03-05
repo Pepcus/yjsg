@@ -219,6 +219,9 @@ public class StudentService {
 				iterator.add(students);
 			}
 			studentRepository.save(studentList);
+			/*if(){
+			isSendSMS();
+			}*/
 			
 		}else{
 			throw new BadRequestException("Invalid data");
@@ -235,6 +238,9 @@ public class StudentService {
 			int total=validInvalidIdsMap.get("invalid").size()+validInvalidIdsMap.get("valid").size();
 			response.setSuccessRecordsIds(String.valueOf(validInvalidIdsMap.get("valid")));
 			response.setTotalRecords(String.valueOf(total));
+			if (null!=validInvalidIdsMap.get("recordNotExist") && !validInvalidIdsMap.get("recordNotExist").isEmpty()) {
+			response.setIdNotExist("ID's"+validInvalidIdsMap.get("recordNotExist")+" doesn’t exist in database and not processed");
+			}
 			response.setMessage("Some records failed and some updated");
 		}
 		else{
@@ -450,7 +456,8 @@ public class StudentService {
 	/**
 	 * Method to get Map of students invalid and valid list
 	 * 
-	 * @param allRequestParams
+	 * @param studentIds // coming from request
+	 * @param studentList // database valid student list which is available in db
 	 * @return map
 	 */
 	private Map<String,List<Integer>> getInvalidIdsList(List<Integer> studentIds,List<Student>studentList){
@@ -461,6 +468,7 @@ public class StudentService {
 		Map<String, List<Integer>>map=new HashMap<String, List<Integer>>();
 		map.put("valid", validIds);
 		map.put("invalid", studentIds);
+		map.put("recordNotExist", studentIds);
 		return map;
 	}
 
