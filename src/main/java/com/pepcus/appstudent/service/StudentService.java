@@ -18,49 +18,34 @@ import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.apache.commons.beanutils.BeanPropertyValueEqualsPredicate;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.coyote.Response;
-import org.apache.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.opencsv.CSVWriter;
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.entity.StudentUploadAttendance;
-import com.pepcus.appstudent.exception.APIErrorCodes;
 import com.pepcus.appstudent.exception.ApplicationException;
 import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.repository.StudentRepository;
@@ -83,11 +68,25 @@ public class StudentService {
 	@Autowired
 	private StudentRepository studentRepository;
 
+	@Autowired
+	private SMSService smsService;
+	
 	@PersistenceContext
 	private EntityManager em;
 
 	@Value("${com.pepcus.appstudent.admin.sendSMS}")
 	private boolean isSendSMS;
+	
+	@Value("${com.pepcus.appstudent.admin.sendAttendanceSMS}")
+	private boolean isSendAttendanceSMS;
+	
+	@Value("${com.pepcus.appstudent.admin.sendOptInSMS}")
+	private boolean isSendOptInSMS;
+	
+	@Value("${com.pepcus.appstudent.admin.sendOptOut}")
+	private boolean isSendOptOutSMS;
+	
+	
 
 	/**
 	 * Method to get student details
@@ -123,7 +122,7 @@ public class StudentService {
 	private List<Student> validateListStudent(List<Integer> ids) {
 		List<Student> students = studentRepository.findByIdIn(ids);
 			if (students==null || students.isEmpty()) {
-			throw new BadRequestException("student not found by studentId=" + students);
+			throw new BadRequestException("student not found by studentId=" + ids);
 		}
 		return students;
 	}
@@ -186,10 +185,25 @@ public class StudentService {
 
 		Student updatedStudent = update(student, std);
 		Date currentDate = Calendar.getInstance().getTime();
+		List<Student>studentList=new ArrayList<Student>();
 
 		updatedStudent.setDateLastModifiedInDB(currentDate);
 
 		Student studentInDB = studentRepository.save(updatedStudent);
+		if (!std.getOptIn2019().equalsIgnoreCase(updatedStudent.getOptIn2019())) {
+			if (isSendOptInSMS) {
+				if (updatedStudent.getOptIn2019().equalsIgnoreCase("Y")) {
+					studentList.add(updatedStudent);
+					smsService.sendOptInSMS(studentList);
+				}
+			}
+			if (isSendOptOutSMS) {
+				if (updatedStudent.getOptIn2019().equalsIgnoreCase("N")) {
+					studentList.add(updatedStudent);
+					smsService.sendOptOutSMS(studentList);
+				}
+			}
+		}
 
 		if (null != studentInDB.getDateCreatedInDB()) {
 			studentInDB.setCreatedDate(convertDateToString(studentInDB.getDateCreatedInDB()));
@@ -212,17 +226,14 @@ public class StudentService {
 			List<Student> studentList = validateListStudent(studentIds);
 			Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
 			response = populateResponse(validVsInvalidMap);
-			ListIterator<Student> iterator = studentList.listIterator();
-			while (iterator.hasNext()) {
-				Student students = (Student) iterator.next();
+			for (Student students : studentList) {
 				students.setOptIn2019(student.getOptIn2019());
-				iterator.add(students);
 			}
 			studentRepository.save(studentList);
-			/*if(){
-			isSendSMS();
-			}*/
-			
+			if(isSendOptInSMS)
+			{
+				smsService.sendBulkSMS(studentList,ApplicationConstants.OPTIN_OPTOUT,0);
+			}
 		}else{
 			throw new BadRequestException("Invalid data");
 		}
@@ -291,12 +302,8 @@ public class StudentService {
 	 */
 	public ApiResponse updateStudentAttendance(List<Integer> studentIds, String ispresent, int day){
 		ApiResponse response = new ApiResponse();
-		if(day>=1 && day<=8){
-			
 			List<Student> studentList = validateListStudent(studentIds);
 			List<Student> updatedStudentList = new ArrayList<Student>();
-		
-
 		Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
 		response = populateResponse(validVsInvalidMap);
 		
@@ -334,8 +341,9 @@ public class StudentService {
 		}
 		
 		studentRepository.save(updatedStudentList);
-		}else{
-			throw new ApplicationException("Invalid data");
+		if(isSendAttendanceSMS)
+		{
+			smsService.sendBulkSMS(updatedStudentList,ApplicationConstants.ATTENDANCE,day);
 		}
 		return response;
 	}
@@ -357,7 +365,6 @@ public class StudentService {
 			}
 			
 			List<Student> studentListDB = validateListStudent(studentIdList);
-			
 			for (Student studentDB : studentListDB) {
 				BeanPropertyValueEqualsPredicate predicate = new BeanPropertyValueEqualsPredicate("id",String.valueOf(studentDB.getId()));
 				StudentUploadAttendance stuAttendance = (StudentUploadAttendance) CollectionUtils.find(studentUploadAttendanceList, predicate);
@@ -371,25 +378,30 @@ public class StudentService {
 			Set<Integer> invalidDataIdList = onlyNotNullCopyProperty.getInvalidDataList();
 			
 			//removing invalidDataIdList from success list 
-			if(!validVsInvalidMap.get("valid").isEmpty()){
-				successRecordList=validVsInvalidMap.get("valid");
+			if(!validVsInvalidMap.get(ApplicationConstants.VALID).isEmpty()){
+				successRecordList=validVsInvalidMap.get(ApplicationConstants.VALID);
 				successRecordList.removeAll(invalidDataIdList);
 				
 			}
 			//converting Set<Integer> to List<Integer>
 			List<Integer> getInvalidList=new ArrayList<Integer>(invalidDataIdList);
-			getInvalidList.addAll(validVsInvalidMap.get("invalid"));
-			validVsInvalidMap.put("valid",successRecordList);
-			validVsInvalidMap.put("invalid",getInvalidList);
-			int totalRecords=successRecordList.size()+getInvalidList.size();
-			apiResponse.setTotalRecords(String.valueOf(totalRecords));
+			getInvalidList.addAll(validVsInvalidMap.get(ApplicationConstants.INVALID));
+			validVsInvalidMap.put(ApplicationConstants.VALID,successRecordList);
+			validVsInvalidMap.put(ApplicationConstants.INVALID,getInvalidList);
 			apiResponse = populateResponse(validVsInvalidMap);
 			//removing invalidStudent object 
 			studentListDB = removeInvalidDataFromList(studentListDB, invalidDataIdList);
 			studentRepository.save(studentListDB);
+			if(isSendOptInSMS)
+			{
+				smsService.sendBulkSMS(studentListDB,ApplicationConstants.OPTIN_OPTOUT,0);
+			}
 		
-		} catch (InvocationTargetException | IllegalAccessException e) {
-			throw new ApplicationException("Failed to update record" + e);
+		}catch (NumberFormatException e) {
+			throw new BadRequestException("Invalid data in 'id' column can not process further: "+e.getMessage());
+		} 
+		catch (InvocationTargetException | IllegalAccessException  e) {
+			throw new BadRequestException("Failed to update records: "+e);
 		}
 		return apiResponse;
 	}
@@ -554,6 +566,84 @@ public class StudentService {
 		}
 		return duplicateRecords;
 	}
+	
+	public ApiResponse updateStudentAttendance(MultipartFile file, String flag,int day) {
+		ApiResponse apiResponse = new ApiResponse();
+		List<StudentUploadAttendance> studentUploadAttendanceList = FileImportUtil.convertToStudentCSVBean(file,flag);
+		NullAwareBeanUtilsBean onlyNotNullCopyProperty = new NullAwareBeanUtilsBean();
+		List<Integer> studentIdList = new ArrayList<Integer>();
+		for (StudentUploadAttendance stuAttendance : studentUploadAttendanceList) {
+			studentIdList.add(Integer.parseInt(stuAttendance.getId()));
+		}
+		
+		List<Student> studentListDB = validateListStudent(studentIdList);
+		studentListDB=getStudentList(studentListDB,day);
+		Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIdList, studentListDB);
+		List<Integer> successRecordList=new ArrayList<Integer>();
+		
+		//getting inValidIdList whose data is not correct 
+		Set<Integer> invalidDataIdList = onlyNotNullCopyProperty.getInvalidDataList();
+		
+		//removing invalidDataIdList from success list 
+		if(!validVsInvalidMap.get(ApplicationConstants.VALID).isEmpty()){
+			successRecordList=validVsInvalidMap.get(ApplicationConstants.VALID);
+			successRecordList.removeAll(invalidDataIdList);
+			
+		}
+		//converting Set<Integer> to List<Integer>
+		List<Integer> getInvalidList=new ArrayList<Integer>(invalidDataIdList);
+		getInvalidList.addAll(validVsInvalidMap.get(ApplicationConstants.INVALID));
+		validVsInvalidMap.put(ApplicationConstants.VALID,successRecordList);
+		validVsInvalidMap.put(ApplicationConstants.INVALID,getInvalidList);
+		/*int totalRecords=successRecordList.size()+getInvalidList.size();
+		apiResponse.setTotalRecords(String.valueOf(totalRecords));*/
+		apiResponse = populateResponse(validVsInvalidMap);
+		//removing invalidStudent object 
+		//studentListDB = removeInvalidDataFromList(studentListDB, invalidDataIdList);
+		studentRepository.save(studentListDB);
+		if(isSendAttendanceSMS)
+		{
+			smsService.sendBulkSMS(studentListDB,ApplicationConstants.ATTENDANCE,day);
+		}
+		return apiResponse;
+	}
+
+	
+	private List<Student> getStudentList(List<Student> studentList, int day) {
+		List<Student> updatedStudentList=new ArrayList<>(); 
+		Iterator<Student> it =studentList.iterator();
+		while (it.hasNext()) {
+			Student students = (Student) it.next();
+			switch (day) {
+			case 1:
+				students.setDay1(ISPRESENT);
+				break;
+			case 2:
+				students.setDay2(ISPRESENT);
+				break;
+			case 3:
+				students.setDay3(ISPRESENT);
+				break;
+			case 4:
+				students.setDay4(ISPRESENT);
+				break;
+			case 5:
+				students.setDay5(ISPRESENT);
+				break;
+			case 6:
+				students.setDay6(ISPRESENT);
+				break;
+			case 7:
+				students.setDay7(ISPRESENT);
+				break;
+			case 8:
+				students.setDay8(ISPRESENT);
+				break;
+			}
+
+			updatedStudentList.add(students);
+		}
+		return updatedStudentList;
+	}
+
 }
-
-

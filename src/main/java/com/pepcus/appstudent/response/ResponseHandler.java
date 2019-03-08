@@ -80,7 +80,11 @@ public class ResponseHandler implements ResponseBodyAdvice<Object> {
 			apiResponse.setMessage("Student successfully created");
 			apiResponse.setStudent((Student) body);
 		}
+		if (httpRequest.getMethod().equals(HttpMethod.POST) && body instanceof ApiResponse) {
+			return body;
+		}
 
+		
 		if (httpRequest.getMethod().equals(HttpMethod.POST) && body instanceof Person) {
 			apiResponse.setMessage("Registration successful");
 			apiResponse.setPerson((Person) body);

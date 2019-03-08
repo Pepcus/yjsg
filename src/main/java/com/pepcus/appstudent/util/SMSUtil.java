@@ -9,14 +9,16 @@ import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.exception.BadRequestException;
+import com.pepcus.appstudent.service.SMSService;
 
 /**
  * @author Ajay
@@ -41,6 +43,7 @@ public class SMSUtil {
 	 * Sends a SMS to newly created student
 	 * @param student
 	 */
+	private static Logger logger = LoggerFactory.getLogger(SMSUtil.class);
 	public static void sendSMS(Student student) {
 		Map<String, String> queryParamMap = new HashMap<String, String>();
 		
@@ -66,6 +69,10 @@ public class SMSUtil {
 	}
 	
 	
+	
+	
+	
+	
 	/**
 	 * Method to invoke sms.yjsg.in messaging api
 	 * 
@@ -79,7 +86,7 @@ public class SMSUtil {
 	 */
 	public static void invokeSendSMSAPI(Map<String, String> queryParams)
 			throws GeneralSecurityException, IOException {
-
+		logger.info("##### #### invokeSendSMSAPI method invoked to send SMS for contact no.: "+queryParams.get("number"));
 		StringBuffer url = new StringBuffer();
 		url.append(SMS_GATEWAY_BASEPATH);
 		url.append(SMS_GATEWAY_PATH);

@@ -29,5 +29,19 @@ public interface StudentRepository extends JpaRepository<Student, Integer>, JpaS
 	@Transactional
 	@Modifying
 	public void resetPrintStatus();
-
+	
+	public List<Integer> findIdByIdIn(List<Integer> ids);
+	
+	/*@Query(value = "select id from yjsg.student where opt_in_2019='Y'",nativeQuery = true)
+	public List<Integer> findOptIn2019Yes();*/
+	
+	
+	
+	/*@Query(value = "select from Student where optIn2019='Y' and (:dayis null or "+day+"='' or "+day+"='N')")
+	public List<Integer> findOptIn2019Yes(@Param ("day") String day);*/
+	
+	
+	
+	
+	
 }

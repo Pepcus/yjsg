@@ -40,10 +40,9 @@ public class FileImportUtil implements CsvToBeanFilter {
 	        if (!FilenameUtils.isExtension(file.getOriginalFilename(),ApplicationConstants.VALID_FILE_EXTENSION_IMPORT)) {
 	        	throw new BadRequestException("Upload is supported only for 'CSV' data files");
 	        }
-			if (file == null) {
+			if (file == null || file.getSize()<0) {
 				throw new BadRequestException("File not found..! Please select a file");
 			}
-			
 			
 			BufferedReader br = null;
 			BufferedReader brFileContent=null;
@@ -106,9 +105,9 @@ public class FileImportUtil implements CsvToBeanFilter {
 
 	private static boolean checkHeaders(String headers[], String flag) {
 		boolean result = false;
-		if (flag.equalsIgnoreCase("optin")) {
+		if (flag.equalsIgnoreCase(ApplicationConstants.OPTIN)) {
 			result = checkoptInHeaders(headers);
-		} else if (flag.equalsIgnoreCase("attendance")) {
+		} else if (flag.equalsIgnoreCase(ApplicationConstants.ATTENDANCE)) {
 			result = checkAttendanceHeaders(headers);
 		}
 		return result;
@@ -119,10 +118,10 @@ public class FileImportUtil implements CsvToBeanFilter {
 
 		// Validate if file has valid extension
 		if (!FilenameUtils.isExtension(file.getOriginalFilename(), ApplicationConstants.VALID_FILE_EXTENSION_IMPORT)) {
-			throw new ApplicationException("Invalid file..! Please upload csv file only ");
+			throw new BadRequestException("Invalid file..! Please upload csv file only ");
 		}
-		if (file == null) {
-			throw new ApplicationException("File not found..! Please select a file");
+		if (file== null || file.getSize()<0) {
+			throw new BadRequestException("File not found..! Please select a file");
 		}
 		String line = "";
 		try {
@@ -135,24 +134,24 @@ public class FileImportUtil implements CsvToBeanFilter {
 				}
 			}
 		} catch (IOException e) {
-			throw new ApplicationException("File is not correct, Not able to read data");
+			throw new BadRequestException("File is not correct, Not able to read data");
 		}
 		return completeRecord;
 	}
 
-public static File getDuplicateDataCSV(String[] headers,List<String[]>finalDuplicateList){
-	File duplicateCSVData = new File("StudentDuplicateData.csv");
-	FileWriter outputfile;
-	try {
-		outputfile = new FileWriter(duplicateCSVData);
-		CSVWriter csvWriter = new CSVWriter(outputfile);
-		csvWriter.writeNext(headers);
-		csvWriter.writeAll(finalDuplicateList);
-		csvWriter.close();
-	} catch (IOException e) {
-		throw new ApplicationException("Failed to write duplicate data");
+	public static File getDuplicateDataCSV(String[] headers, List<String[]> finalDuplicateList) {
+		File duplicateCSVData = new File("StudentDuplicateData.csv");
+		FileWriter outputfile;
+		try {
+			outputfile = new FileWriter(duplicateCSVData);
+			CSVWriter csvWriter = new CSVWriter(outputfile);
+			csvWriter.writeNext(headers);
+			csvWriter.writeAll(finalDuplicateList);
+			csvWriter.close();
+		} catch (IOException e) {
+			throw new ApplicationException("Failed to write duplicate data");
+		}
+		return duplicateCSVData;
 	}
-	return duplicateCSVData;
-}
 
 }

@@ -1,17 +1,16 @@
 package com.pepcus.appstudent.controller;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,12 +27,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.pepcus.appstudent.entity.Student;
+import com.pepcus.appstudent.exception.ApplicationException;
+import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.response.ApiResponse;
+import com.pepcus.appstudent.service.SMSService;
 import com.pepcus.appstudent.service.StudentService;
 import com.pepcus.appstudent.util.ApplicationConstants;
-import com.pepcus.appstudent.entity.*;
-import com.pepcus.appstudent.exception.ApplicationException;
-
+import static com.pepcus.appstudent.util.ApplicationConstants.IS_ABSENT;
 /**
  * This is a controller for handling/delegating requests to service layer.
  * 
@@ -47,6 +48,9 @@ public class StudentController {
 
 	@Autowired
 	private StudentService studentService;
+
+	@Autowired
+	private SMSService smsService;
 
 	/**
 	 * Used to fetch student record by studentId
@@ -107,8 +111,8 @@ public class StudentController {
 	 */
 	@RequestMapping(value = "/bulk-attendance", method = RequestMethod.PATCH)
 	public ResponseEntity<ApiResponse> uploadAttendance(
-			@RequestParam(value = "file", required = false) MultipartFile file) {
-		ApiResponse response = studentService.updateStudent(file, ApplicationConstants.ATTENDANCE);
+			@RequestParam(value = "file", required = false) MultipartFile file,@RequestParam Integer day) {
+		ApiResponse response = studentService.updateStudentAttendance(file, ApplicationConstants.ATTENDANCE,day);
 		return new ResponseEntity<ApiResponse>(response, HttpStatus.MULTI_STATUS);
 	}
 
@@ -136,7 +140,6 @@ public class StudentController {
 			@RequestParam(value = "id", required = true) Integer studentId[], @RequestBody String json) {
 		ApiResponse response = new ApiResponse();
 		JSONObject js = new JSONObject(json);
-		System.out.println("get: "+js.get("day"));
 		if ((js.get("day").equals(null) || js.getString("day").equals(""))
 				|| (js.getInt("day") > 8 && js.getInt("day") < 1)) {
 			response.setMessage("Failed..! to update data is not valid");
@@ -217,4 +220,23 @@ public class StudentController {
 				.header(HttpHeaders.CONTENT_DISPOSITION, ApplicationConstants.ATTACHMENT_FILENAME + generatedFile.getName())
 				.contentType(MediaType.APPLICATION_OCTET_STREAM).contentLength(generatedFile.length()).body(resource);
 	}
+	
+	/**
+	 * Used to send SMS to absent student
+	 */
+	@RequestMapping(value = "/absents/sms", method = RequestMethod.POST)
+	public ResponseEntity<ApiResponse> sendSMSToAbsentStudent(@RequestBody String json) {
+		ApiResponse response = new ApiResponse();
+		JSONObject js = new JSONObject(json);
+		if ((js.get("day").equals(null) || js.getString("day").equals(""))
+				|| (js.getInt("day") > 8 && js.getInt("day") < 1)) {
+			throw new BadRequestException("Failed..! to send SMS, data is not valid");
+		} else {
+			smsService.sendBulkSMS(new ArrayList<>(),IS_ABSENT,js.getInt("day"));
+			response.setMessage("SMS Sent Successfully");
+			response.setStatus("OK");
+		}
+		return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
+	}
+	
 }
