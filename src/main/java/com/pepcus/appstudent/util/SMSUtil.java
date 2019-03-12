@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.exception.BadRequestException;
-import com.pepcus.appstudent.service.SMSService;
 
 /**
  * @author Ajay
@@ -50,15 +50,15 @@ public class SMSUtil {
 		try {
 				String numbers = student.getMobile();
 				if (!"".equals(numbers)) {
-					String message = "Dear " + student.getName() + ", We have received your registration for "
-								  + "'Jain Bal & Yuva Sanskar Sikshan Shivir' in Sanmati School from "
-								  + "28 April to 5 May, 2019. Your ID number is  "+ student.getId()+". "
-								  + "Thanks! YJSG Group.";
+					String message = ApplicationConstants.WELCOME_SMS.replace("{{name}}",student.getName());
+					message = message.replace("{{studentid}}",String.valueOf(student.getId()));	
+					
 				queryParamMap.put("number", numbers);
 				queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
 				try {
 					invokeSendSMSAPI(queryParamMap);
 				} catch (Exception e) {
+					throw new BadRequestException("Unable to send the SMS to the user" + student.getId());
 				}
 			}
 			

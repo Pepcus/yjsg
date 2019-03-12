@@ -30,4 +30,5 @@ public class ApiResponse {
 	private String successRecordsIds;
 	private Person person;
 	private String idNotExist;
+	private String smsMessage;
 }

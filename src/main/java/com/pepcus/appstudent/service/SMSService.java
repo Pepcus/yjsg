@@ -1,18 +1,13 @@
 package com.pepcus.appstudent.service;
 
 import static com.pepcus.appstudent.util.ApplicationConstants.ABSENT_MESSAGE_CONTENT;
-import static com.pepcus.appstudent.util.ApplicationConstants.ABSENT_MESSAGE_DAY_CONTENT;
 import static com.pepcus.appstudent.util.ApplicationConstants.ATTENDANCE;
 import static com.pepcus.appstudent.util.ApplicationConstants.DATE_FORMAT_DDMMYYYY;
 import static com.pepcus.appstudent.util.ApplicationConstants.IS_ABSENT;
 import static com.pepcus.appstudent.util.ApplicationConstants.ON;
-import static com.pepcus.appstudent.util.ApplicationConstants.OPTIN;
 import static com.pepcus.appstudent.util.ApplicationConstants.OPTINMESSAGECONTENT;
-import static com.pepcus.appstudent.util.ApplicationConstants.OPTIN_OPTOUT;
-import static com.pepcus.appstudent.util.ApplicationConstants.OPTOUT;
 import static com.pepcus.appstudent.util.ApplicationConstants.OPTOUTMESSAGECONTENT;
 import static com.pepcus.appstudent.util.ApplicationConstants.PRESENT_MESSAGE_CONTENT;
-import static com.pepcus.appstudent.util.ApplicationConstants.PRESENT_MESSAGE_DAY_CONTENT;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -25,47 +20,40 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.exception.BadRequestException;
-import com.pepcus.appstudent.repository.StudentRepository;
+import com.pepcus.appstudent.response.ApiResponse;
 import com.pepcus.appstudent.util.SMSUtil;
-
-import antlr.StringUtils;
 
 @Service
 public class SMSService {
 
-	@Autowired
-	private StudentRepository studentRepository;
-
 	@PersistenceContext
 	private EntityManager em;
-	
-	@Value("${com.pepcus.appstudent.admin.sendAbsentSMS}")
-	private boolean isSendAbsentSMS;
 	
 	@Value("${com.pepcus.appstudent.admin.sendPresentSMS}")
 	private boolean isSendPresentSMS;
 	
-	@Value("${com.pepcus.appstudent.admin.sendOptOut}")
+	@Value("${com.pepcus.appstudent.admin.sendOptOutSMS}")
 	private boolean isSendOptOutSMS;
 	
-	@Value("${com.pepcus.appstudent.admin.sendOptIn}")
+	@Value("${com.pepcus.appstudent.admin.sendOptInSMS}")
 	private boolean isSendOptInSMS;	
+	
+	@Value("${com.pepcus.appstudent.admin.sendAbsentSMS}")
+	private boolean isSendAbsentSMS;
 	
 	private Logger logger = LoggerFactory.getLogger(SMSService.class);	
 	
@@ -76,28 +64,17 @@ public class SMSService {
 	 * @param day
 	 */
 	
-	public void sendBulkSMS(List<Student> studentList,String activity,Integer day) {
+	public ApiResponse sendBulkSMS(List<Student> studentList,String activity,Integer day) {
 		logger.info("##### ######### sendBulkSMS method invoked  ######### #####");
+		ApiResponse response=new ApiResponse();
 		try {
 			switch (activity) {
-			case OPTIN_OPTOUT:
-				if(isSendOptInSMS){
-				sendOptInOptOutBulkMessage(studentList,OPTIN);
-				}
-				if(isSendOptOutSMS){
-					sendOptInOptOutBulkMessage(studentList,OPTOUT);
-				}
-				break;
 			case ATTENDANCE:
-				if(isSendPresentSMS){
 				sendSMSToPresentStudents(studentList,day);
-				}
 				break;
 
 			case IS_ABSENT:
-				if(isSendAbsentSMS){
 				sendSMSToAbsentStudents(day);
-				}
 				break;
 			}
 
@@ -105,6 +82,7 @@ public class SMSService {
 			logger.info("Exception: inside sendBulkSMS method ",e);
 			throw new BadRequestException("Unable to send the SMS to the user" + e.getMessage());
 		}
+	return response;
 	}
 
 	
@@ -163,37 +141,19 @@ public class SMSService {
 	}
 
 	
-	/**
-	 * Method to Send bulk SMS to students who Opted In and who doesn't
-	 * @param studentList
-	 */	
-	private  void sendOptInOptOutBulkMessage(List<Student>studentList,String activity){
-		logger.info("##### ######### sendOptInOptOutBulkMessage method invoked  ######### #####");
-		
-		switch (activity) {
-		case OPTIN:	sendOptInSMS(studentList);
-			break;
-
-		case OPTOUT: sendOptOutSMS(studentList);
-			break;
-		}
-		
-	}
-	
-	
 	public void sendOptOutSMS(List<Student> studentList)  {
 		logger.info("##### ######### sendOptOutSMS method invoked  ######### #####");
 		Map<String, String> queryParamMap = new HashMap<String, String>();
 		for (Student student : studentList) {
 		String numbers = student.getMobile();
-		try {
+			try {
 				queryParamMap.put("number", numbers);
-				if (!"".equals(numbers) && student.getOptIn2019().equalsIgnoreCase("N")) {
+				if (!StringUtils.isEmpty(numbers) && student.getOptIn2019().equalsIgnoreCase("N")) {
 					String message = OPTOUTMESSAGECONTENT.replace("{{name}}", student.getName());
 					queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
 					SMSUtil.invokeSendSMSAPI(queryParamMap);
-			}
-			} catch (IOException |GeneralSecurityException e) {
+				}
+			} catch (IOException | GeneralSecurityException e) {
 				logger.info("Exception: inside sendOptOutSMS method ",e);
 				throw new BadRequestException("Unable to send the SMS to the user" + student.getId());
 			}
@@ -209,7 +169,7 @@ public class SMSService {
 			String numbers = student.getMobile();
 			try {
 				queryParamMap.put("number", numbers);
-				if (!"".equals(numbers) && student.getOptIn2019().equalsIgnoreCase("Y")) {
+				if (!StringUtils.isEmpty(numbers) && student.getOptIn2019().equalsIgnoreCase("Y")) {
 					String message = OPTINMESSAGECONTENT.replace("{{name}}", student.getName());
 					queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
 					SMSUtil.invokeSendSMSAPI(queryParamMap);
@@ -218,7 +178,7 @@ public class SMSService {
 				logger.info("Exception: inside sendOptInSMS method ", e);
 				throw new BadRequestException("Unable to send the SMS to the user" + student.getId());
 			}
-		}		
+		}
 	}
 
 
@@ -238,15 +198,14 @@ public class SMSService {
 			String numbers = student.getMobile();
 			queryParamMap.put("number", numbers);
 			try {
-				if (todaysDate.equals(mapDate) && org.apache.commons.lang3.StringUtils.isEmpty(numbers)) {
+				if (todaysDate.equals(mapDate) && !StringUtils.isEmpty(numbers)) {
 					String message = PRESENT_MESSAGE_CONTENT.replace("{{name}}",
 							student.getName());
 					queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
 
-				} else if (!todaysDate.equals(mapDate) && (!"".equals(numbers) || !numbers.equals(null))) {
-					String message = PRESENT_MESSAGE_DAY_CONTENT.replace("{{name}}",
-							student.getName());
-					message = message.replace("{{date}}", ON+mapDate);
+				} else if (!todaysDate.equals(mapDate) && (!StringUtils.isEmpty(numbers) || !numbers.equals(null))) {
+					String message = PRESENT_MESSAGE_CONTENT.replace("{{name}}",student.getName());
+					message = message.replace("today", ON+mapDate);
 					queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
 
 				}
@@ -259,38 +218,40 @@ public class SMSService {
 	}
 
 
+
+
 	/**
 	 * Method to Send SMS to students who are absent on particular day
-	 * @param day	
+	 * 
+	 * @param day
 	 */
 	private void sendSMSToAbsentStudents(Integer day) {
 		logger.info("##### ######### sendSMSToAbsentStudents method invoked  ######### #####");
-		String mapDay=getDayMap().get(day);
+		String mapDay = getDayMap().get(day);
 		String mapDate = getDateMap().get(day);
 		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_DDMMYYYY);
 		String todaysDate = dateFormat.format(new Date());
-		
+
 		List<Student> studentList = getAbsentStudents(mapDay);
 		Map<String, String> queryParamMap = new HashMap<String, String>();
-			for (Student student : studentList) {
-				try {
-					String numbers = student.getMobile();
-					queryParamMap.put("number", numbers);
-					if (todaysDate.equals(mapDate) && (!"".equals(numbers) || !numbers.equals(null))) {
-						String message = ABSENT_MESSAGE_CONTENT.replace("{{name}}", student.getName());
-						queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
-					} else if(!todaysDate.equals(mapDate) && (!"".equals(numbers) || !numbers.equals(null))) {
-						String message = ABSENT_MESSAGE_DAY_CONTENT.replace("{{name}}",
-								student.getName());
-						message = message.replace("{{date}}", ON+mapDate);
-						queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
-					}
-					 SMSUtil.invokeSendSMSAPI(queryParamMap);
-				} catch (IOException | GeneralSecurityException e) {
-					logger.info("Exception: inside sendSMSToAbsentStudents method ",e);
-					throw new BadRequestException("Unable to send the SMS to the user" + student.getId());
+		for (Student student : studentList) {
+			try {
+				String numbers = student.getMobile();
+				queryParamMap.put("number", numbers);
+				if (todaysDate.equals(mapDate) && (!StringUtils.isEmpty(numbers) || !numbers.equals(null))) {
+					String message = ABSENT_MESSAGE_CONTENT.replace("{{name}}", student.getName());
+					queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
+				} else if (!todaysDate.equals(mapDate) && (!StringUtils.isEmpty(numbers) || !numbers.equals(null))) {
+					String message = ABSENT_MESSAGE_CONTENT.replace("{{name}}", student.getName());
+					message = message.replace("today", ON + mapDate);
+					queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
 				}
-		} 
+				SMSUtil.invokeSendSMSAPI(queryParamMap);
+			} catch (IOException | GeneralSecurityException e) {
+				logger.info("Exception: inside sendSMSToAbsentStudents method ", e);
+				throw new BadRequestException("Unable to send the SMS to the user" + student.getId());
+			}
+		}
 	}
 }
 

@@ -1,22 +1,16 @@
 package com.pepcus.appstudent.service;
 
+import static com.pepcus.appstudent.util.ApplicationConstants.ISPRESENT;
 import static com.pepcus.appstudent.util.CommonUtil.TOTAL_RECORDS;
 import static com.pepcus.appstudent.util.CommonUtil.convertDateToString;
 import static com.pepcus.appstudent.util.CommonUtil.setRequestAttribute;
 import static com.pepcus.appstudent.util.EntitySearchUtil.getEntitySearchSpecification;
-import static com.pepcus.appstudent.exception.ApplicationException.*;
-import static com.pepcus.appstudent.util.ApplicationConstants.*;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -29,8 +23,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
 import org.apache.commons.beanutils.BeanPropertyValueEqualsPredicate;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -74,16 +71,16 @@ public class StudentService {
 	@PersistenceContext
 	private EntityManager em;
 
-	@Value("${com.pepcus.appstudent.admin.sendSMS}")
+	@Value("${com.pepcus.appstudent.admin.sendWelcomeSMS}")
 	private boolean isSendSMS;
 	
-	@Value("${com.pepcus.appstudent.admin.sendAttendanceSMS}")
-	private boolean isSendAttendanceSMS;
+	@Value("${com.pepcus.appstudent.admin.sendPresentSMS}")
+	private boolean isSendPresentSMS;
 	
 	@Value("${com.pepcus.appstudent.admin.sendOptInSMS}")
 	private boolean isSendOptInSMS;
 	
-	@Value("${com.pepcus.appstudent.admin.sendOptOut}")
+	@Value("${com.pepcus.appstudent.admin.sendOptOutSMS}")
 	private boolean isSendOptOutSMS;
 	
 	
@@ -182,7 +179,7 @@ public class StudentService {
 	 */
 	public Student updateStudent(String student, Integer studentId) throws JsonProcessingException, IOException {
 		Student std = validateStudent(studentId);
-
+		String optIn2019=std.getOptIn2019();
 		Student updatedStudent = update(student, std);
 		Date currentDate = Calendar.getInstance().getTime();
 		List<Student>studentList=new ArrayList<Student>();
@@ -190,7 +187,7 @@ public class StudentService {
 		updatedStudent.setDateLastModifiedInDB(currentDate);
 
 		Student studentInDB = studentRepository.save(updatedStudent);
-		if (!std.getOptIn2019().equalsIgnoreCase(updatedStudent.getOptIn2019())) {
+		if (!optIn2019.equalsIgnoreCase(updatedStudent.getOptIn2019())) {
 			if (isSendOptInSMS) {
 				if (updatedStudent.getOptIn2019().equalsIgnoreCase("Y")) {
 					studentList.add(updatedStudent);
@@ -230,9 +227,18 @@ public class StudentService {
 				students.setOptIn2019(student.getOptIn2019());
 			}
 			studentRepository.save(studentList);
-			if(isSendOptInSMS)
-			{
-				smsService.sendBulkSMS(studentList,ApplicationConstants.OPTIN_OPTOUT,0);
+			// Send Opt SMS
+			if (isSendOptInSMS) {
+				smsService.sendOptInSMS(studentList);
+				response.setSmsMessage("SMS sent Successfully for OptIn students");
+			} else{
+				response.setSmsMessage("SMS not sent.Please make sure that send OptInSMS feature is enabled");
+			}
+			if (isSendOptOutSMS) {
+				smsService.sendOptOutSMS(studentList);
+				response.setSmsMessage(response.getSmsMessage().concat(", SMS sent Successfully for OptOut students"));
+			}else{
+				response.setSmsMessage(response.getSmsMessage().concat(", Please make sure that send OptOutSMS feature is enabled"));
 			}
 		}else{
 			throw new BadRequestException("Invalid data");
@@ -241,7 +247,7 @@ public class StudentService {
 	}
 
 	
-	private ApiResponse populateResponse(Map<String, List<Integer>> validInvalidIdsMap) {
+	private  ApiResponse populateResponse(Map<String, List<Integer>> validInvalidIdsMap) {
 		ApiResponse response = new ApiResponse();
 		if (!validInvalidIdsMap.get("invalid").isEmpty()) {
 			response.setCode(String.valueOf(HttpStatus.MULTI_STATUS));
@@ -341,10 +347,10 @@ public class StudentService {
 		}
 		
 		studentRepository.save(updatedStudentList);
-		if(isSendAttendanceSMS)
-		{
+		if(isSendPresentSMS) {
 			smsService.sendBulkSMS(updatedStudentList,ApplicationConstants.ATTENDANCE,day);
-		}
+			response.setSmsMessage("SMS sent Successfully for Present students");
+		}else response.setSmsMessage("SMS not sent.Please make sure that send SMS feature is 'On' or 'true'.");
 		return response;
 	}
 
@@ -392,10 +398,21 @@ public class StudentService {
 			//removing invalidStudent object 
 			studentListDB = removeInvalidDataFromList(studentListDB, invalidDataIdList);
 			studentRepository.save(studentListDB);
-			if(isSendOptInSMS)
-			{
-				smsService.sendBulkSMS(studentListDB,ApplicationConstants.OPTIN_OPTOUT,0);
+
+			// Send Opt SMS
+			if (isSendOptInSMS) {
+				smsService.sendOptInSMS(studentListDB);
+				apiResponse.setSmsMessage("SMS sent Successfully for OptIn students");
+			} else{
+				apiResponse.setSmsMessage("SMS not sent.Please make sure that send OptInSMS feature is enabled");
 			}
+			if (isSendOptOutSMS) {
+				smsService.sendOptOutSMS(studentListDB);
+				apiResponse.setSmsMessage(apiResponse.getSmsMessage().concat(", SMS sent Successfully for OptOut students"));
+			}else{
+				apiResponse.setSmsMessage(apiResponse.getSmsMessage().concat(", Please make sure that send OptOutSMS feature is enabled"));
+			}
+
 		
 		}catch (NumberFormatException e) {
 			throw new BadRequestException("Invalid data in 'id' column can not process further: "+e.getMessage());
@@ -601,10 +618,12 @@ public class StudentService {
 		//removing invalidStudent object 
 		//studentListDB = removeInvalidDataFromList(studentListDB, invalidDataIdList);
 		studentRepository.save(studentListDB);
-		if(isSendAttendanceSMS)
+		if(isSendPresentSMS)
 		{
 			smsService.sendBulkSMS(studentListDB,ApplicationConstants.ATTENDANCE,day);
-		}
+			apiResponse.setSmsMessage("SMS sent Successfully for Present students");
+			
+		}else apiResponse.setSmsMessage("SMS not sent.Please make sure that send SMS feature is enabled ");
 		return apiResponse;
 	}
 

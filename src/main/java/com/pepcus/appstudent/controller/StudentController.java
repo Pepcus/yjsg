@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.pepcus.appstudent.entity.Day;
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.exception.ApplicationException;
 import com.pepcus.appstudent.exception.BadRequestException;
@@ -51,6 +53,9 @@ public class StudentController {
 
 	@Autowired
 	private SMSService smsService;
+	
+	@Value("${com.pepcus.appstudent.admin.sendAbsentSMS}")
+	private boolean isSendAbsentSMS;
 
 	/**
 	 * Used to fetch student record by studentId
@@ -145,8 +150,6 @@ public class StudentController {
 			response.setMessage("Failed..! to update data is not valid");
 			response.setStatus("304");
 		} else {
-			response.setMessage("Updated Successfully");
-			response.setStatus("OK");
 			response=studentService.updateStudentAttendance(new ArrayList<Integer>(Arrays.asList(studentId)), "Y", js.getInt("day"));
 		}
 		return new ResponseEntity<ApiResponse>(response, HttpStatus.MULTI_STATUS);
@@ -225,16 +228,19 @@ public class StudentController {
 	 * Used to send SMS to absent student
 	 */
 	@RequestMapping(value = "/absents/sms", method = RequestMethod.POST)
-	public ResponseEntity<ApiResponse> sendSMSToAbsentStudent(@RequestBody String json) {
+	public ResponseEntity<ApiResponse> sendSMSToAbsentStudent(@RequestBody Day day) {
 		ApiResponse response = new ApiResponse();
-		JSONObject js = new JSONObject(json);
-		if ((js.get("day").equals(null) || js.getString("day").equals(""))
-				|| (js.getInt("day") > 8 && js.getInt("day") < 1)) {
-			throw new BadRequestException("Failed..! to send SMS, data is not valid");
+		if(!isSendAbsentSMS){
+			response.setSmsMessage("SMS not sent.Please make sure that send SMS feature is enable.");
+			response.setCode("501");
+			return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
+		}
+		if (day.getDay()>=1 && day.getDay()<=8) {
+			smsService.sendBulkSMS(new ArrayList<>(),IS_ABSENT,day.getDay());
+			response.setSmsMessage("SMS sent Successfully for Absent students");
+			response.setCode("200");
 		} else {
-			smsService.sendBulkSMS(new ArrayList<>(),IS_ABSENT,js.getInt("day"));
-			response.setMessage("SMS Sent Successfully");
-			response.setStatus("OK");
+			throw new BadRequestException("Failed..! to send SMS, data is not valid");
 		}
 		return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
 	}
