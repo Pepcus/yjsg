@@ -150,6 +150,8 @@ public class SMSService {
 				queryParamMap.put("number", numbers);
 				if (!StringUtils.isEmpty(numbers) && student.getOptIn2019().equalsIgnoreCase("N")) {
 					String message = OPTOUTMESSAGECONTENT.replace("{{name}}", student.getName());
+					message=message.replace("<ID>",String.valueOf(student.getId()));
+					message=message.replace("<Code>",StringUtils.isEmpty(student.getSecretKey()) ? "<Code>" : student.getSecretKey());
 					queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
 					SMSUtil.invokeSendSMSAPI(queryParamMap);
 				}
@@ -171,10 +173,12 @@ public class SMSService {
 				queryParamMap.put("number", numbers);
 				if (!StringUtils.isEmpty(numbers) && student.getOptIn2019().equalsIgnoreCase("Y")) {
 					String message = OPTINMESSAGECONTENT.replace("{{name}}", student.getName());
+					message = message.replace("<ID>", String.valueOf(student.getId()));
+					message = message.replace("<Code>",StringUtils.isEmpty(student.getSecretKey()) ? "<Code>" : student.getSecretKey());
 					queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
-					SMSUtil.invokeSendSMSAPI(queryParamMap);
+					 SMSUtil.invokeSendSMSAPI(queryParamMap);
 				}
-			} catch (IOException | GeneralSecurityException e) {
+			} catch (IOException | GeneralSecurityException   e) {
 				logger.info("Exception: inside sendOptInSMS method ", e);
 				throw new BadRequestException("Unable to send the SMS to the user" + student.getId());
 			}

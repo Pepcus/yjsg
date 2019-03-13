@@ -29,6 +29,7 @@ import javax.persistence.PersistenceContext;
 
 import org.apache.commons.beanutils.BeanPropertyValueEqualsPredicate;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
@@ -179,7 +180,6 @@ public class StudentService {
 	 */
 	public Student updateStudent(String student, Integer studentId) throws JsonProcessingException, IOException {
 		Student std = validateStudent(studentId);
-		String optIn2019=std.getOptIn2019();
 		Student updatedStudent = update(student, std);
 		Date currentDate = Calendar.getInstance().getTime();
 		List<Student>studentList=new ArrayList<Student>();
@@ -187,7 +187,7 @@ public class StudentService {
 		updatedStudent.setDateLastModifiedInDB(currentDate);
 
 		Student studentInDB = studentRepository.save(updatedStudent);
-		if (!optIn2019.equalsIgnoreCase(updatedStudent.getOptIn2019())) {
+		if (!StringUtils.isEmpty(std.getOptIn2019()) && !std.getOptIn2019().equalsIgnoreCase(updatedStudent.getOptIn2019())) {
 			if (isSendOptInSMS) {
 				if (updatedStudent.getOptIn2019().equalsIgnoreCase("Y")) {
 					studentList.add(updatedStudent);
@@ -308,14 +308,12 @@ public class StudentService {
 	 */
 	public ApiResponse updateStudentAttendance(List<Integer> studentIds, String ispresent, int day){
 		ApiResponse response = new ApiResponse();
-			List<Student> studentList = validateListStudent(studentIds);
-			List<Student> updatedStudentList = new ArrayList<Student>();
+		List<Student> studentList = validateListStudent(studentIds);
+		List<Student> updatedStudentList = new ArrayList<Student>();
 		Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
 		response = populateResponse(validVsInvalidMap);
 		
-		Iterator<Student> it = studentList.iterator();
-		while (it.hasNext()) {
-			Student students = (Student) it.next();
+		for(Student students:studentList){
 			switch (day) {
 			case 1:
 				students.setDay1(ispresent);
@@ -345,6 +343,7 @@ public class StudentService {
 
 			updatedStudentList.add(students);
 		}
+		
 		
 		studentRepository.save(updatedStudentList);
 		if(isSendPresentSMS) {
