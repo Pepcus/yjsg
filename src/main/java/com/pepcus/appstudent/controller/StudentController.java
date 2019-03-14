@@ -256,7 +256,7 @@ public class StudentController {
 	 * @throws IOException 
 	 * @throws JsonProcessingException 
 	 */
-	@PutMapping(value = "/sms")
+	@PutMapping(value = "/sms-flag")
 	public ResponseEntity<List<SMSFlags>> setSMSFlag(@RequestBody String jsonString) {
 		ObjectMapper mapper = new ObjectMapper();
 		Map<String, String> map=new HashMap<String,String>();
@@ -274,6 +274,12 @@ public class StudentController {
 	    } 
 		List<SMSFlags> smsFlags=smsService.updateSMSFlag(smsFlagList);
 		return new ResponseEntity<List<SMSFlags>>(smsFlags,HttpStatus.OK);
+	}
+	
+	
+	@GetMapping(value="/sms-flag")
+	public List<SMSFlags> getAllFlags(@RequestParam Map<String, String> allRequestParams) {
+		return smsService.getAllFlags(allRequestParams);
 	}
 	
 }

@@ -287,4 +287,11 @@ public class SMSService {
 		}
 		return flagCheck;
 	}
+
+
+
+	public List<SMSFlags> getAllFlags(Map<String, String> allRequestParams) {
+		List<SMSFlags> smsFlagList=SMSRepository.findAll();
+		return smsFlagList;
+	}
 }
