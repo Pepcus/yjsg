@@ -6,7 +6,6 @@ import static com.pepcus.appstudent.util.CommonUtil.getRequestAttribute;
 import java.util.List;
 
 import org.springframework.core.MethodParameter;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import com.pepcus.appstudent.entity.Person;
+import com.pepcus.appstudent.entity.SMSFlags;
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.exception.ApiErrorResponse;
 
@@ -94,6 +94,11 @@ public class ResponseHandler implements ResponseBodyAdvice<Object> {
 		if (httpRequest.getMethod().equals(HttpMethod.PUT) && body instanceof Student) {
 			apiResponse.setMessage("Student successfully updated");
 			apiResponse.setStudent((Student) body);
+		}
+		
+		if (httpRequest.getMethod().equals(HttpMethod.PUT) && body instanceof List<?>) {
+			apiResponse.setMessage("SMSFlag successfully updated");
+			apiResponse.setSmsFlags((List<SMSFlags>)body);
 		}
 
 		if (httpRequest.getMethod().equals(HttpMethod.PATCH) && body instanceof ApiResponse) {

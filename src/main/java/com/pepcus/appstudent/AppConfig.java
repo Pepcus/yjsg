@@ -24,8 +24,6 @@ public class AppConfig extends WebMvcConfigurerAdapter {
 	@Value("${com.pepcus.appstudent.admin.secret_key}")
 	private String adminSecretKey;
 	
-	@Value("${com.pepcus.appstudent.admin.sendWelcomeSMS}")
-	private String isSendSMS;
 	
 	@Autowired
 	private AuthorizationManager authManager;

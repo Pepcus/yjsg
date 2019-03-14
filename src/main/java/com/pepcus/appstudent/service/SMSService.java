@@ -29,11 +29,14 @@ import javax.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.pepcus.appstudent.entity.SMSFlags;
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.exception.BadRequestException;
+import com.pepcus.appstudent.repository.SMSRepository;
 import com.pepcus.appstudent.response.ApiResponse;
 import com.pepcus.appstudent.util.SMSUtil;
 
@@ -43,17 +46,8 @@ public class SMSService {
 	@PersistenceContext
 	private EntityManager em;
 	
-	@Value("${com.pepcus.appstudent.admin.sendPresentSMS}")
-	private boolean isSendPresentSMS;
-	
-	@Value("${com.pepcus.appstudent.admin.sendOptOutSMS}")
-	private boolean isSendOptOutSMS;
-	
-	@Value("${com.pepcus.appstudent.admin.sendOptInSMS}")
-	private boolean isSendOptInSMS;	
-	
-	@Value("${com.pepcus.appstudent.admin.sendAbsentSMS}")
-	private boolean isSendAbsentSMS;
+	@Autowired
+	private SMSRepository SMSRepository;
 	
 	private Logger logger = LoggerFactory.getLogger(SMSService.class);	
 	
@@ -64,7 +58,7 @@ public class SMSService {
 	 * @param day
 	 */
 	
-	public ApiResponse sendBulkSMS(List<Student> studentList,String activity,Integer day) {
+	public  ApiResponse sendBulkSMS(List<Student> studentList,String activity,Integer day) {
 		logger.info("##### ######### sendBulkSMS method invoked  ######### #####");
 		ApiResponse response=new ApiResponse();
 		try {
@@ -176,7 +170,7 @@ public class SMSService {
 					message = message.replace("<ID>", String.valueOf(student.getId()));
 					message = message.replace("<Code>",StringUtils.isEmpty(student.getSecretKey()) ? "<Code>" : student.getSecretKey());
 					queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
-					 SMSUtil.invokeSendSMSAPI(queryParamMap);
+					SMSUtil.invokeSendSMSAPI(queryParamMap);
 				}
 			} catch (IOException | GeneralSecurityException   e) {
 				logger.info("Exception: inside sendOptInSMS method ", e);
@@ -257,5 +251,40 @@ public class SMSService {
 			}
 		}
 	}
-}
 
+	public List<SMSFlags> updateSMSFlag(List<SMSFlags> smsFlagsList) {
+		List<SMSFlags> smsFlags = SMSRepository.save(smsFlagsList);
+		return smsFlags;
+	}
+
+   /**
+	 * Method used to check whether flag exists or not
+	 * 
+	 * @param flagid
+	 * @return
+	 */
+	public SMSFlags validateFlag(String flagName) {
+		SMSFlags flag = SMSRepository.findByflagName(flagName);
+		if (null == flag) {
+			throw new BadRequestException("Flag not found by flagid=" + flagName);
+		}
+		return flag;
+	}
+
+       /**
+		 * Method used to check whether flag is turned on or off
+		 * @param flagName
+		 * @return boolean
+		 */
+	public boolean sendSMS(String flagName) {
+		boolean flagCheck = false;
+		SMSFlags smsFlags = SMSRepository.findByflagName(flagName);
+		if (smsFlags.getFlagValue() == 1) {
+			flagCheck = true;
+			return flagCheck;
+		} else {
+			logger.info("SMS not sent. " + flagName + "flag is off");
+		}
+		return flagCheck;
+	}
+}

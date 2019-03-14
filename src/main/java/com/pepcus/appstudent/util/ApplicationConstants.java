@@ -17,7 +17,7 @@ public class ApplicationConstants {
   public static final String[] ATTENDANCE_REQUIRED_HEADERS = { "id" };
 
   public static final String REGEX_FOR_SPACE = "\\s";
-  public static final String[] OPTIN_REQUIRED_HEADERS = { "id","optIn2019"};
+  public static final String[] OPTIN_REQUIRED_HEADERS = { "id","optIn2019","Y/N","y/n"};
   public static final String APPLICATION_FORCEDOWNLOAD="application/force-download";
   public static final String CONTENT_DISPOSITION="Content-Disposition";
   public static final String ATTACHMENT_FILENAME="attachment; filename=";
@@ -38,4 +38,9 @@ public class ApplicationConstants {
   public static final String IS_ABSENT = "isabsent";
   public static final String OPTOUT = "optout";
   public static final String WELCOME_SMS="Dear {{name}}, We have received your registration for 'Jain Bal & Yuva Sanskar Sikshan Shivir' in Sanmati School from 28 April to 5 May, 2019. Your ID number is {{studentid}}.Thanks! YJSG Group.";
+  public static final String SMS_CREATE="smsCreate";
+  public static final String SMS_OPTIN="smsOptIn";
+  public static final String SMS_OPTOUT="smsOptOut";
+  public static final String SMS_PRESENT="smsPresent";
+  public static final String SMS_ABSENT="smsAbsent";
 }

@@ -1,16 +1,31 @@
 package com.pepcus.appstudent.entity;
 
+import com.opencsv.bean.CsvBindByName;
+
 public class StudentUploadAttendance {
+	
+	@CsvBindByName
 	private String id;
+	@CsvBindByName
 	private String day1;
+	@CsvBindByName
 	private String day2;
+	@CsvBindByName
 	private String day3;
+	@CsvBindByName
 	private String day4;
+	@CsvBindByName
 	private String day5;
+	@CsvBindByName
 	private String day6;
+	@CsvBindByName
 	private String day7;
+	@CsvBindByName
 	private String day8;
+	@CsvBindByName
 	private String today;
+	
+	@CsvBindByName(column="Y/N")
 	private String optIn2019;
 
 	public String getDay8() {

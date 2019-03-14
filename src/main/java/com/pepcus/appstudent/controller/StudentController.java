@@ -1,14 +1,19 @@
 package com.pepcus.appstudent.controller;
 
+import static com.pepcus.appstudent.util.ApplicationConstants.IS_ABSENT;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletResponse;
+
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,8 +32,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pepcus.appstudent.entity.Day;
+import com.pepcus.appstudent.entity.SMSFlags;
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.exception.ApplicationException;
 import com.pepcus.appstudent.exception.BadRequestException;
@@ -36,7 +45,6 @@ import com.pepcus.appstudent.response.ApiResponse;
 import com.pepcus.appstudent.service.SMSService;
 import com.pepcus.appstudent.service.StudentService;
 import com.pepcus.appstudent.util.ApplicationConstants;
-import static com.pepcus.appstudent.util.ApplicationConstants.IS_ABSENT;
 /**
  * This is a controller for handling/delegating requests to service layer.
  * 
@@ -53,9 +61,6 @@ public class StudentController {
 
 	@Autowired
 	private SMSService smsService;
-	
-	@Value("${com.pepcus.appstudent.admin.sendAbsentSMS}")
-	private boolean isSendAbsentSMS;
 
 	/**
 	 * Used to fetch student record by studentId
@@ -230,7 +235,7 @@ public class StudentController {
 	@RequestMapping(value = "/absents/sms", method = RequestMethod.POST)
 	public ResponseEntity<ApiResponse> sendSMSToAbsentStudent(@RequestBody Day day) {
 		ApiResponse response = new ApiResponse();
-		if(!isSendAbsentSMS){
+		if(!smsService.sendSMS(ApplicationConstants.SMS_ABSENT)){
 			response.setSmsMessage("SMS not sent.Please make sure that send SMS feature is enable.");
 			response.setCode("501");
 			return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
@@ -243,6 +248,32 @@ public class StudentController {
 			throw new BadRequestException("Failed..! to send SMS, data is not valid");
 		}
 		return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
+	}
+	
+	
+	/**
+	 * Used to update SMS flag
+	 * @throws IOException 
+	 * @throws JsonProcessingException 
+	 */
+	@PutMapping(value = "/sms")
+	public ResponseEntity<List<SMSFlags>> setSMSFlag(@RequestBody String jsonString) {
+		ObjectMapper mapper = new ObjectMapper();
+		Map<String, String> map=new HashMap<String,String>();
+		try {
+			map = mapper.readValue(jsonString, new TypeReference<Map<String, String>>(){});
+		} catch (IOException e) {
+			throw  new BadRequestException("Unable to read Json value");
+		} 
+		
+		List<SMSFlags> smsFlagList=new ArrayList<>();
+		 for (Map.Entry<String,String> entry : map.entrySet()){  
+	            SMSFlags updatedflag=smsService.validateFlag(entry.getKey());
+	            updatedflag.setFlagValue(Integer.valueOf(entry.getValue()));
+	            smsFlagList.add(updatedflag);
+	    } 
+		List<SMSFlags> smsFlags=smsService.updateSMSFlag(smsFlagList);
+		return new ResponseEntity<List<SMSFlags>>(smsFlags,HttpStatus.OK);
 	}
 	
 }

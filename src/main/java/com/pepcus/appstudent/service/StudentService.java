@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -42,6 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.pepcus.appstudent.entity.SMSFlags;
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.entity.StudentUploadAttendance;
 import com.pepcus.appstudent.exception.ApplicationException;
@@ -71,20 +73,6 @@ public class StudentService {
 	
 	@PersistenceContext
 	private EntityManager em;
-
-	@Value("${com.pepcus.appstudent.admin.sendWelcomeSMS}")
-	private boolean isSendSMS;
-	
-	@Value("${com.pepcus.appstudent.admin.sendPresentSMS}")
-	private boolean isSendPresentSMS;
-	
-	@Value("${com.pepcus.appstudent.admin.sendOptInSMS}")
-	private boolean isSendOptInSMS;
-	
-	@Value("${com.pepcus.appstudent.admin.sendOptOutSMS}")
-	private boolean isSendOptOutSMS;
-	
-	
 
 	/**
 	 * Method to get student details
@@ -145,12 +133,11 @@ public class StudentService {
 
 		savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
 		savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateCreatedInDB()));
-
-		// send SMS only if isSendSMS = true
-		if (isSendSMS) {
+		
+		// send SMS only if SendSMS = true
+		if (smsService.sendSMS(ApplicationConstants.SMS_CREATE)) {
 			SMSUtil.sendSMS(savedStudent);
 		}
-
 		// This is required otherwise insertable=false field (remark) is not
 		// synced with
 		// database when remark field is passed in payload .
@@ -188,13 +175,13 @@ public class StudentService {
 
 		Student studentInDB = studentRepository.save(updatedStudent);
 		if (!StringUtils.isEmpty(std.getOptIn2019()) && !std.getOptIn2019().equalsIgnoreCase(updatedStudent.getOptIn2019())) {
-			if (isSendOptInSMS) {
+			if (smsService.sendSMS(ApplicationConstants.SMS_OPTIN)) {
 				if (updatedStudent.getOptIn2019().equalsIgnoreCase("Y")) {
 					studentList.add(updatedStudent);
 					smsService.sendOptInSMS(studentList);
 				}
 			}
-			if (isSendOptOutSMS) {
+			if (smsService.sendSMS(ApplicationConstants.SMS_OPTOUT)) {
 				if (updatedStudent.getOptIn2019().equalsIgnoreCase("N")) {
 					studentList.add(updatedStudent);
 					smsService.sendOptOutSMS(studentList);
@@ -228,13 +215,13 @@ public class StudentService {
 			}
 			studentRepository.save(studentList);
 			// Send Opt SMS
-			if (isSendOptInSMS) {
+			if (smsService.sendSMS(ApplicationConstants.SMS_OPTIN)) {
 				smsService.sendOptInSMS(studentList);
 				response.setSmsMessage("SMS sent Successfully for OptIn students");
 			} else{
 				response.setSmsMessage("SMS not sent.Please make sure that send OptInSMS feature is enabled");
 			}
-			if (isSendOptOutSMS) {
+			if (smsService.sendSMS(ApplicationConstants.SMS_OPTOUT)) {
 				smsService.sendOptOutSMS(studentList);
 				response.setSmsMessage(response.getSmsMessage().concat(", SMS sent Successfully for OptOut students"));
 			}else{
@@ -346,7 +333,7 @@ public class StudentService {
 		
 		
 		studentRepository.save(updatedStudentList);
-		if(isSendPresentSMS) {
+		if(smsService.sendSMS(ApplicationConstants.SMS_PRESENT)) {
 			smsService.sendBulkSMS(updatedStudentList,ApplicationConstants.ATTENDANCE,day);
 			response.setSmsMessage("SMS sent Successfully for Present students");
 		}else response.setSmsMessage("SMS not sent.Please make sure that send SMS feature is 'On' or 'true'.");
@@ -399,13 +386,13 @@ public class StudentService {
 			studentRepository.save(studentListDB);
 
 			// Send Opt SMS
-			if (isSendOptInSMS) {
+			if (smsService.sendSMS(ApplicationConstants.SMS_OPTIN)) {
 				smsService.sendOptInSMS(studentListDB);
 				apiResponse.setSmsMessage("SMS sent Successfully for OptIn students");
 			} else{
 				apiResponse.setSmsMessage("SMS not sent.Please make sure that send OptInSMS feature is enabled");
 			}
-			if (isSendOptOutSMS) {
+			if (smsService.sendSMS(ApplicationConstants.SMS_OPTOUT)) {
 				smsService.sendOptOutSMS(studentListDB);
 				apiResponse.setSmsMessage(apiResponse.getSmsMessage().concat(", SMS sent Successfully for OptOut students"));
 			}else{
@@ -617,7 +604,7 @@ public class StudentService {
 		//removing invalidStudent object 
 		//studentListDB = removeInvalidDataFromList(studentListDB, invalidDataIdList);
 		studentRepository.save(studentListDB);
-		if(isSendPresentSMS)
+		if(smsService.sendSMS(ApplicationConstants.SMS_PRESENT))
 		{
 			smsService.sendBulkSMS(studentListDB,ApplicationConstants.ATTENDANCE,day);
 			apiResponse.setSmsMessage("SMS sent Successfully for Present students");
@@ -663,5 +650,4 @@ public class StudentService {
 		}
 		return updatedStudentList;
 	}
-
 }
