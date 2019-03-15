@@ -3,6 +3,7 @@ package com.pepcus.appstudent.response;
 import static com.pepcus.appstudent.util.CommonUtil.TOTAL_RECORDS;
 import static com.pepcus.appstudent.util.CommonUtil.getRequestAttribute;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.core.MethodParameter;
@@ -100,6 +101,7 @@ public class ResponseHandler implements ResponseBodyAdvice<Object> {
 			apiResponse.setMessage("SMSFlag successfully updated");
 			apiResponse.setSmsFlags((List<SMSFlags>)body);
 		}
+		
 
 		if (httpRequest.getMethod().equals(HttpMethod.PATCH) && body instanceof ApiResponse) {
 			return body;
@@ -113,7 +115,7 @@ public class ResponseHandler implements ResponseBodyAdvice<Object> {
 		if (httpRequest.getMethod().equals(HttpMethod.GET)) {
 			if (body instanceof Student) {
 				apiResponse.setStudent((Student) body);
-			} else if (body instanceof List) {
+			} else if (((List)body).get(0) instanceof Student) {
 				if ((List) body == null || ((List) body).isEmpty()) {
 					apiResponse.setMessage("No records found for request.");
 				} else {
@@ -122,6 +124,17 @@ public class ResponseHandler implements ResponseBodyAdvice<Object> {
 						apiResponse.setTotalRecords(String.valueOf(totalRecObj));
 					}
 					apiResponse.setStudents((List) body);
+				}
+			}
+			else if (((List)body).get(0) instanceof SMSFlags) {
+				if ((List) body == null || ((List) body).isEmpty()) {
+					apiResponse.setMessage("No records found for request.");
+				} else {
+					Object totalRecObj = getRequestAttribute(TOTAL_RECORDS);
+					if (totalRecObj != null) {
+						apiResponse.setTotalRecords(String.valueOf(totalRecObj));
+					}
+					apiResponse.setSmsFlags((List) body);
 				}
 			}
 		}

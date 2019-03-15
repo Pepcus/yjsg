@@ -30,6 +30,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,6 +50,9 @@ public class SMSService {
 	
 	@Autowired
 	private SMSRepository SMSRepository;
+	
+	@Autowired
+	private SMSService smsService;
 	
 	private Logger logger = LoggerFactory.getLogger(SMSService.class);	
 	
@@ -252,6 +257,7 @@ public class SMSService {
 		}
 	}
 
+	 @CacheEvict(cacheNames = "flagcache",allEntries = true)
 	public List<SMSFlags> updateSMSFlag(List<SMSFlags> smsFlagsList) {
 		List<SMSFlags> smsFlags = SMSRepository.save(smsFlagsList);
 		return smsFlags;
@@ -276,21 +282,20 @@ public class SMSService {
 		 * @param flagName
 		 * @return boolean
 		 */
-	public boolean sendSMS(String flagName) {
-		boolean flagCheck = false;
-		SMSFlags smsFlags = SMSRepository.findByflagName(flagName);
-		if (smsFlags.getFlagValue() == 1) {
-			flagCheck = true;
-			return flagCheck;
-		} else {
-			logger.info("SMS not sent. " + flagName + "flag is off");
-		}
-		return flagCheck;
+	public boolean isSMSFlagEnabled(String flagName) {
+		List<SMSFlags> smsFlagsList = smsService.getAllFlags();
+		SMSFlags filterFlag = smsFlagsList.stream().filter(predicate -> predicate.getFlagName().equalsIgnoreCase(flagName)).findFirst().get();
+		return filterFlag.getFlagValue() == 1 ? true : false;
 	}
 
 
 
-	public List<SMSFlags> getAllFlags(Map<String, String> allRequestParams) {
+	/**
+	 * Method used to get All flags
+	 * @return smsFlagList
+	 */
+	@Cacheable("flagcache")
+	public List<SMSFlags> getAllFlags() {
 		List<SMSFlags> smsFlagList=SMSRepository.findAll();
 		return smsFlagList;
 	}

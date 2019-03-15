@@ -235,7 +235,7 @@ public class StudentController {
 	@RequestMapping(value = "/absents/sms", method = RequestMethod.POST)
 	public ResponseEntity<ApiResponse> sendSMSToAbsentStudent(@RequestBody Day day) {
 		ApiResponse response = new ApiResponse();
-		if(!smsService.sendSMS(ApplicationConstants.SMS_ABSENT)){
+		if(!smsService.isSMSFlagEnabled(ApplicationConstants.SMS_ABSENT)){
 			response.setSmsMessage("SMS not sent.Please make sure that send SMS feature is enable.");
 			response.setCode("501");
 			return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
@@ -278,8 +278,8 @@ public class StudentController {
 	
 	
 	@GetMapping(value="/sms-flag")
-	public List<SMSFlags> getAllFlags(@RequestParam Map<String, String> allRequestParams) {
-		return smsService.getAllFlags(allRequestParams);
+	public List<SMSFlags> getAllFlags() {
+		return smsService.getAllFlags();
 	}
 	
 }
