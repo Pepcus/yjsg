@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import com.pepcus.appstudent.entity.SMSFlags;
 
-public interface SMSRepository extends JpaRepository<SMSFlags, Integer>, JpaSpecificationExecutor<SMSFlags> { 
+public interface SmsRepository extends JpaRepository<SMSFlags, Integer>, JpaSpecificationExecutor<SMSFlags> { 
 
 	 SMSFlags findByflagName(String flagName);
 	 

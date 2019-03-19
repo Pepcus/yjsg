@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -42,7 +41,7 @@ import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.exception.ApplicationException;
 import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.response.ApiResponse;
-import com.pepcus.appstudent.service.SMSService;
+import com.pepcus.appstudent.service.SmsService;
 import com.pepcus.appstudent.service.StudentService;
 import com.pepcus.appstudent.util.ApplicationConstants;
 /**
@@ -60,7 +59,7 @@ public class StudentController {
 	private StudentService studentService;
 
 	@Autowired
-	private SMSService smsService;
+	private SmsService smsService;
 
 	/**
 	 * Used to fetch student record by studentId
@@ -259,21 +258,22 @@ public class StudentController {
 	@PutMapping(value = "/sms-flag")
 	public ResponseEntity<List<SMSFlags>> setSMSFlag(@RequestBody String jsonString) {
 		ObjectMapper mapper = new ObjectMapper();
-		Map<String, String> map=new HashMap<String,String>();
+		Map<String, String> map = new HashMap<String, String>();
 		try {
-			map = mapper.readValue(jsonString, new TypeReference<Map<String, String>>(){});
+			map = mapper.readValue(jsonString, new TypeReference<Map<String, String>>() {
+			});
 		} catch (IOException e) {
-			throw  new BadRequestException("Unable to read Json value");
-		} 
-		
-		List<SMSFlags> smsFlagList=new ArrayList<>();
-		 for (Map.Entry<String,String> entry : map.entrySet()){  
-	            SMSFlags updatedflag=smsService.validateFlag(entry.getKey());
-	            updatedflag.setFlagValue(Integer.valueOf(entry.getValue()));
-	            smsFlagList.add(updatedflag);
-	    } 
-		List<SMSFlags> smsFlags=smsService.updateSMSFlag(smsFlagList);
-		return new ResponseEntity<List<SMSFlags>>(smsFlags,HttpStatus.OK);
+			throw new BadRequestException("Unable to read Json value");
+		}
+
+		List<SMSFlags> smsFlagList = new ArrayList<>();
+		for (Map.Entry<String, String> entry : map.entrySet()) {
+			SMSFlags updatedflag = smsService.validateFlag(entry.getKey());
+			updatedflag.setFlagValue(Integer.valueOf(entry.getValue()));
+			smsFlagList.add(updatedflag);
+		}
+		List<SMSFlags> smsFlags = smsService.updateSMSFlag(smsFlagList);
+		return new ResponseEntity<List<SMSFlags>>(smsFlags, HttpStatus.OK);
 	}
 	
 	

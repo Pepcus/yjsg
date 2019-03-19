@@ -26,6 +26,4 @@ public class SMSFlags {
 	
 	@Column(name = "flagValue")
 	private Integer flagValue;
-	
-	
 }

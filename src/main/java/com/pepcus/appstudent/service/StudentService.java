@@ -69,7 +69,7 @@ public class StudentService {
 	private StudentRepository studentRepository;
 
 	@Autowired
-	private SMSService smsService;
+	private SmsService smsService;
 	
 	@PersistenceContext
 	private EntityManager em;
@@ -167,6 +167,7 @@ public class StudentService {
 	 */
 	public Student updateStudent(String student, Integer studentId) throws JsonProcessingException, IOException {
 		Student std = validateStudent(studentId);
+		String optIn2019=std.getOptIn2019();
 		Student updatedStudent = update(student, std);
 		Date currentDate = Calendar.getInstance().getTime();
 		List<Student>studentList=new ArrayList<Student>();
@@ -174,7 +175,7 @@ public class StudentService {
 		updatedStudent.setDateLastModifiedInDB(currentDate);
 
 		Student studentInDB = studentRepository.save(updatedStudent);
-		if (!StringUtils.isEmpty(std.getOptIn2019()) && !std.getOptIn2019().equalsIgnoreCase(updatedStudent.getOptIn2019())) {
+		if (!StringUtils.isEmpty(std.getOptIn2019()) && !optIn2019.equalsIgnoreCase(updatedStudent.getOptIn2019())) {
 			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTIN)) {
 				if (updatedStudent.getOptIn2019().equalsIgnoreCase("Y")) {
 					studentList.add(updatedStudent);
