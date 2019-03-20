@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -40,6 +41,7 @@ import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.repository.SmsRepository;
 import com.pepcus.appstudent.response.ApiResponse;
+import com.pepcus.appstudent.util.ApplicationConstants;
 import com.pepcus.appstudent.util.SMSUtil;
 
 @Service
@@ -256,7 +258,10 @@ public class SmsService {
      */
     private void sendSMSToAbsentStudents(Integer day) {
         logger.info("##### ######### sendSMSToAbsentStudents method invoked  ######### #####");
-        String mapDay = getDayMap().get(day);
+        String mapDay = getDayMap().get(day); 
+        if(Objects.isNull(mapDay)){
+            throw new BadRequestException(ApplicationConstants.DAY_INVALID);
+        }
         String mapDate = getDateMap().get(day);
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_DDMMYYYY);
         String todaysDate = dateFormat.format(new Date());

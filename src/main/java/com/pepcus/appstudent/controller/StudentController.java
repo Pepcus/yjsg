@@ -44,6 +44,8 @@ import com.pepcus.appstudent.response.ApiResponse;
 import com.pepcus.appstudent.service.SmsService;
 import com.pepcus.appstudent.service.StudentService;
 import com.pepcus.appstudent.util.ApplicationConstants;
+import static com.pepcus.appstudent.util.ApplicationConstants.DAY;
+import static com.pepcus.appstudent.util.ApplicationConstants.ISPRESENT;
 /**
  * This is a controller for handling/delegating requests to service layer.
  * 
@@ -93,7 +95,7 @@ public class StudentController {
 	 */
 	@PostMapping
 	public ResponseEntity<Student> createStudent(@RequestBody Student student) {
-		student.setPrintStatus("Y");
+		student.setPrintStatus(ISPRESENT);
 		Student savedStudent = studentService.createStudent(student);
 		return new ResponseEntity<Student>(savedStudent, HttpStatus.CREATED);
 	}
@@ -143,18 +145,17 @@ public class StudentController {
 	 * @param json
 	 * @return response
 	 */
-
 	@PutMapping(value = "/attendance")
 	public ResponseEntity<ApiResponse> updateStudentAttendance(
 			@RequestParam(value = "id", required = true) Integer studentId[], @RequestBody String json) {
 		ApiResponse response = new ApiResponse();
 		JSONObject js = new JSONObject(json);
-		if ((js.get("day").equals(null) || js.getString("day").equals(""))
-				|| (js.getInt("day") > 8 && js.getInt("day") < 1)) {
-			response.setMessage("Failed..! to update data is not valid");
-			response.setStatus("304");
+		if ((js.get(DAY).equals(null) || js.getString(DAY).equals(""))
+				|| (js.getInt(DAY) > 8 && js.getInt(DAY) < 1)) {
+			response.setMessage(ApplicationConstants.DAY_INVALID);
+			response.setStatus(ApplicationConstants.STATUS_CODE_304);
 		} else {
-			response=studentService.updateStudentAttendance(new ArrayList<Integer>(Arrays.asList(studentId)), "Y", js.getInt("day"));
+			response=studentService.updateStudentAttendance(new ArrayList<Integer>(Arrays.asList(studentId)), ApplicationConstants.ISPRESENT, js.getInt(DAY));
 		}
 		return new ResponseEntity<ApiResponse>(response, HttpStatus.MULTI_STATUS);
 	}
@@ -200,8 +201,8 @@ public class StudentController {
 	public ResponseEntity<ApiResponse> resetPrintStatus() {
 		ApiResponse response = new ApiResponse();
 		studentService.updatePrint();
-		response.setCode("200");
-		response.setStatus("OK");
+		response.setCode(ApplicationConstants.STATUS_CODE_200);
+		response.setStatus(ApplicationConstants.STATUS_OK);
 		return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
 	}
 	
@@ -217,7 +218,7 @@ public class StudentController {
 		try {
 			resource = new InputStreamResource(new FileInputStream(generatedFile));
 		} catch (FileNotFoundException e) {
-			throw new ApplicationException("Failed to generate duplicate CSV file");
+            throw new ApplicationException(ApplicationConstants.FAILED_TO_GENERATE);
 		}
 		response.setContentLength((int) generatedFile.length());
 		response.setContentType(ApplicationConstants.APPLICATION_FORCEDOWNLOAD);
@@ -235,17 +236,13 @@ public class StudentController {
 	public ResponseEntity<ApiResponse> sendSMSToAbsentStudent(@RequestBody Day day) {
 		ApiResponse response = new ApiResponse();
 		if(!smsService.isSMSFlagEnabled(ApplicationConstants.SMS_ABSENT)){
-			response.setSmsMessage("SMS not sent.Please make sure that send SMS feature is enable.");
-			response.setCode("501");
+			response.setSmsMessage(ApplicationConstants.SMS_FEATURE_DISABLE);
+			response.setCode(ApplicationConstants.STATUS_CODE_501);
 			return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
 		}
-		if (day.getDay()>=1 && day.getDay()<=8) {
 			smsService.sendBulkSMS(new ArrayList<>(),IS_ABSENT,day.getDay());
-			response.setSmsMessage("SMS sent Successfully for Absent students");
-			response.setCode("200");
-		} else {
-			throw new BadRequestException("Failed..! to send SMS, data is not valid");
-		}
+			response.setSmsMessage(ApplicationConstants.SMS_SENT_SUCCESSFULLY + ApplicationConstants.FOR_ABSENT_STUDENTS);
+			response.setCode(ApplicationConstants.STATUS_CODE_200);
 		return new ResponseEntity<ApiResponse>(response,HttpStatus.OK);
 	}
 	
@@ -263,7 +260,7 @@ public class StudentController {
 			map = mapper.readValue(jsonString, new TypeReference<Map<String, String>>() {
 			});
 		} catch (IOException e) {
-			throw new BadRequestException("Unable to read Json value");
+			throw new BadRequestException(ApplicationConstants.UNABLE_TO_READ_JSON);
 		}
 
 		List<SMSFlags> smsFlagList = new ArrayList<>();

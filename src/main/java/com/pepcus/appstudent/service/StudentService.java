@@ -177,13 +177,13 @@ public class StudentService {
 		Student studentInDB = studentRepository.save(updatedStudent);
 		if (!StringUtils.isEmpty(std.getOptIn2019()) && !optIn2019.equalsIgnoreCase(updatedStudent.getOptIn2019())) {
 			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTIN)) {
-				if (updatedStudent.getOptIn2019().equalsIgnoreCase("Y")) {
+				if (updatedStudent.getOptIn2019().equalsIgnoreCase(ISPRESENT)) {
 					studentList.add(updatedStudent);
 					smsService.sendOptInSMS(studentList);
 				}
 			}
 			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTOUT)) {
-				if (updatedStudent.getOptIn2019().equalsIgnoreCase("N")) {
+				if (updatedStudent.getOptIn2019().equalsIgnoreCase(ApplicationConstants.NO)) {
 					studentList.add(updatedStudent);
 					smsService.sendOptOutSMS(studentList);
 				}
@@ -207,7 +207,7 @@ public class StudentService {
 	public ApiResponse updateStudentOptin(List<Integer> studentIds, Student student) {
 		ApiResponse response = null;
 		
-		if (student.getOptIn2019()!=null && (student.getOptIn2019().equalsIgnoreCase("Y") || student.getOptIn2019().equalsIgnoreCase("N"))) {
+		if (student.getOptIn2019()!=null && (student.getOptIn2019().equalsIgnoreCase(ISPRESENT) || student.getOptIn2019().equalsIgnoreCase(ApplicationConstants.NO))) {
 			List<Student> studentList = validateListStudent(studentIds);
 			Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
 			response = populateResponse(validVsInvalidMap);
@@ -218,18 +218,18 @@ public class StudentService {
 			// Send Opt SMS
 			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTIN)) {
 				smsService.sendOptInSMS(studentList);
-				response.setSmsMessage("SMS sent Successfully for OptIn students");
+				response.setSmsMessage(ApplicationConstants.SMS_SENT_SUCCESSFULLY+ ApplicationConstants.FOR_OPTIN_STUDENTS);
 			} else{
-				response.setSmsMessage("SMS not sent.Please make sure that send OptInSMS feature is enabled");
+				response.setSmsMessage(ApplicationConstants.SMS_NOT_SENT+ApplicationConstants.SMS_OPTIN_FEATURE_DISABLE);
 			}
 			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTOUT)) {
 				smsService.sendOptOutSMS(studentList);
-				response.setSmsMessage(response.getSmsMessage().concat(", SMS sent Successfully for OptOut students"));
+				response.setSmsMessage(response.getSmsMessage().concat(","+ ApplicationConstants.SMS_SENT_SUCCESSFULLY+ ApplicationConstants.FOR_OPTOUT_STUDENTS));
 			}else{
-				response.setSmsMessage(response.getSmsMessage().concat(", Please make sure that send OptOutSMS feature is enabled"));
+				response.setSmsMessage(response.getSmsMessage().concat(", "+ApplicationConstants.SMS_OPTOUT_FEATURE_DISABLE ));
 			}
 		}else{
-			throw new BadRequestException("Invalid data");
+			throw new BadRequestException(ApplicationConstants.INVALID_DATA);
 		}
 		return response; 
 	}
@@ -237,23 +237,23 @@ public class StudentService {
 	
 	private  ApiResponse populateResponse(Map<String, List<Integer>> validInvalidIdsMap) {
 		ApiResponse response = new ApiResponse();
-		if (!validInvalidIdsMap.get("invalid").isEmpty()) {
+		if (!validInvalidIdsMap.get(ApplicationConstants.INVALID).isEmpty()) {
 			response.setCode(String.valueOf(HttpStatus.MULTI_STATUS));
-			response.setFailRecordIds(String.valueOf(validInvalidIdsMap.get("invalid")));
-			int total=validInvalidIdsMap.get("invalid").size()+validInvalidIdsMap.get("valid").size();
-			response.setSuccessRecordsIds(String.valueOf(validInvalidIdsMap.get("valid")));
+			response.setFailRecordIds(String.valueOf(validInvalidIdsMap.get(ApplicationConstants.INVALID)));
+			int total=validInvalidIdsMap.get(ApplicationConstants.INVALID).size()+validInvalidIdsMap.get(ApplicationConstants.VALID).size();
+			response.setSuccessRecordsIds(String.valueOf(validInvalidIdsMap.get(ApplicationConstants.VALID)));
 			response.setTotalRecords(String.valueOf(total));
-			if (null!=validInvalidIdsMap.get("recordNotExist") && !validInvalidIdsMap.get("recordNotExist").isEmpty()) {
-			response.setIdNotExist("ID's"+validInvalidIdsMap.get("recordNotExist")+" doesn’t exist in database and not processed");
+			if (null!=validInvalidIdsMap.get(ApplicationConstants.RECORD_NOT_EXIST) && !validInvalidIdsMap.get(ApplicationConstants.RECORD_NOT_EXIST).isEmpty()) {
+			response.setIdNotExist("ID's"+validInvalidIdsMap.get(ApplicationConstants.RECORD_NOT_EXIST)+" doesn’t exist in database and not processed");
 			}
-			response.setMessage("Some records failed and some updated");
+			response.setMessage(ApplicationConstants.SOME_UPDATED_SOME_FAILED);
 		}
 		else{
 			response.setCode(String.valueOf(HttpStatus.OK));
-			int total=validInvalidIdsMap.get("valid").size();
+			int total=validInvalidIdsMap.get(ApplicationConstants.VALID).size();
 			response.setTotalRecords(String.valueOf(total));
-			response.setSuccessRecordsIds(String.valueOf(validInvalidIdsMap.get("valid")));
-			response.setMessage("Updated Successfully");
+			response.setSuccessRecordsIds(String.valueOf(validInvalidIdsMap.get(ApplicationConstants.VALID)));
+			response.setMessage(ApplicationConstants.UPDATED_SUCCESSFULLY);
 		}
 		return response;
 	}
@@ -268,7 +268,7 @@ public class StudentService {
 	 */
 	public ApiResponse updateStudentPrintStatus(List<Integer> studentIds, Student student){
 		ApiResponse response=new ApiResponse();
-		if (student.getPrintStatus()!=null && student.getPrintStatus().equalsIgnoreCase("Y") || student.getPrintStatus().equalsIgnoreCase("N")) {
+		if (student.getPrintStatus()!=null && student.getPrintStatus().equalsIgnoreCase(ISPRESENT) || student.getPrintStatus().equalsIgnoreCase(ApplicationConstants.NO)) {
 			List<Student> studentList = validateListStudent(studentIds);
 			
 			Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
@@ -282,7 +282,7 @@ public class StudentService {
 			}
 			studentRepository.save(studentList);
 		}else{
-			throw new BadRequestException("Invalid data");
+			throw new BadRequestException(ApplicationConstants.INVALID_DATA);
 		}
 		return response;
 	}
@@ -336,8 +336,8 @@ public class StudentService {
 		studentRepository.save(updatedStudentList);
 		if(smsService.isSMSFlagEnabled(ApplicationConstants.SMS_PRESENT)) {
 			smsService.sendBulkSMS(updatedStudentList,ApplicationConstants.ATTENDANCE,day);
-			response.setSmsMessage("SMS sent Successfully for Present students");
-		}else response.setSmsMessage("SMS not sent.Please make sure that send SMS feature is 'On' or 'true'.");
+			response.setSmsMessage(ApplicationConstants.SMS_SENT_SUCCESSFULLY+ApplicationConstants.FOR_PRESENT_STUDENTS);
+		}else response.setSmsMessage(ApplicationConstants.SMS_FEATURE_DISABLE);
 		return response;
 	}
 
@@ -389,23 +389,23 @@ public class StudentService {
 			// Send Opt SMS
 			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTIN)) {
 				smsService.sendOptInSMS(studentListDB);
-				apiResponse.setSmsMessage("SMS sent Successfully for OptIn students");
+				apiResponse.setSmsMessage(ApplicationConstants.SMS_SENT_SUCCESSFULLY+ ApplicationConstants.FOR_OPTIN_STUDENTS);
 			} else{
-				apiResponse.setSmsMessage("SMS not sent.Please make sure that send OptInSMS feature is enabled");
+				apiResponse.setSmsMessage(ApplicationConstants.SMS_NOT_SENT+ApplicationConstants.SMS_OPTIN_FEATURE_DISABLE);
 			}
 			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTOUT)) {
 				smsService.sendOptOutSMS(studentListDB);
-				apiResponse.setSmsMessage(apiResponse.getSmsMessage().concat(", SMS sent Successfully for OptOut students"));
+				apiResponse.setSmsMessage(apiResponse.getSmsMessage().concat( ", "+ApplicationConstants.SMS_SENT_SUCCESSFULLY+ApplicationConstants.FOR_OPTOUT_STUDENTS));
 			}else{
-				apiResponse.setSmsMessage(apiResponse.getSmsMessage().concat(", Please make sure that send OptOutSMS feature is enabled"));
+				apiResponse.setSmsMessage(apiResponse.getSmsMessage().concat(", "+ApplicationConstants.SMS_OPTOUT_FEATURE_DISABLE));
 			}
 
 		
 		}catch (NumberFormatException e) {
-			throw new BadRequestException("Invalid data in 'id' column can not process further: "+e.getMessage());
+			throw new BadRequestException(ApplicationConstants.INVALID_DATA_IN_ID_COLUMN+e.getMessage());
 		} 
 		catch (InvocationTargetException | IllegalAccessException  e) {
-			throw new BadRequestException("Failed to update records: "+e);
+			throw new BadRequestException(ApplicationConstants.FAILED_TO_UPDATE+e);
 		}
 		return apiResponse;
 	}
@@ -482,9 +482,9 @@ public class StudentService {
 			studentIds.removeAll(validIds);			
 		}
 		Map<String, List<Integer>>map=new HashMap<String, List<Integer>>();
-		map.put("valid", validIds);
-		map.put("invalid", studentIds);
-		map.put("recordNotExist", studentIds);
+		map.put(ApplicationConstants.VALID, validIds);
+		map.put(ApplicationConstants.INVALID, studentIds);
+		map.put(ApplicationConstants.RECORD_NOT_EXIST, studentIds);
 		return map;
 	}
 
@@ -511,7 +511,7 @@ public class StudentService {
 			headers = fileContents.get(0).split(ApplicationConstants.COMMA_SEPARATOR);
 		}
 		 catch (IOException e) {
-			throw new ApplicationException("Failed to read CSV file..!");
+			throw new ApplicationException(ApplicationConstants.UNABLE_TO_READ_CSV);
 		}
 		
 		//getting Duplicate records
@@ -599,8 +599,6 @@ public class StudentService {
 		getInvalidList.addAll(validVsInvalidMap.get(ApplicationConstants.INVALID));
 		validVsInvalidMap.put(ApplicationConstants.VALID,successRecordList);
 		validVsInvalidMap.put(ApplicationConstants.INVALID,getInvalidList);
-		/*int totalRecords=successRecordList.size()+getInvalidList.size();
-		apiResponse.setTotalRecords(String.valueOf(totalRecords));*/
 		apiResponse = populateResponse(validVsInvalidMap);
 		//removing invalidStudent object 
 		//studentListDB = removeInvalidDataFromList(studentListDB, invalidDataIdList);
@@ -608,9 +606,9 @@ public class StudentService {
 		if(smsService.isSMSFlagEnabled(ApplicationConstants.SMS_PRESENT))
 		{
 			smsService.sendBulkSMS(studentListDB,ApplicationConstants.ATTENDANCE,day);
-			apiResponse.setSmsMessage("SMS sent Successfully for Present students");
+			apiResponse.setSmsMessage(ApplicationConstants.SMS_SENT_SUCCESSFULLY + ApplicationConstants.FOR_PRESENT_STUDENTS);
 			
-		}else apiResponse.setSmsMessage("SMS not sent.Please make sure that send SMS feature is enabled ");
+		}else apiResponse.setSmsMessage(ApplicationConstants.SMS_FEATURE_DISABLE);
 		return apiResponse;
 	}
 

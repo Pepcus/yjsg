@@ -43,4 +43,31 @@ public class ApplicationConstants {
   public static final String SMS_OPTOUT="smsOptOut";
   public static final String SMS_PRESENT="smsPresent";
   public static final String SMS_ABSENT="smsAbsent";
+  public static final String STATUS_CODE_200="200";
+  public static final String STATUS_OK="OK";
+  public static final String SMS_SENT_SUCCESSFULLY="SMS sent successfully";
+  public static final String SMS_NOT_SENT="SMS not sent";
+  public static final String FOR_ABSENT_STUDENTS=" for absent students";
+  public static final String FOR_PRESENT_STUDENTS=" for present students";
+  public static final String FOR_OPTOUT_STUDENTS=" for OptOut students";
+  public static final String FOR_OPTIN_STUDENTS=" for OptIn students";
+  public static final String FAILED_TO_SEND_SMS="Failed..! to send SMS";
+  public static final String SMS_FEATURE_DISABLE="SMS not sent.Please make sure that send SMS feature is enable";
+  public static final String STATUS_CODE_501="501";
+  public static final String UNABLE_TO_READ_JSON="Unable to read Json value";
+  public static final String DAY_INVALID=" Given input day is not valid";
+  public static final String FAILED_TO_GENERATE="Failed to generate duplicate CSV file";
+  public static final String STATUS_CODE_304="304";
+  public static final String UNABLE_TO_READ_CSV="Failed to read CSV file..!";
+  public static final String SMS_OPTOUT_FEATURE_DISABLE="Please make sure that send OptOutSMS feature is enabled";
+  public static final String SMS_OPTIN_FEATURE_DISABLE=" Please make sure that send OptInSMS feature is enabled";
+  public static final String INVALID_DATA="Invalid data";
+  public static final String NO="N";
+  public static final String UPDATED_SUCCESSFULLY="Updated Successfully";
+  public static final String RECORD_NOT_EXIST="recordNotExist";
+  public static final String SOME_UPDATED_SOME_FAILED="Some records failed and some updated";
+  public static final String INVALID_DATA_IN_ID_COLUMN="Invalid data in 'id' column can not process further: ";
+  public static final String FAILED_TO_UPDATE="Failed to update records: ";
+  public static final String DAY="day";
+  
 }
