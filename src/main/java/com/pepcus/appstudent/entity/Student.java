@@ -30,106 +30,165 @@ import lombok.Data;
 @Entity
 @Table(name = "student")
 @Data
-@JsonInclude(Include.NON_EMPTY)
+@JsonInclude(Include.ALWAYS)
 public class Student {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "id")
-	private Integer id;
+    public Student() {
 
-	@Column(name = "name")
-	private String name;
+    }
 
-	@Column(name = "father_name")
-	private String fatherName;
+    public Student(Integer id, String name, String fatherName) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.fatherName = fatherName;
+    }
 
-	@Column(name = "gender")
-	private String gender;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
+    private Integer id;
 
-	@Column(name = "age")
-	private String age;
+    @Column(name = "name")
+    private String name;
 
-	@Column(name = "education")
-	private String education;
+    @Column(name = "father_name")
+    private String fatherName;
 
-	@Column(name = "occupation")
-	private String occupation;
+    @Column(name = "gender")
+    private String gender;
 
-	@Column(name = "mother_mobile")
-	private String motherMobile;
+    @Column(name = "age")
+    private String age;
 
-	@Column(name = "father_mobile")
-	private String mobile;
+    @Column(name = "education")
+    private String education;
 
-	@Column(name = "email")
-	private String email;
+    @Column(name = "occupation")
+    private String occupation;
 
-	@Column(name = "address")
-	private String address;
+    @Column(name = "mother_mobile")
+    private String motherMobile;
 
-	@Column(name = "bus_stop")
-	private String busStop;
-	
-	@Column(name = "bus_num")
-	private String busNumber;
+    @Column(name = "father_mobile")
+    private String mobile;
 
-	@Column(name = "class_attended_2016")
-	private String classAttended2016;
+    @Column(name = "email")
+    private String email;
 
-	@Column(name = "class_room_no_2016")
-	private String classRoomNo2016;
+    @Column(name = "address")
+    private String address;
 
-	@Column(name = "attendance_2016")
-	private String attendance2016;
+    @Column(name = "bus_num")
+    private String busNumber;
 
-	@Column(name = "marks_2016")
-	private String marks2016;
+    @Column(name = "bus_stop")
+    private String busStop;
 
-	@Column(name = "class_attended_2017")
-	private String classAttended2017;
+    @Column(name = "printStatus")
+    private String printStatus;
 
-	@Column(name = "class_room_no_2017")
-	private String classRoomNo2017;
+    @Column(name = "remark", insertable = false)
+    private String remark;
 
-	@Column(name = "attendance_2017")
-	private String attendance2017;
+    @Column(name = "secret_key")
+    @JsonProperty(access = Access.READ_ONLY)
+    private String secretKey;
 
-	@Column(name = "marks_2017")
-	private String marks2017;
-	
-	@Column(name = "class_room_no_2018")
-	private Integer classRoomNo2018;
-	
-	@Column(name = "course_2018")
-	private String course2018;
-	
-	@Column(name = "opt_in_2018")
-	private Integer optIn2018;
-	
-	@Column(name = "secret_key")
-	@JsonProperty(access = Access.READ_ONLY)
-	private String secretKey;
-	
-	@Column(name = "remark", insertable = false)
-	private String remark;
+    @Column(name = "class_attended_2016")
+    private String classAttended2016;
 
-	@Column(name = "created_date")
-	@Temporal(TemporalType.DATE)
-	@JsonIgnore
-	private Date dateCreatedInDB;
+    @Column(name = "class_attended_2017")
+    private String classAttended2017;
 
-	@Column(name = "last_modified_date")
-	@Temporal(TemporalType.DATE)
-	@JsonIgnore
-	private Date dateLastModifiedInDB;
-	
-	@Transient
-	@JsonProperty(access = Access.READ_ONLY)
-	private String createdDate;
-	
-	@Transient
-	@JsonProperty(access = Access.READ_ONLY)
-	private String lastModifiedDate;
+    @Column(name = "class_attended_2018")
+    private String classAttended2018;
+
+    @Column(name = "class_attended_2019")
+    private String classAttended2019;
+
+    @Column(name = "class_room_no_2016")
+    private String classRoomNo2016;
+
+    @Column(name = "class_room_no_2017")
+    private String classRoomNo2017;
+
+    @Column(name = "class_room_no_2018")
+    private String classRoomNo2018;
+
+    @Column(name = "class_room_no_2019")
+    private String classRoomNo2019;
+
+    @Column(name = "attendance_2016")
+    private String attendance2016;
+
+    @Column(name = "attendance_2017")
+    private String attendance2017;
+
+    @Column(name = "attendance_2018")
+    private String attendance2018;
+
+    @Column(name = "attendance_2019")
+    private String attendance2019;
+
+    @Column(name = "marks_2016")
+    private String marks2016;
+
+    @Column(name = "marks_2017")
+    private String marks2017;
+
+    @Column(name = "marks_2018")
+    private String marks2018;
+
+    @Column(name = "marks_2019")
+    private String marks2019;
+
+    @Column(name = "opt_in_2018")
+    private Integer optIn2018;
+
+    @Column(name = "opt_in_2019")
+    private String optIn2019;
+
+    @Column(name = "day1")
+    private String day1;
+
+    @Column(name = "day2")
+    private String day2;
+
+    @Column(name = "day3")
+    private String day3;
+
+    @Column(name = "day4")
+    private String day4;
+
+    @Column(name = "day5")
+    private String day5;
+
+    @Column(name = "day6")
+    private String day6;
+
+    @Column(name = "day7")
+    private String day7;
+
+    @Column(name = "day8")
+    private String day8;
+
+    @Column(name = "created_date")
+    @Temporal(TemporalType.DATE)
+    @JsonIgnore
+    private Date dateCreatedInDB;
+
+    @Column(name = "last_modified_date")
+    @Temporal(TemporalType.DATE)
+    @JsonIgnore
+    private Date dateLastModifiedInDB;
+
+    @Transient
+    @JsonProperty(access = Access.READ_ONLY)
+    private String createdDate;
+
+    @Transient
+    @JsonProperty(access = Access.READ_ONLY)
+    private String lastModifiedDate;
 
 }
