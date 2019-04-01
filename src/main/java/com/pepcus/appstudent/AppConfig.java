@@ -20,18 +20,16 @@ import com.pepcus.appstudent.service.AuthorizationManager;
 @Configuration
 @EnableWebMvc
 public class AppConfig extends WebMvcConfigurerAdapter {
-	
-	@Value("${com.pepcus.appstudent.admin.secret_key}")
-	private String adminSecretKey;
-	
-	
-	@Autowired
-	private AuthorizationManager authManager;
-	
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(new ApiSecretKeyInterceptor(adminSecretKey, authManager))
-			.addPathPatterns("/v1/**");
-	}
+
+    @Value("${com.pepcus.appstudent.admin.secret_key}")
+    private String adminSecretKey;
+
+    @Autowired
+    private AuthorizationManager authManager;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new ApiSecretKeyInterceptor(adminSecretKey, authManager)).addPathPatterns("/v1/**");
+    }
 
 }

@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class Day {
 
-	public Integer day;
+    public Integer day;
 }

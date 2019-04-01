@@ -14,16 +14,14 @@ import lombok.Data;
 @Table(name = "flag")
 public class SMSFlags {
 
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "id")
-	private Integer id;
-	
-	@Column(name = "flagName")
-	private String flagName;
-	
-	
-	@Column(name = "flagValue")
-	private Integer flagValue;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
+    private Integer id;
+
+    @Column(name = "flagName")
+    private String flagName;
+
+    @Column(name = "flagValue")
+    private Integer flagValue;
 }

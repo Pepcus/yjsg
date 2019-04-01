@@ -24,40 +24,38 @@ import lombok.Data;
 @Table(name = "person")
 @Data
 @JsonInclude(Include.ALWAYS)
-public class Person{
+public class Person {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "id")
-	private Integer id;
-	
-	@Column(name = "name")
-	private String name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
+    private Integer id;
 
-	@Column(name = "members")
-	private Integer members;
-	
-	@Column(name = "phoneNumber")
-	private String phoneNumber;
-	
-	
-	@Column(name = "created_date")
-	@Temporal(TemporalType.DATE)
-	@JsonIgnore
-	private Date dateCreatedInDB;
-	
-	@Column(name = "last_modified_date")
-	@Temporal(TemporalType.DATE)
-	@JsonIgnore
-	private Date dateLastModifiedInDB;
-		
-	@Transient
-	@JsonProperty(access = Access.READ_ONLY)
-	private String createdDate;
-	
-	@Transient
-	@JsonProperty(access = Access.READ_ONLY)
-	private String lastModifiedDate;
+    @Column(name = "name")
+    private String name;
 
-	
+    @Column(name = "members")
+    private Integer members;
+
+    @Column(name = "phoneNumber")
+    private String phoneNumber;
+
+    @Column(name = "created_date")
+    @Temporal(TemporalType.DATE)
+    @JsonIgnore
+    private Date dateCreatedInDB;
+
+    @Column(name = "last_modified_date")
+    @Temporal(TemporalType.DATE)
+    @JsonIgnore
+    private Date dateLastModifiedInDB;
+
+    @Transient
+    @JsonProperty(access = Access.READ_ONLY)
+    private String createdDate;
+
+    @Transient
+    @JsonProperty(access = Access.READ_ONLY)
+    private String lastModifiedDate;
+
 }

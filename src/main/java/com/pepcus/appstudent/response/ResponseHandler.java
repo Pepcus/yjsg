@@ -3,7 +3,6 @@ package com.pepcus.appstudent.response;
 import static com.pepcus.appstudent.util.CommonUtil.TOTAL_RECORDS;
 import static com.pepcus.appstudent.util.CommonUtil.getRequestAttribute;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.core.MethodParameter;
@@ -34,111 +33,105 @@ import com.pepcus.appstudent.exception.ApiErrorResponse;
 @ControllerAdvice("com.pepcus.appstudent.controller")
 public class ResponseHandler implements ResponseBodyAdvice<Object> {
 
-	/**
-	 * 
-	 * @param methodParameter
-	 * @param request
-	 * @return
-	 */
-	@Override
-	public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> request) {
-		return true;
-	}
+    /**
+     * 
+     * @param methodParameter
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> request) {
+        return true;
+    }
 
-	/**
-	 * 
-	 * @param body
-	 * @param returnType
-	 * @param selectedContentType
-	 * @param selectedConverterType
-	 * @param request
-	 * @param response
-	 * @return
-	 */
-	@Override
-	public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
-			Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
-			ServerHttpResponse response) {
-		if (body instanceof ApiErrorResponse || body instanceof Exception) {
-			return body;
-		}
-		
-		if(body instanceof Resource){
-			return body;
-		}
+    /**
+     * 
+     * @param body
+     * @param returnType
+     * @param selectedContentType
+     * @param selectedConverterType
+     * @param request
+     * @param response
+     * @return
+     */
+    @Override
+    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
+            Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
+            ServerHttpResponse response) {
+        if (body instanceof ApiErrorResponse || body instanceof Exception) {
+            return body;
+        }
 
-		ServletServerHttpRequest httpRequest = (ServletServerHttpRequest) request;
-		ServletServerHttpResponse httpResponse = (ServletServerHttpResponse) response;
+        if (body instanceof Resource) {
+            return body;
+        }
 
-		ApiResponse apiResponse = new ApiResponse();
+        ServletServerHttpRequest httpRequest = (ServletServerHttpRequest) request;
+        ServletServerHttpResponse httpResponse = (ServletServerHttpResponse) response;
 
-		
-		int statusCode = httpResponse.getServletResponse().getStatus();
-		apiResponse.setCode(String.valueOf(statusCode));
-		apiResponse.setStatus(HttpStatus.valueOf(statusCode).name());
+        ApiResponse apiResponse = new ApiResponse();
 
-		if (httpRequest.getMethod().equals(HttpMethod.POST) && body instanceof Student) {
-			apiResponse.setMessage("Student successfully created");
-			apiResponse.setStudent((Student) body);
-		}
-		if (httpRequest.getMethod().equals(HttpMethod.POST) && body instanceof ApiResponse) {
-			return body;
-		}
+        int statusCode = httpResponse.getServletResponse().getStatus();
+        apiResponse.setCode(String.valueOf(statusCode));
+        apiResponse.setStatus(HttpStatus.valueOf(statusCode).name());
 
-		
-		if (httpRequest.getMethod().equals(HttpMethod.POST) && body instanceof Person) {
-			apiResponse.setMessage("Registration successful");
-			apiResponse.setPerson((Person) body);
-		}
-		
-		
-		if (httpRequest.getMethod().equals(HttpMethod.PUT) && body instanceof Student) {
-			apiResponse.setMessage("Student successfully updated");
-			apiResponse.setStudent((Student) body);
-		}
-		
-		if (httpRequest.getMethod().equals(HttpMethod.PUT) && body instanceof List<?>) {
-			apiResponse.setMessage("SMSFlag successfully updated");
-			apiResponse.setSmsFlags((List<SMSFlags>)body);
-		}
-		
+        if (httpRequest.getMethod().equals(HttpMethod.POST) && body instanceof Student) {
+            apiResponse.setMessage("Student successfully created");
+            apiResponse.setStudent((Student) body);
+        }
+        if (httpRequest.getMethod().equals(HttpMethod.POST) && body instanceof ApiResponse) {
+            return body;
+        }
 
-		if (httpRequest.getMethod().equals(HttpMethod.PATCH) && body instanceof ApiResponse) {
-			return body;
-		}
+        if (httpRequest.getMethod().equals(HttpMethod.POST) && body instanceof Person) {
+            apiResponse.setMessage("Registration successful");
+            apiResponse.setPerson((Person) body);
+        }
 
-		
-		if (httpRequest.getMethod().equals(HttpMethod.PUT) && body instanceof ApiResponse) {
-			return body;
-		}
+        if (httpRequest.getMethod().equals(HttpMethod.PUT) && body instanceof Student) {
+            apiResponse.setMessage("Student successfully updated");
+            apiResponse.setStudent((Student) body);
+        }
 
-		if (httpRequest.getMethod().equals(HttpMethod.GET)) {
-			if (body instanceof Student) {
-				apiResponse.setStudent((Student) body);
-			} else if (((List)body).get(0) instanceof Student) {
-				if ((List) body == null || ((List) body).isEmpty()) {
-					apiResponse.setMessage("No records found for request.");
-				} else {
-					Object totalRecObj = getRequestAttribute(TOTAL_RECORDS);
-					if (totalRecObj != null) {
-						apiResponse.setTotalRecords(String.valueOf(totalRecObj));
-					}
-					apiResponse.setStudents((List) body);
-				}
-			}
-			else if (((List)body).get(0) instanceof SMSFlags) {
-				if ((List) body == null || ((List) body).isEmpty()) {
-					apiResponse.setMessage("No records found for request.");
-				} else {
-					Object totalRecObj = getRequestAttribute(TOTAL_RECORDS);
-					if (totalRecObj != null) {
-						apiResponse.setTotalRecords(String.valueOf(totalRecObj));
-					}
-					apiResponse.setSmsFlags((List) body);
-				}
-			}
-		}
-		return apiResponse;
-	}
+        if (httpRequest.getMethod().equals(HttpMethod.PUT) && body instanceof List<?>) {
+            apiResponse.setMessage("SMSFlag successfully updated");
+            apiResponse.setSmsFlags((List<SMSFlags>) body);
+        }
+
+        if (httpRequest.getMethod().equals(HttpMethod.PATCH) && body instanceof ApiResponse) {
+            return body;
+        }
+
+        if (httpRequest.getMethod().equals(HttpMethod.PUT) && body instanceof ApiResponse) {
+            return body;
+        }
+
+        if (httpRequest.getMethod().equals(HttpMethod.GET)) {
+            if (body instanceof Student) {
+                apiResponse.setStudent((Student) body);
+            } else if (((List) body).get(0) instanceof Student) {
+                if ((List) body == null || ((List) body).isEmpty()) {
+                    apiResponse.setMessage("No records found for request.");
+                } else {
+                    Object totalRecObj = getRequestAttribute(TOTAL_RECORDS);
+                    if (totalRecObj != null) {
+                        apiResponse.setTotalRecords(String.valueOf(totalRecObj));
+                    }
+                    apiResponse.setStudents((List) body);
+                }
+            } else if (((List) body).get(0) instanceof SMSFlags) {
+                if ((List) body == null || ((List) body).isEmpty()) {
+                    apiResponse.setMessage("No records found for request.");
+                } else {
+                    Object totalRecObj = getRequestAttribute(TOTAL_RECORDS);
+                    if (totalRecObj != null) {
+                        apiResponse.setTotalRecords(String.valueOf(totalRecObj));
+                    }
+                    apiResponse.setSmsFlags((List) body);
+                }
+            }
+        }
+        return apiResponse;
+    }
 
 }

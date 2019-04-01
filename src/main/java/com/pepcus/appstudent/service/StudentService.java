@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -32,7 +31,6 @@ import org.apache.commons.beanutils.BeanPropertyValueEqualsPredicate;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -43,7 +41,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.pepcus.appstudent.entity.SMSFlags;
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.entity.StudentUploadAttendance;
 import com.pepcus.appstudent.exception.ApplicationException;
@@ -65,588 +62,626 @@ import com.pepcus.appstudent.util.Sortbyname;
 @Service
 public class StudentService {
 
-	@Autowired
-	private StudentRepository studentRepository;
+    @Autowired
+    private StudentRepository studentRepository;
 
-	@Autowired
-	private SmsService smsService;
-	
-	@PersistenceContext
-	private EntityManager em;
+    @Autowired
+    private SmsService smsService;
 
-	/**
-	 * Method to get student details
-	 * 
-	 * @param studentId
-	 * @return
-	 */
-	public Student getStudent(Integer studentId) {
-		Student savedStudent = validateStudent(studentId);
-		if (null != savedStudent.getDateLastModifiedInDB()) {
-			savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
-		}
-		if (null != savedStudent.getDateCreatedInDB()) {
-			savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateCreatedInDB()));
-		}
-		return savedStudent;
-	}
+    @PersistenceContext
+    private EntityManager em;
 
-	/**
-	 * Method used to check whether student exists or not
-	 * 
-	 * @param studentId
-	 * @return
-	 */
-	private Student validateStudent(Integer studentId) {
-		Student student = studentRepository.findOne(studentId);
-		if (null == student) {
-			throw new BadRequestException("student not found by studentId=" + studentId);
-		}
-		return student;
-	}
+    /**
+     * Method to get student details
+     * 
+     * @param studentId
+     * @return
+     */
+    public Student getStudent(Integer studentId) {
+        Student savedStudent = validateStudent(studentId);
+        if (null != savedStudent.getDateLastModifiedInDB()) {
+            savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
+        }
+        if (null != savedStudent.getDateCreatedInDB()) {
+            savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateCreatedInDB()));
+        }
+        return savedStudent;
+    }
 
-	private List<Student> validateListStudent(List<Integer> ids) {
-		List<Student> students = studentRepository.findByIdIn(ids);
-			if (students==null || students.isEmpty()) {
-			throw new BadRequestException("student not found by studentId=" + ids);
-		}
-		return students;
-	}
+    /**
+     * Method used to check whether student exists or not
+     * 
+     * @param studentId
+     * @return
+     */
+    private Student validateStudent(Integer studentId) {
+        Student student = studentRepository.findOne(studentId);
+        if (null == student) {
+            throw new BadRequestException("student not found by studentId=" + studentId);
+        }
+        return student;
+    }
 
-	/**
-	 * Method to create student record
-	 * 
-	 * @param student
-	 * @return
-	 */
-	@Transactional(propagation = Propagation.REQUIRED)
-	public Student createStudent(Student student) {
-		Date currentDate = Calendar.getInstance().getTime();
-		student.setDateCreatedInDB(currentDate);
-		student.setDateLastModifiedInDB(currentDate);
+    private List<Student> validateListStudent(List<Integer> ids) {
+        List<Student> students = studentRepository.findByIdIn(ids);
+        if (students == null || students.isEmpty()) {
+            throw new BadRequestException("student not found by studentId=" + ids);
+        }
+        return students;
+    }
 
-		// Generate secretKey for student
-		String secretKey = generateSecretKey();
-		student.setSecretKey(secretKey);
+    /**
+     * Method to create student record
+     * 
+     * @param student
+     * @return
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Student createStudent(Student student) {
+        Date currentDate = Calendar.getInstance().getTime();
+        student.setDateCreatedInDB(currentDate);
+        student.setDateLastModifiedInDB(currentDate);
 
-		Student savedStudent = studentRepository.save(student);
+        // Generate secretKey for student
+        String secretKey = generateSecretKey();
+        student.setSecretKey(secretKey);
 
-		savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
-		savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateCreatedInDB()));
-		
-		// send SMS only if SendSMS = true
-		if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
-			SMSUtil.sendSMS(savedStudent);
-		}
-		// This is required otherwise insertable=false field (remark) is not
-		// synced with
-		// database when remark field is passed in payload .
-		em.flush();
-		em.refresh(savedStudent);
+        Student savedStudent = studentRepository.save(student);
 
-		return savedStudent;
-	}
+        savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
+        savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateCreatedInDB()));
 
-	/**
-	 * Method to generate secretKey for student
-	 * 
-	 * @return
-	 */
-	public String generateSecretKey() {
-		Random random = new Random();
-		return String.format("%04d", random.nextInt(10000));
-	}
+        // send SMS only if SendSMS = true
+        if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
+            SMSUtil.sendSMS(savedStudent);
+        }
+        // This is required otherwise insertable=false field (remark) is not
+        // synced with
+        // database when remark field is passed in payload .
+        em.flush();
+        em.refresh(savedStudent);
 
-	/**
-	 * Method to update student details
-	 * @param student
-	 * @param studentId
-	 * @return
-	 * @throws JsonProcessingException
-	 * @throws IOException
-	 */
-	public Student updateStudent(String student, Integer studentId) throws JsonProcessingException, IOException {
-		Student std = validateStudent(studentId);
-		String optIn2019=std.getOptIn2019();
-		Student updatedStudent = update(student, std);
-		Date currentDate = Calendar.getInstance().getTime();
-		List<Student>studentList=new ArrayList<Student>();
+        return savedStudent;
+    }
 
-		updatedStudent.setDateLastModifiedInDB(currentDate);
+    /**
+     * Method to generate secretKey for student
+     * 
+     * @return
+     */
+    public String generateSecretKey() {
+        Random random = new Random();
+        return String.format("%04d", random.nextInt(10000));
+    }
 
-		Student studentInDB = studentRepository.save(updatedStudent);
-		if (!StringUtils.isEmpty(std.getOptIn2019()) && !optIn2019.equalsIgnoreCase(updatedStudent.getOptIn2019())) {
-			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTIN)) {
-				if (updatedStudent.getOptIn2019().equalsIgnoreCase(ISPRESENT)) {
-					studentList.add(updatedStudent);
-					smsService.sendOptInSMS(studentList);
-				}
-			}
-			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTOUT)) {
-				if (updatedStudent.getOptIn2019().equalsIgnoreCase(ApplicationConstants.NO)) {
-					studentList.add(updatedStudent);
-					smsService.sendOptOutSMS(studentList);
-				}
-			}
-		}
+    /**
+     * Method to update student details
+     * 
+     * @param student
+     * @param studentId
+     * @return
+     * @throws JsonProcessingException
+     * @throws IOException
+     */
+    public Student updateStudent(String student, Integer studentId) throws JsonProcessingException, IOException {
+        Student std = validateStudent(studentId);
+        String optIn2019 = std.getOptIn2019();
+        Student updatedStudent = update(student, std);
+        Date currentDate = Calendar.getInstance().getTime();
+        List<Student> studentList = new ArrayList<Student>();
 
-		if (null != studentInDB.getDateCreatedInDB()) {
-			studentInDB.setCreatedDate(convertDateToString(studentInDB.getDateCreatedInDB()));
-		}
-		// studentInDB.setDateLastModifiedInDB(new Date());
-		studentInDB.setLastModifiedDate(convertDateToString(studentInDB.getDateLastModifiedInDB()));
-		return studentInDB;
-	}
+        updatedStudent.setDateLastModifiedInDB(currentDate);
 
-	/**
-	 * Method to update student OptIn
-	 * @param studentIds
-	 * @param student
-	 * @return
-	 */
-	public ApiResponse updateStudentOptin(List<Integer> studentIds, Student student) {
-		ApiResponse response = null;
-		
-		if (student.getOptIn2019()!=null && (student.getOptIn2019().equalsIgnoreCase(ISPRESENT) || student.getOptIn2019().equalsIgnoreCase(ApplicationConstants.NO))) {
-			List<Student> studentList = validateListStudent(studentIds);
-			Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
-			response = populateResponse(validVsInvalidMap);
-			for (Student students : studentList) {
-				students.setOptIn2019(student.getOptIn2019());
-			}
-			studentRepository.save(studentList);
-			// Send Opt SMS
-			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTIN)) {
-				smsService.sendOptInSMS(studentList);
-				response.setSmsMessage(ApplicationConstants.SMS_SENT_SUCCESSFULLY+ ApplicationConstants.FOR_OPTIN_STUDENTS);
-			} else{
-				response.setSmsMessage(ApplicationConstants.SMS_NOT_SENT+ApplicationConstants.SMS_OPTIN_FEATURE_DISABLE);
-			}
-			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTOUT)) {
-				smsService.sendOptOutSMS(studentList);
-				response.setSmsMessage(response.getSmsMessage().concat(","+ ApplicationConstants.SMS_SENT_SUCCESSFULLY+ ApplicationConstants.FOR_OPTOUT_STUDENTS));
-			}else{
-				response.setSmsMessage(response.getSmsMessage().concat(", "+ApplicationConstants.SMS_OPTOUT_FEATURE_DISABLE ));
-			}
-		}else{
-			throw new BadRequestException(ApplicationConstants.INVALID_DATA);
-		}
-		return response; 
-	}
+        Student studentInDB = studentRepository.save(updatedStudent);
+        if (!StringUtils.isEmpty(std.getOptIn2019()) && !optIn2019.equalsIgnoreCase(updatedStudent.getOptIn2019())) {
+            if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTIN)) {
+                if (updatedStudent.getOptIn2019().equalsIgnoreCase(ISPRESENT)) {
+                    studentList.add(updatedStudent);
+                    smsService.sendOptInSMS(studentList);
+                }
+            }
+            if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTOUT)) {
+                if (updatedStudent.getOptIn2019().equalsIgnoreCase(ApplicationConstants.NO)) {
+                    studentList.add(updatedStudent);
+                    smsService.sendOptOutSMS(studentList);
+                }
+            }
+        }
 
-	
-	private  ApiResponse populateResponse(Map<String, List<Integer>> validInvalidIdsMap) {
-		ApiResponse response = new ApiResponse();
-		if (!validInvalidIdsMap.get(ApplicationConstants.INVALID).isEmpty()) {
-			response.setCode(String.valueOf(HttpStatus.MULTI_STATUS));
-			response.setFailRecordIds(String.valueOf(validInvalidIdsMap.get(ApplicationConstants.INVALID)));
-			int total=validInvalidIdsMap.get(ApplicationConstants.INVALID).size()+validInvalidIdsMap.get(ApplicationConstants.VALID).size();
-			response.setSuccessRecordsIds(String.valueOf(validInvalidIdsMap.get(ApplicationConstants.VALID)));
-			response.setTotalRecords(String.valueOf(total));
-			if (null!=validInvalidIdsMap.get(ApplicationConstants.RECORD_NOT_EXIST) && !validInvalidIdsMap.get(ApplicationConstants.RECORD_NOT_EXIST).isEmpty()) {
-			response.setIdNotExist("ID's"+validInvalidIdsMap.get(ApplicationConstants.RECORD_NOT_EXIST)+" doesn’t exist in database and not processed");
-			}
-			response.setMessage(ApplicationConstants.SOME_UPDATED_SOME_FAILED);
-		}
-		else{
-			response.setCode(String.valueOf(HttpStatus.OK));
-			int total=validInvalidIdsMap.get(ApplicationConstants.VALID).size();
-			response.setTotalRecords(String.valueOf(total));
-			response.setSuccessRecordsIds(String.valueOf(validInvalidIdsMap.get(ApplicationConstants.VALID)));
-			response.setMessage(ApplicationConstants.UPDATED_SUCCESSFULLY);
-		}
-		return response;
-	}
+        if (null != studentInDB.getDateCreatedInDB()) {
+            studentInDB.setCreatedDate(convertDateToString(studentInDB.getDateCreatedInDB()));
+        }
+        // studentInDB.setDateLastModifiedInDB(new Date());
+        studentInDB.setLastModifiedDate(convertDateToString(studentInDB.getDateLastModifiedInDB()));
+        return studentInDB;
+    }
 
-	
+    /**
+     * Method to update student OptIn
+     * 
+     * @param studentIds
+     * @param student
+     * @return
+     */
+    public ApiResponse updateStudentOptin(List<Integer> studentIds, Student student) {
+        ApiResponse response = null;
 
-	/**
-	 * Method to update student Print Status
-	 * @param studentIds
-	 * @param student
-	 * @return
-	 */
-	public ApiResponse updateStudentPrintStatus(List<Integer> studentIds, Student student){
-		ApiResponse response=new ApiResponse();
-		if (student.getPrintStatus()!=null && student.getPrintStatus().equalsIgnoreCase(ISPRESENT) || student.getPrintStatus().equalsIgnoreCase(ApplicationConstants.NO)) {
-			List<Student> studentList = validateListStudent(studentIds);
-			
-			Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
-			response = populateResponse(validVsInvalidMap);
-			
-			ListIterator<Student> iterator = studentList.listIterator();
-			while (iterator.hasNext()) {
-				Student students = (Student) iterator.next();
-				students.setPrintStatus(student.getPrintStatus());
-				iterator.add(students);
-			}
-			studentRepository.save(studentList);
-		}else{
-			throw new BadRequestException(ApplicationConstants.INVALID_DATA);
-		}
-		return response;
-	}
+        if (student.getOptIn2019() != null && (student.getOptIn2019().equalsIgnoreCase(ISPRESENT)
+                || student.getOptIn2019().equalsIgnoreCase(ApplicationConstants.NO))) {
+            List<Student> studentList = validateListStudent(studentIds);
+            Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
+            response = populateResponse(validVsInvalidMap);
+            for (Student students : studentList) {
+                students.setOptIn2019(student.getOptIn2019());
+            }
+            studentRepository.save(studentList);
+            // Send Opt SMS
+            if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTIN)) {
+                smsService.sendOptInSMS(studentList);
+                response.setSmsMessage(
+                        ApplicationConstants.SMS_SENT_SUCCESSFULLY + ApplicationConstants.FOR_OPTIN_STUDENTS);
+            } else {
+                response.setSmsMessage(
+                        ApplicationConstants.SMS_NOT_SENT + ApplicationConstants.SMS_OPTIN_FEATURE_DISABLE);
+            }
+            if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTOUT)) {
+                smsService.sendOptOutSMS(studentList);
+                response.setSmsMessage(response.getSmsMessage().concat(
+                        "," + ApplicationConstants.SMS_SENT_SUCCESSFULLY + ApplicationConstants.FOR_OPTOUT_STUDENTS));
+            } else {
+                response.setSmsMessage(
+                        response.getSmsMessage().concat(", " + ApplicationConstants.SMS_OPTOUT_FEATURE_DISABLE));
+            }
+        } else {
+            throw new BadRequestException(ApplicationConstants.INVALID_DATA);
+        }
+        return response;
+    }
 
-	/**
-	 * Method to update student attendance
-	 * @param studentIds
-	 * @param isPresent
-	 * @param day
-	 * @return
-	 */
-	public ApiResponse updateStudentAttendance(List<Integer> studentIds, String ispresent, int day){
-		ApiResponse response = new ApiResponse();
-		List<Student> studentList = validateListStudent(studentIds);
-		List<Student> updatedStudentList = new ArrayList<Student>();
-		Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
-		response = populateResponse(validVsInvalidMap);
-		
-		for(Student students:studentList){
-			switch (day) {
-			case 1:
-				students.setDay1(ispresent);
-				break;
-			case 2:
-				students.setDay2(ispresent);
-				break;
-			case 3:
-				students.setDay3(ispresent);
-				break;
-			case 4:
-				students.setDay4(ispresent);
-				break;
-			case 5:
-				students.setDay5(ispresent);
-				break;
-			case 6:
-				students.setDay6(ispresent);
-				break;
-			case 7:
-				students.setDay7(ispresent);
-				break;
-			case 8:
-				students.setDay8(ispresent);
-				break;
-			}
+    private ApiResponse populateResponse(Map<String, List<Integer>> validInvalidIdsMap) {
+        ApiResponse response = new ApiResponse();
+        if (!validInvalidIdsMap.get(ApplicationConstants.INVALID).isEmpty()) {
+            response.setCode(String.valueOf(HttpStatus.MULTI_STATUS));
+            response.setFailRecordIds(String.valueOf(validInvalidIdsMap.get(ApplicationConstants.INVALID)));
+            int total = validInvalidIdsMap.get(ApplicationConstants.INVALID).size()
+                    + validInvalidIdsMap.get(ApplicationConstants.VALID).size();
+            response.setSuccessRecordsIds(String.valueOf(validInvalidIdsMap.get(ApplicationConstants.VALID)));
+            response.setTotalRecords(String.valueOf(total));
+            if (null != validInvalidIdsMap.get(ApplicationConstants.RECORD_NOT_EXIST)
+                    && !validInvalidIdsMap.get(ApplicationConstants.RECORD_NOT_EXIST).isEmpty()) {
+                response.setIdNotExist("ID's" + validInvalidIdsMap.get(ApplicationConstants.RECORD_NOT_EXIST)
+                        + " doesn’t exist in database and not processed");
+            }
+            response.setMessage(ApplicationConstants.SOME_UPDATED_SOME_FAILED);
+        } else {
+            response.setCode(String.valueOf(HttpStatus.OK));
+            int total = validInvalidIdsMap.get(ApplicationConstants.VALID).size();
+            response.setTotalRecords(String.valueOf(total));
+            response.setSuccessRecordsIds(String.valueOf(validInvalidIdsMap.get(ApplicationConstants.VALID)));
+            response.setMessage(ApplicationConstants.UPDATED_SUCCESSFULLY);
+        }
+        return response;
+    }
 
-			updatedStudentList.add(students);
-		}
-		
-		
-		studentRepository.save(updatedStudentList);
-		if(smsService.isSMSFlagEnabled(ApplicationConstants.SMS_PRESENT)) {
-			smsService.sendBulkSMS(updatedStudentList,ApplicationConstants.ATTENDANCE,day);
-			response.setSmsMessage(ApplicationConstants.SMS_SENT_SUCCESSFULLY+ApplicationConstants.FOR_PRESENT_STUDENTS);
-		}else response.setSmsMessage(ApplicationConstants.SMS_FEATURE_DISABLE);
-		return response;
-	}
+    /**
+     * Method to update student Print Status
+     * 
+     * @param studentIds
+     * @param student
+     * @return
+     */
+    public ApiResponse updateStudentPrintStatus(List<Integer> studentIds, Student student) {
+        ApiResponse response = new ApiResponse();
+        if (student.getPrintStatus() != null && student.getPrintStatus().equalsIgnoreCase(ISPRESENT)
+                || student.getPrintStatus().equalsIgnoreCase(ApplicationConstants.NO)) {
+            List<Student> studentList = validateListStudent(studentIds);
 
-	/**
-	 * Method to update student by file upload
-	 * @param file
-	 * @param flag
-	 * @return response
-	 */
-	public ApiResponse updateStudent(MultipartFile file, String flag) {
-		ApiResponse apiResponse = new ApiResponse();
-		try {
-			List<StudentUploadAttendance> studentUploadAttendanceList = FileImportUtil.convertToStudentCSVBean(file,flag);
-			NullAwareBeanUtilsBean onlyNotNullCopyProperty = new NullAwareBeanUtilsBean();
-			List<Integer> studentIdList = new ArrayList<Integer>();
-			for (StudentUploadAttendance stuAttendance : studentUploadAttendanceList) {
-				studentIdList.add(Integer.parseInt(stuAttendance.getId()));
-			}
-			
-			List<Student> studentListDB = validateListStudent(studentIdList);
-			for (Student studentDB : studentListDB) {
-				BeanPropertyValueEqualsPredicate predicate = new BeanPropertyValueEqualsPredicate("id",String.valueOf(studentDB.getId()));
-				StudentUploadAttendance stuAttendance = (StudentUploadAttendance) CollectionUtils.find(studentUploadAttendanceList, predicate);
-				onlyNotNullCopyProperty.copyProperties(studentDB, stuAttendance);
+            Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
+            response = populateResponse(validVsInvalidMap);
 
-			}
-			Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIdList, studentListDB);
-			List<Integer> successRecordList=new ArrayList<Integer>();
-			
-			//getting inValidIdList whose data is not correct 
-			Set<Integer> invalidDataIdList = onlyNotNullCopyProperty.getInvalidDataList();
-			
-			//removing invalidDataIdList from success list 
-			if(!validVsInvalidMap.get(ApplicationConstants.VALID).isEmpty()){
-				successRecordList=validVsInvalidMap.get(ApplicationConstants.VALID);
-				successRecordList.removeAll(invalidDataIdList);
-				
-			}
-			//converting Set<Integer> to List<Integer>
-			List<Integer> getInvalidList=new ArrayList<Integer>(invalidDataIdList);
-			getInvalidList.addAll(validVsInvalidMap.get(ApplicationConstants.INVALID));
-			validVsInvalidMap.put(ApplicationConstants.VALID,successRecordList);
-			validVsInvalidMap.put(ApplicationConstants.INVALID,getInvalidList);
-			apiResponse = populateResponse(validVsInvalidMap);
-			//removing invalidStudent object 
-			studentListDB = removeInvalidDataFromList(studentListDB, invalidDataIdList);
-			studentRepository.save(studentListDB);
+            ListIterator<Student> iterator = studentList.listIterator();
+            while (iterator.hasNext()) {
+                Student students = (Student) iterator.next();
+                students.setPrintStatus(student.getPrintStatus());
+                iterator.add(students);
+            }
+            studentRepository.save(studentList);
+        } else {
+            throw new BadRequestException(ApplicationConstants.INVALID_DATA);
+        }
+        return response;
+    }
 
-			// Send Opt SMS
-			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTIN)) {
-				smsService.sendOptInSMS(studentListDB);
-				apiResponse.setSmsMessage(ApplicationConstants.SMS_SENT_SUCCESSFULLY+ ApplicationConstants.FOR_OPTIN_STUDENTS);
-			} else{
-				apiResponse.setSmsMessage(ApplicationConstants.SMS_NOT_SENT+ApplicationConstants.SMS_OPTIN_FEATURE_DISABLE);
-			}
-			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTOUT)) {
-				smsService.sendOptOutSMS(studentListDB);
-				apiResponse.setSmsMessage(apiResponse.getSmsMessage().concat( ", "+ApplicationConstants.SMS_SENT_SUCCESSFULLY+ApplicationConstants.FOR_OPTOUT_STUDENTS));
-			}else{
-				apiResponse.setSmsMessage(apiResponse.getSmsMessage().concat(", "+ApplicationConstants.SMS_OPTOUT_FEATURE_DISABLE));
-			}
+    /**
+     * Method to update student attendance
+     * 
+     * @param studentIds
+     * @param isPresent
+     * @param day
+     * @return
+     */
+    public ApiResponse updateStudentAttendance(List<Integer> studentIds, String ispresent, int day) {
+        ApiResponse response = new ApiResponse();
+        List<Student> studentList = validateListStudent(studentIds);
+        List<Student> updatedStudentList = new ArrayList<Student>();
+        Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
+        response = populateResponse(validVsInvalidMap);
 
-		
-		}catch (NumberFormatException e) {
-			throw new BadRequestException(ApplicationConstants.INVALID_DATA_IN_ID_COLUMN+e.getMessage());
-		} 
-		catch (InvocationTargetException | IllegalAccessException  e) {
-			throw new BadRequestException(ApplicationConstants.FAILED_TO_UPDATE+e);
-		}
-		return apiResponse;
-	}
+        for (Student students : studentList) {
+            switch (day) {
+            case 1:
+                students.setDay1(ispresent);
+                break;
+            case 2:
+                students.setDay2(ispresent);
+                break;
+            case 3:
+                students.setDay3(ispresent);
+                break;
+            case 4:
+                students.setDay4(ispresent);
+                break;
+            case 5:
+                students.setDay5(ispresent);
+                break;
+            case 6:
+                students.setDay6(ispresent);
+                break;
+            case 7:
+                students.setDay7(ispresent);
+                break;
+            case 8:
+                students.setDay8(ispresent);
+                break;
+                
+           default :
+           throw new BadRequestException(ApplicationConstants.DAY_INVALID);
+            }
 
-	/**
-	 * Method to remove student invalid data
-	 * @param studentListDB
-	 * @param invalidDataIdList
-	 * @return studentListDB
-	 */
-	private List<Student> removeInvalidDataFromList(List<Student> studentListDB, Set<Integer> invalidDataIdList) {
-		for (Integer id : invalidDataIdList) {
-			BeanPropertyValueEqualsPredicate predicate = new BeanPropertyValueEqualsPredicate("id", String.valueOf(id));
-			Student stuAttendance = (Student) CollectionUtils.find(studentListDB, predicate);
-			studentListDB.remove(stuAttendance);			
-		}
-		return studentListDB;
-	}
+            updatedStudentList.add(students);
+        }
 
-	/**
-	 * This function overwrites values from given json string in to given
-	 * objectToUpdate
-	 * @param json
-	 * @param objectToUpdate
-	 * @return
-	 * @throws IOException
-	 */
-	private <T> T update(String json, T objectToUpdate) throws IOException {
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.setDefaultMergeable(true); // This is required for deep
-												// update. Available in
-												// jackson-databind from 2.9
-												// version
-		ObjectReader updater = objectMapper.readerForUpdating(objectToUpdate);
+        studentRepository.save(updatedStudentList);
+        if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_PRESENT)) {
+            smsService.sendBulkSMS(updatedStudentList, ApplicationConstants.ATTENDANCE, day);
+            response.setSmsMessage(
+                    ApplicationConstants.SMS_SENT_SUCCESSFULLY + ApplicationConstants.FOR_PRESENT_STUDENTS);
+        } else
+            response.setSmsMessage(ApplicationConstants.SMS_FEATURE_DISABLE);
+        return response;
+    }
 
-		return updater.readValue(json);
-	}
+    /**
+     * Method to update student by file upload
+     * 
+     * @param file
+     * @param flag
+     * @return response
+     */
+    public ApiResponse updateStudent(MultipartFile file, String flag) {
+        ApiResponse apiResponse = new ApiResponse();
+        try {
+            List<StudentUploadAttendance> studentUploadAttendanceList = FileImportUtil.convertToStudentCSVBean(file,
+                    flag);
+            NullAwareBeanUtilsBean onlyNotNullCopyProperty = new NullAwareBeanUtilsBean();
+            List<Integer> studentIdList = new ArrayList<Integer>();
+            for (StudentUploadAttendance stuAttendance : studentUploadAttendanceList) {
+                studentIdList.add(Integer.parseInt(stuAttendance.getId()));
+            }
 
-	/**
-	 * Method to get all students based on specific search criteria
-	 * 
-	 * @param allRequestParams
-	 * @return
-	 */
-	public List<Student> getAllStudents(Map<String, String> allRequestParams) {
-		Specification<Student> spec = getEntitySearchSpecification(allRequestParams, Student.class, new Student());
+            List<Student> studentListDB = validateListStudent(studentIdList);
+            for (Student studentDB : studentListDB) {
+                BeanPropertyValueEqualsPredicate predicate = new BeanPropertyValueEqualsPredicate("id",
+                        String.valueOf(studentDB.getId()));
+                StudentUploadAttendance stuAttendance = (StudentUploadAttendance) CollectionUtils
+                        .find(studentUploadAttendanceList, predicate);
+                onlyNotNullCopyProperty.copyProperties(studentDB, stuAttendance);
 
-		// Get and set the total number of records
-		setRequestAttribute(TOTAL_RECORDS, studentRepository.count(spec));
+            }
+            Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIdList, studentListDB);
+            List<Integer> successRecordList = new ArrayList<Integer>();
 
-		List<Student> students = studentRepository.findAll(spec);
-		students.forEach(student -> {
-			if (null != student.getDateLastModifiedInDB()) {
-				student.setLastModifiedDate(convertDateToString(student.getDateLastModifiedInDB()));
-			}
-			if (null != student.getDateCreatedInDB()) {
-				student.setCreatedDate(convertDateToString(student.getDateCreatedInDB()));
-			}
-		});
+            // getting inValidIdList whose data is not correct
+            Set<Integer> invalidDataIdList = onlyNotNullCopyProperty.getInvalidDataList();
 
-		return students;
-	}
-	
-	/**
-	 * Method to get Map of students invalid and valid list
-	 * 
-	 * @param studentIds // coming from request
-	 * @param studentList // database valid student list which is available in db
-	 * @return map
-	 */
-	private Map<String,List<Integer>> getInvalidIdsList(List<Integer> studentIds,List<Student>studentList){
-		List<Integer> validIds = studentList.stream().map(std -> std.getId()).collect(Collectors.toList());
-		if (!validIds.isEmpty()) {
-			studentIds.removeAll(validIds);			
-		}
-		Map<String, List<Integer>>map=new HashMap<String, List<Integer>>();
-		map.put(ApplicationConstants.VALID, validIds);
-		map.put(ApplicationConstants.INVALID, studentIds);
-		map.put(ApplicationConstants.RECORD_NOT_EXIST, studentIds);
-		return map;
-	}
+            // removing invalidDataIdList from success list
+            if (!validVsInvalidMap.get(ApplicationConstants.VALID).isEmpty()) {
+                successRecordList = validVsInvalidMap.get(ApplicationConstants.VALID);
+                successRecordList.removeAll(invalidDataIdList);
 
-	/**
-	 * Method to reset print status
-	 * 
-	 * @return
-	 */
-	public void updatePrint() {
-		studentRepository.resetPrintStatus();
-	}
+            }
+            // converting Set<Integer> to List<Integer>
+            List<Integer> getInvalidList = new ArrayList<Integer>(invalidDataIdList);
+            getInvalidList.addAll(validVsInvalidMap.get(ApplicationConstants.INVALID));
+            validVsInvalidMap.put(ApplicationConstants.VALID, successRecordList);
+            validVsInvalidMap.put(ApplicationConstants.INVALID, getInvalidList);
+            apiResponse = populateResponse(validVsInvalidMap);
+            // removing invalidStudent object
+            studentListDB = removeInvalidDataFromList(studentListDB, invalidDataIdList);
+            studentRepository.save(studentListDB);
 
-	/**
-	 * Method to get duplicate studentds records
-	 * 
-	 * @param allRequestParams
-	 * @return
-	 */
-	public File getDuplicateRecords(MultipartFile file) {
-		List<String> originalRecords = FileImportUtil.getCSVData(file);
-		String headers[] = null;
-		try(BufferedReader brFileContent = new BufferedReader(new InputStreamReader(file.getInputStream()))){ 
-			List<String> fileContents = brFileContent.lines().collect(Collectors.toList());
-			headers = fileContents.get(0).split(ApplicationConstants.COMMA_SEPARATOR);
-		}
-		 catch (IOException e) {
-			throw new ApplicationException(ApplicationConstants.UNABLE_TO_READ_CSV);
-		}
-		
-		//getting Duplicate records
-		List<String[]> duplicateRecords=getDuplicateRecords(originalRecords); 
+            // Send Opt SMS
+            if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTIN)) {
+                smsService.sendOptInSMS(studentListDB);
+                apiResponse.setSmsMessage(
+                        ApplicationConstants.SMS_SENT_SUCCESSFULLY + ApplicationConstants.FOR_OPTIN_STUDENTS);
+            } else {
+                apiResponse.setSmsMessage(
+                        ApplicationConstants.SMS_NOT_SENT + ApplicationConstants.SMS_OPTIN_FEATURE_DISABLE);
+            }
+            if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTOUT)) {
+                smsService.sendOptOutSMS(studentListDB);
+                apiResponse.setSmsMessage(apiResponse.getSmsMessage().concat(
+                        ", " + ApplicationConstants.SMS_SENT_SUCCESSFULLY + ApplicationConstants.FOR_OPTOUT_STUDENTS));
+            } else {
+                apiResponse.setSmsMessage(
+                        apiResponse.getSmsMessage().concat(", " + ApplicationConstants.SMS_OPTOUT_FEATURE_DISABLE));
+            }
 
-		List<String>duplicateList=getDuplicateRecordFromOriginal(duplicateRecords,originalRecords);
-		
-		// Sorting data by Student name and father name 
-		Collections.sort(duplicateList, new Sortbyname());
-		
-		List<String[]> finalDuplicateList = new ArrayList<>();
+        } catch (NumberFormatException e) {
+            throw new BadRequestException(ApplicationConstants.INVALID_DATA_IN_ID_COLUMN + e.getMessage());
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new BadRequestException(ApplicationConstants.FAILED_TO_UPDATE + e);
+        }
+        return apiResponse;
+    }
 
-		// adding single duplicate record to final list
-		for (String duplicateRecord : duplicateList) {
-			String duplicate[] = duplicateRecord.split(ApplicationConstants.COMMA_SEPARATOR);
-			finalDuplicateList.add(duplicate);   
-		}
-		File duplicateCSVData =FileImportUtil.getDuplicateDataCSV(headers,finalDuplicateList); 
-		return duplicateCSVData;
-	}
+    /**
+     * Method to remove student invalid data
+     * 
+     * @param studentListDB
+     * @param invalidDataIdList
+     * @return studentListDB
+     */
+    private List<Student> removeInvalidDataFromList(List<Student> studentListDB, Set<Integer> invalidDataIdList) {
+        for (Integer id : invalidDataIdList) {
+            BeanPropertyValueEqualsPredicate predicate = new BeanPropertyValueEqualsPredicate("id", String.valueOf(id));
+            Student stuAttendance = (Student) CollectionUtils.find(studentListDB, predicate);
+            studentListDB.remove(stuAttendance);
+        }
+        return studentListDB;
+    }
 
-	// taking out duplicate record from original record
-	private List<String> getDuplicateRecordFromOriginal(List<String[]> duplicateRecords,List<String> originalRecords) {
-		List<String> duplicateList =new ArrayList<>();
-		for (String singleduplicateRecord[] : duplicateRecords) {
-			for (String originalRecord : originalRecords) {
-				String singleOriginalRecord[] = originalRecord.split(ApplicationConstants.COMMA_SEPARATOR);
-				if (singleduplicateRecord[0].equals(singleOriginalRecord[0])) { //checking if duplicate record (s[0], id) equals to original data(original[0],id) & adding into List 
-					duplicateList.add(originalRecord);
-				}
-			}
-		}
-		return duplicateList;
-	}
+    /**
+     * This function overwrites values from given json string in to given
+     * objectToUpdate
+     * 
+     * @param json
+     * @param objectToUpdate
+     * @return
+     * @throws IOException
+     */
+    private <T> T update(String json, T objectToUpdate) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setDefaultMergeable(true); // This is required for deep
+                                                // update. Available in
+                                                // jackson-databind from 2.9
+                                                // version
+        ObjectReader updater = objectMapper.readerForUpdating(objectToUpdate);
 
-	private List<String[]> getDuplicateRecords(List<String> originalRecords) {
-		List<String[]> duplicateRecords = new ArrayList<>();
-		for (String record : originalRecords) {
-			String recordArray[] = record.split(ApplicationConstants.COMMA_SEPARATOR);
-			String fullname = recordArray[1].trim() + recordArray[2].trim();
-			fullname = fullname.replaceAll(ApplicationConstants.REGEX_FOR_SPACE, "");
-			int count = 0;
-			int flag = 0;
-			for (String duplicate : originalRecords) {
-				String recordArrayDup[] = duplicate.split(ApplicationConstants.COMMA_SEPARATOR);
-				String fullnameDuplicate = recordArrayDup[1].trim() + recordArrayDup[2].trim();
-				fullnameDuplicate = fullnameDuplicate.replaceAll(ApplicationConstants.REGEX_FOR_SPACE, "");  // removing additional space
-				if (fullname.equalsIgnoreCase(fullnameDuplicate)) {
-					count++;
-					if (count > 1 && flag == 0) {
-						flag++;
-						duplicateRecords.add(record.split(ApplicationConstants.COMMA_SEPARATOR));
-					}
-				}
-			}
-		}
-		return duplicateRecords;
-	}
-	
-	public ApiResponse updateStudentAttendance(MultipartFile file, String flag,int day) {
-		ApiResponse apiResponse = new ApiResponse();
-		List<StudentUploadAttendance> studentUploadAttendanceList = FileImportUtil.convertToStudentCSVBean(file,flag);
-		NullAwareBeanUtilsBean onlyNotNullCopyProperty = new NullAwareBeanUtilsBean();
-		List<Integer> studentIdList = new ArrayList<Integer>();
-		for (StudentUploadAttendance stuAttendance : studentUploadAttendanceList) {
-			studentIdList.add(Integer.parseInt(stuAttendance.getId()));
-		}
-		
-		List<Student> studentListDB = validateListStudent(studentIdList);
-		studentListDB=getStudentList(studentListDB,day);
-		Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIdList, studentListDB);
-		List<Integer> successRecordList=new ArrayList<Integer>();
-		
-		//getting inValidIdList whose data is not correct 
-		Set<Integer> invalidDataIdList = onlyNotNullCopyProperty.getInvalidDataList();
-		
-		//removing invalidDataIdList from success list 
-		if(!validVsInvalidMap.get(ApplicationConstants.VALID).isEmpty()){
-			successRecordList=validVsInvalidMap.get(ApplicationConstants.VALID);
-			successRecordList.removeAll(invalidDataIdList);
-			
-		}
-		//converting Set<Integer> to List<Integer>
-		List<Integer> getInvalidList=new ArrayList<Integer>(invalidDataIdList);
-		getInvalidList.addAll(validVsInvalidMap.get(ApplicationConstants.INVALID));
-		validVsInvalidMap.put(ApplicationConstants.VALID,successRecordList);
-		validVsInvalidMap.put(ApplicationConstants.INVALID,getInvalidList);
-		apiResponse = populateResponse(validVsInvalidMap);
-		//removing invalidStudent object 
-		//studentListDB = removeInvalidDataFromList(studentListDB, invalidDataIdList);
-		studentRepository.save(studentListDB);
-		if(smsService.isSMSFlagEnabled(ApplicationConstants.SMS_PRESENT))
-		{
-			smsService.sendBulkSMS(studentListDB,ApplicationConstants.ATTENDANCE,day);
-			apiResponse.setSmsMessage(ApplicationConstants.SMS_SENT_SUCCESSFULLY + ApplicationConstants.FOR_PRESENT_STUDENTS);
-			
-		}else apiResponse.setSmsMessage(ApplicationConstants.SMS_FEATURE_DISABLE);
-		return apiResponse;
-	}
+        return updater.readValue(json);
+    }
 
-	
-	private List<Student> getStudentList(List<Student> studentList, int day) {
-		List<Student> updatedStudentList=new ArrayList<>(); 
-		Iterator<Student> it =studentList.iterator();
-		while (it.hasNext()) {
-			Student students = (Student) it.next();
-			switch (day) {
-			case 1:
-				students.setDay1(ISPRESENT);
-				break;
-			case 2:
-				students.setDay2(ISPRESENT);
-				break;
-			case 3:
-				students.setDay3(ISPRESENT);
-				break;
-			case 4:
-				students.setDay4(ISPRESENT);
-				break;
-			case 5:
-				students.setDay5(ISPRESENT);
-				break;
-			case 6:
-				students.setDay6(ISPRESENT);
-				break;
-			case 7:
-				students.setDay7(ISPRESENT);
-				break;
-			case 8:
-				students.setDay8(ISPRESENT);
-				break;
-			}
+    /**
+     * Method to get all students based on specific search criteria
+     * 
+     * @param allRequestParams
+     * @return
+     */
+    public List<Student> getAllStudents(Map<String, String> allRequestParams) {
+        Specification<Student> spec = getEntitySearchSpecification(allRequestParams, Student.class, new Student());
 
-			updatedStudentList.add(students);
-		}
-		return updatedStudentList;
-	}
+        // Get and set the total number of records
+        setRequestAttribute(TOTAL_RECORDS, studentRepository.count(spec));
+
+        List<Student> students = studentRepository.findAll(spec);
+        students.forEach(student -> {
+            if (null != student.getDateLastModifiedInDB()) {
+                student.setLastModifiedDate(convertDateToString(student.getDateLastModifiedInDB()));
+            }
+            if (null != student.getDateCreatedInDB()) {
+                student.setCreatedDate(convertDateToString(student.getDateCreatedInDB()));
+            }
+        });
+
+        return students;
+    }
+
+    /**
+     * Method to get Map of students invalid and valid list
+     * 
+     * @param studentIds
+     *            // coming from request
+     * @param studentList
+     *            // database valid student list which is available in db
+     * @return map
+     */
+    private Map<String, List<Integer>> getInvalidIdsList(List<Integer> studentIds, List<Student> studentList) {
+        List<Integer> validIds = studentList.stream().map(std -> std.getId()).collect(Collectors.toList());
+        if (!validIds.isEmpty()) {
+            studentIds.removeAll(validIds);
+        }
+        Map<String, List<Integer>> map = new HashMap<String, List<Integer>>();
+        map.put(ApplicationConstants.VALID, validIds);
+        map.put(ApplicationConstants.INVALID, studentIds);
+        map.put(ApplicationConstants.RECORD_NOT_EXIST, studentIds);
+        return map;
+    }
+
+    /**
+     * Method to reset print status
+     * 
+     * @return
+     */
+    public void updatePrint() {
+        studentRepository.resetPrintStatus();
+    }
+
+    /**
+     * Method to get duplicate studentds records
+     * 
+     * @param allRequestParams
+     * @return
+     */
+    public File getDuplicateRecords(MultipartFile file) {
+        List<String> originalRecords = FileImportUtil.getCSVData(file);
+        String headers[] = null;
+        try (BufferedReader brFileContent = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            List<String> fileContents = brFileContent.lines().collect(Collectors.toList());
+            headers = fileContents.get(0).split(ApplicationConstants.COMMA_SEPARATOR);
+        } catch (IOException e) {
+            throw new ApplicationException(ApplicationConstants.UNABLE_TO_READ_CSV);
+        }
+
+        // getting Duplicate records
+        List<String[]> duplicateRecords = getDuplicateRecords(originalRecords);
+
+        List<String> duplicateList = getDuplicateRecordFromOriginal(duplicateRecords, originalRecords);
+
+        // Sorting data by Student name and father name
+        Collections.sort(duplicateList, new Sortbyname());
+
+        List<String[]> finalDuplicateList = new ArrayList<>();
+
+        // adding single duplicate record to final list
+        for (String duplicateRecord : duplicateList) {
+            String duplicate[] = duplicateRecord.split(ApplicationConstants.COMMA_SEPARATOR);
+            finalDuplicateList.add(duplicate);
+        }
+        File duplicateCSVData = FileImportUtil.getDuplicateDataCSV(headers, finalDuplicateList);
+        return duplicateCSVData;
+    }
+
+    // taking out duplicate record from original record
+    private List<String> getDuplicateRecordFromOriginal(List<String[]> duplicateRecords, List<String> originalRecords) {
+        List<String> duplicateList = new ArrayList<>();
+        for (String singleduplicateRecord[] : duplicateRecords) {
+            for (String originalRecord : originalRecords) {
+                String singleOriginalRecord[] = originalRecord.split(ApplicationConstants.COMMA_SEPARATOR);
+                if (singleduplicateRecord[0].equals(singleOriginalRecord[0])) { // checking
+                                                                                // if
+                                                                                // duplicate
+                                                                                // record
+                                                                                // (s[0],
+                                                                                // id)
+                                                                                // equals
+                                                                                // to
+                                                                                // original
+                                                                                // data(original[0],id)
+                                                                                // &
+                                                                                // adding
+                                                                                // into
+                                                                                // List
+                    duplicateList.add(originalRecord);
+                }
+            }
+        }
+        return duplicateList;
+    }
+
+    private List<String[]> getDuplicateRecords(List<String> originalRecords) {
+        List<String[]> duplicateRecords = new ArrayList<>();
+        for (String record : originalRecords) {
+            String recordArray[] = record.split(ApplicationConstants.COMMA_SEPARATOR);
+            String fullname = recordArray[1].trim() + recordArray[2].trim();
+            fullname = fullname.replaceAll(ApplicationConstants.REGEX_FOR_SPACE, "");
+            int count = 0;
+            int flag = 0;
+            for (String duplicate : originalRecords) {
+                String recordArrayDup[] = duplicate.split(ApplicationConstants.COMMA_SEPARATOR);
+                String fullnameDuplicate = recordArrayDup[1].trim() + recordArrayDup[2].trim();
+                fullnameDuplicate = fullnameDuplicate.replaceAll(ApplicationConstants.REGEX_FOR_SPACE, ""); // removing
+                                                                                                            // additional
+                                                                                                            // space
+                if (fullname.equalsIgnoreCase(fullnameDuplicate)) {
+                    count++;
+                    if (count > 1 && flag == 0) {
+                        flag++;
+                        duplicateRecords.add(record.split(ApplicationConstants.COMMA_SEPARATOR));
+                    }
+                }
+            }
+        }
+        return duplicateRecords;
+    }
+
+    public ApiResponse updateStudentAttendance(MultipartFile file, String flag, int day) {
+        ApiResponse apiResponse = new ApiResponse();
+        List<StudentUploadAttendance> studentUploadAttendanceList = FileImportUtil.convertToStudentCSVBean(file, flag);
+        NullAwareBeanUtilsBean onlyNotNullCopyProperty = new NullAwareBeanUtilsBean();
+        List<Integer> studentIdList = new ArrayList<Integer>();
+        for (StudentUploadAttendance stuAttendance : studentUploadAttendanceList) {
+            studentIdList.add(Integer.parseInt(stuAttendance.getId()));
+        }
+
+        List<Student> studentListDB = validateListStudent(studentIdList);
+        studentListDB = getStudentList(studentListDB, day);
+        Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIdList, studentListDB);
+        List<Integer> successRecordList = new ArrayList<Integer>();
+
+        // getting inValidIdList whose data is not correct
+        Set<Integer> invalidDataIdList = onlyNotNullCopyProperty.getInvalidDataList();
+
+        // removing invalidDataIdList from success list
+        if (!validVsInvalidMap.get(ApplicationConstants.VALID).isEmpty()) {
+            successRecordList = validVsInvalidMap.get(ApplicationConstants.VALID);
+            successRecordList.removeAll(invalidDataIdList);
+
+        }
+        // converting Set<Integer> to List<Integer>
+        List<Integer> getInvalidList = new ArrayList<Integer>(invalidDataIdList);
+        getInvalidList.addAll(validVsInvalidMap.get(ApplicationConstants.INVALID));
+        validVsInvalidMap.put(ApplicationConstants.VALID, successRecordList);
+        validVsInvalidMap.put(ApplicationConstants.INVALID, getInvalidList);
+        apiResponse = populateResponse(validVsInvalidMap);
+        // removing invalidStudent object
+        // studentListDB = removeInvalidDataFromList(studentListDB,
+        // invalidDataIdList);
+        studentRepository.save(studentListDB);
+        if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_PRESENT)) {
+            smsService.sendBulkSMS(studentListDB, ApplicationConstants.ATTENDANCE, day);
+            apiResponse.setSmsMessage(
+                    ApplicationConstants.SMS_SENT_SUCCESSFULLY + ApplicationConstants.FOR_PRESENT_STUDENTS);
+
+        } else
+            apiResponse.setSmsMessage(ApplicationConstants.SMS_FEATURE_DISABLE);
+        return apiResponse;
+    }
+
+    private List<Student> getStudentList(List<Student> studentList, int day) {
+        List<Student> updatedStudentList = new ArrayList<>();
+        Iterator<Student> it = studentList.iterator();
+        while (it.hasNext()) {
+            Student students = (Student) it.next();
+            switch (day) {
+            case 1:
+                students.setDay1(ISPRESENT);
+                break;
+            case 2:
+                students.setDay2(ISPRESENT);
+                break;
+            case 3:
+                students.setDay3(ISPRESENT);
+                break;
+            case 4:
+                students.setDay4(ISPRESENT);
+                break;
+            case 5:
+                students.setDay5(ISPRESENT);
+                break;
+            case 6:
+                students.setDay6(ISPRESENT);
+                break;
+            case 7:
+                students.setDay7(ISPRESENT);
+                break;
+            case 8:
+                students.setDay8(ISPRESENT);
+                break;
+            }
+
+            updatedStudentList.add(students);
+        }
+        return updatedStudentList;
+    }
 }

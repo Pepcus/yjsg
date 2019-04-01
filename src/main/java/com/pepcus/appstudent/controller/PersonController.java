@@ -18,35 +18,32 @@ import com.pepcus.appstudent.service.PersonService;
 @RequestMapping("/v1/events")
 public class PersonController {
 
-	@Autowired
-	private PersonService personService ;
+    @Autowired
+    private PersonService personService;
 
-	/**
-	 * Used to create Person record
-	 * 
-	 * @param person
-	 * @return
-	 */
-	@PostMapping
-	public ResponseEntity<Person> createPerson(@RequestBody Person person) {
-		Person savedPerson = personService.createPerson(person);
-		return new ResponseEntity<Person>(savedPerson, HttpStatus.CREATED);
-	}
-	
-	
-	/**
-	 * Used to get person record by personId
-	 * 
-	 * @param personId
-	 * @return
-	 * **/
-	@GetMapping(value = "/{personId}")
-	public ResponseEntity<Person> getPerson(@PathVariable Map<String, String> pathVars) {
-		Integer personId = Integer.valueOf(pathVars.get("personId"));
-		Person person = personService.getPerson(personId);
-		return new ResponseEntity<Person>(person, HttpStatus.OK);
-	}
+    /**
+     * Used to create Person record
+     * 
+     * @param person
+     * @return
+     */
+    @PostMapping
+    public ResponseEntity<Person> createPerson(@RequestBody Person person) {
+        Person savedPerson = personService.createPerson(person);
+        return new ResponseEntity<Person>(savedPerson, HttpStatus.CREATED);
+    }
 
-
+    /**
+     * Used to get person record by personId
+     * 
+     * @param personId
+     * @return
+     **/
+    @GetMapping(value = "/{personId}")
+    public ResponseEntity<Person> getPerson(@PathVariable Map<String, String> pathVars) {
+        Integer personId = Integer.valueOf(pathVars.get("personId"));
+        Person person = personService.getPerson(personId);
+        return new ResponseEntity<Person>(person, HttpStatus.OK);
+    }
 
 }
