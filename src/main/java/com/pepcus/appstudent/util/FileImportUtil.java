@@ -127,11 +127,20 @@ public class FileImportUtil implements CsvToBeanFilter {
      */
     private static boolean checkHeaders(String headers[], String flag) {
         boolean result = false;
-        if (flag.equalsIgnoreCase(ApplicationConstants.OPTIN)) {
+        switch (flag) {
+        case ApplicationConstants.OPTIN:
             result = checkoptInHeaders(headers);
-        } else if (flag.equalsIgnoreCase(ApplicationConstants.ATTENDANCE)) {
+            break;
+
+        case ApplicationConstants.ATTENDANCE:
             result = checkAttendanceHeaders(headers);
+            break;
+        
+        default:
+           result=checkHeaders(headers);
+        break;
         }
+        
         return result;
     }
 
@@ -184,4 +193,21 @@ public class FileImportUtil implements CsvToBeanFilter {
         return duplicateCSVData;
     }
 
+    /**
+     * Used to check headers,whether required headers in CSV file present or not 
+     * @return boolean
+     */
+    private static boolean checkHeaders(String[] headersInFile) {
+        List<String> required = Arrays.asList(ApplicationConstants.HEADERS);
+        List<String> invalidHeaders=new ArrayList<String>();
+        for (String header : headersInFile) {
+            if (!required.contains(header)) {
+                invalidHeaders.add(header);
+            }
+        }
+        if(invalidHeaders.size()>0 || !invalidHeaders.isEmpty()){
+            throw new BadRequestException("Columns"+invalidHeaders+ "didn’t match with database columns, Valid Headers: "+Arrays.toString(ApplicationConstants.HEADERS));
+        }
+        return true;
+    }
 }
