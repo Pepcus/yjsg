@@ -28,6 +28,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.apache.commons.beanutils.BeanPropertyValueEqualsPredicate;
+import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,15 +43,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.pepcus.appstudent.entity.Student;
-import com.pepcus.appstudent.entity.StudentUploadAttendance;
+import com.pepcus.appstudent.entity.StudentWrapper;
 import com.pepcus.appstudent.exception.ApplicationException;
 import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.repository.StudentRepository;
 import com.pepcus.appstudent.response.ApiResponse;
 import com.pepcus.appstudent.util.ApplicationConstants;
 import com.pepcus.appstudent.util.FileImportUtil;
+import com.pepcus.appstudent.util.NullAwareBeanUtilsBean;
 import com.pepcus.appstudent.util.SMSUtil;
 import com.pepcus.appstudent.util.Sortbyname;
+import com.pepcus.appstudent.util.StudentNullAwareBeanUtil;
 
 /**
  * This is a service layer which generates response
@@ -102,7 +105,7 @@ public class StudentService {
         return student;
     }
 
-    private List<Student> validateListStudent(List<Integer> ids) {
+    private List<Student> getStudentsList(List<Integer> ids) {
         List<Student> students = studentRepository.findByIdIn(ids);
         if (students == null || students.isEmpty()) {
             throw new BadRequestException("student not found by studentId=" + ids);
@@ -173,7 +176,7 @@ public class StudentService {
         updatedStudent.setDateLastModifiedInDB(currentDate);
 
         Student studentInDB = studentRepository.save(updatedStudent);
-        if (!StringUtils.isEmpty(std.getOptIn2019()) && !optIn2019.equalsIgnoreCase(updatedStudent.getOptIn2019())) {
+        if (!StringUtils.isEmpty(std.getOptIn2019()) && (optIn2019!=null && !optIn2019.equalsIgnoreCase(updatedStudent.getOptIn2019()))) {
             if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTIN)) {
                 if (updatedStudent.getOptIn2019().equalsIgnoreCase(ISPRESENT)) {
                     studentList.add(updatedStudent);
@@ -208,7 +211,7 @@ public class StudentService {
 
         if (student.getOptIn2019() != null && (student.getOptIn2019().equalsIgnoreCase(ISPRESENT)
                 || student.getOptIn2019().equalsIgnoreCase(ApplicationConstants.NO))) {
-            List<Student> studentList = validateListStudent(studentIds);
+            List<Student> studentList = getStudentsList(studentIds);
             Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
             response = populateResponse(validVsInvalidMap);
             for (Student students : studentList) {
@@ -245,7 +248,7 @@ public class StudentService {
             response.setFailRecordIds(String.valueOf(validInvalidIdsMap.get(ApplicationConstants.INVALID)));
             int total = validInvalidIdsMap.get(ApplicationConstants.INVALID).size()
                     + validInvalidIdsMap.get(ApplicationConstants.VALID).size();
-            response.setSuccessRecordsIds(String.valueOf(validInvalidIdsMap.get(ApplicationConstants.VALID)));
+            response.setSuccessRecordsIds(validInvalidIdsMap.get(ApplicationConstants.INVALID).isEmpty() ? "":String.valueOf(validInvalidIdsMap.get(ApplicationConstants.VALID)));
             response.setTotalRecords(String.valueOf(total));
             if (null != validInvalidIdsMap.get(ApplicationConstants.RECORD_NOT_EXIST)
                     && !validInvalidIdsMap.get(ApplicationConstants.RECORD_NOT_EXIST).isEmpty()) {
@@ -257,7 +260,7 @@ public class StudentService {
             response.setCode(String.valueOf(HttpStatus.OK));
             int total = validInvalidIdsMap.get(ApplicationConstants.VALID).size();
             response.setTotalRecords(String.valueOf(total));
-            response.setSuccessRecordsIds(String.valueOf(validInvalidIdsMap.get(ApplicationConstants.VALID)));
+            response.setSuccessRecordsIds(validInvalidIdsMap.get(ApplicationConstants.INVALID).isEmpty() ? "":String.valueOf(validInvalidIdsMap.get(ApplicationConstants.VALID)));
             response.setMessage(ApplicationConstants.UPDATED_SUCCESSFULLY);
         }
         return response;
@@ -274,7 +277,7 @@ public class StudentService {
         ApiResponse response = new ApiResponse();
         if (student.getPrintStatus() != null && student.getPrintStatus().equalsIgnoreCase(ISPRESENT)
                 || student.getPrintStatus().equalsIgnoreCase(ApplicationConstants.NO)) {
-            List<Student> studentList = validateListStudent(studentIds);
+            List<Student> studentList = getStudentsList(studentIds);
 
             Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
             response = populateResponse(validVsInvalidMap);
@@ -302,7 +305,7 @@ public class StudentService {
      */
     public ApiResponse updateStudentAttendance(List<Integer> studentIds, String ispresent, int day) {
         ApiResponse response = new ApiResponse();
-        List<Student> studentList = validateListStudent(studentIds);
+        List<Student> studentList = getStudentsList(studentIds);
         List<Student> updatedStudentList = new ArrayList<Student>();
         Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
         response = populateResponse(validVsInvalidMap);
@@ -356,28 +359,21 @@ public class StudentService {
      * 
      * @param file
      * @param flag
-     * @return response
+     * @return apiresponse
      */
     public ApiResponse updateStudent(MultipartFile file, String flag) {
         ApiResponse apiResponse = new ApiResponse();
         try {
-            List<StudentUploadAttendance> studentUploadAttendanceList = FileImportUtil.convertToStudentCSVBean(file,
+            List<StudentWrapper> studentUploadAttendanceList = FileImportUtil.convertToStudentCSVBean(file,
                     flag);
             NullAwareBeanUtilsBean onlyNotNullCopyProperty = new NullAwareBeanUtilsBean();
             List<Integer> studentIdList = new ArrayList<Integer>();
-            for (StudentUploadAttendance stuAttendance : studentUploadAttendanceList) {
+            for (StudentWrapper stuAttendance : studentUploadAttendanceList) {
                 studentIdList.add(Integer.parseInt(stuAttendance.getId()));
             }
 
-            List<Student> studentListDB = validateListStudent(studentIdList);
-            for (Student studentDB : studentListDB) {
-                BeanPropertyValueEqualsPredicate predicate = new BeanPropertyValueEqualsPredicate("id",
-                        String.valueOf(studentDB.getId()));
-                StudentUploadAttendance stuAttendance = (StudentUploadAttendance) CollectionUtils
-                        .find(studentUploadAttendanceList, predicate);
-                onlyNotNullCopyProperty.copyProperties(studentDB, stuAttendance);
-
-            }
+            List<Student> studentListDB = getStudentsList(studentIdList);
+            copyBeanProperty(studentListDB,studentUploadAttendanceList,onlyNotNullCopyProperty);
             Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIdList, studentListDB);
             List<Integer> successRecordList = new ArrayList<Integer>();
 
@@ -420,9 +416,7 @@ public class StudentService {
 
         } catch (NumberFormatException e) {
             throw new BadRequestException(ApplicationConstants.INVALID_DATA_IN_ID_COLUMN + e.getMessage());
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new BadRequestException(ApplicationConstants.FAILED_TO_UPDATE + e);
-        }
+        } 
         return apiResponse;
     }
 
@@ -552,7 +546,13 @@ public class StudentService {
         return duplicateCSVData;
     }
 
-    // taking out duplicate record from original record
+    /**
+     * Method to get duplicate record from original record
+     * 
+     * @param duplicateRecords
+     * @param originalRecords
+     * @return
+     */
     private List<String> getDuplicateRecordFromOriginal(List<String[]> duplicateRecords, List<String> originalRecords) {
         List<String> duplicateList = new ArrayList<>();
         for (String singleduplicateRecord[] : duplicateRecords) {
@@ -579,6 +579,11 @@ public class StudentService {
         return duplicateList;
     }
 
+    /**
+     * Method to get duplicate records
+     * @param originalRecords
+     * @return
+     */
     private List<String[]> getDuplicateRecords(List<String> originalRecords) {
         List<String[]> duplicateRecords = new ArrayList<>();
         for (String record : originalRecords) {
@@ -605,16 +610,23 @@ public class StudentService {
         return duplicateRecords;
     }
 
+    /**
+     * Method to update student attendance by csv
+     * @param day
+     * @param flag
+     * @param file
+     * @return
+     */
     public ApiResponse updateStudentAttendance(MultipartFile file, String flag, int day) {
         ApiResponse apiResponse = new ApiResponse();
-        List<StudentUploadAttendance> studentUploadAttendanceList = FileImportUtil.convertToStudentCSVBean(file, flag);
+        List<StudentWrapper> studentUploadAttendanceList = FileImportUtil.convertToStudentCSVBean(file, flag);
         NullAwareBeanUtilsBean onlyNotNullCopyProperty = new NullAwareBeanUtilsBean();
         List<Integer> studentIdList = new ArrayList<Integer>();
-        for (StudentUploadAttendance stuAttendance : studentUploadAttendanceList) {
+        for (StudentWrapper stuAttendance : studentUploadAttendanceList) {
             studentIdList.add(Integer.parseInt(stuAttendance.getId()));
         }
 
-        List<Student> studentListDB = validateListStudent(studentIdList);
+        List<Student> studentListDB = getStudentsList(studentIdList);
         studentListDB = getStudentList(studentListDB, day);
         Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIdList, studentListDB);
         List<Integer> successRecordList = new ArrayList<Integer>();
@@ -635,8 +647,6 @@ public class StudentService {
         validVsInvalidMap.put(ApplicationConstants.INVALID, getInvalidList);
         apiResponse = populateResponse(validVsInvalidMap);
         // removing invalidStudent object
-        // studentListDB = removeInvalidDataFromList(studentListDB,
-        // invalidDataIdList);
         studentRepository.save(studentListDB);
         if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_PRESENT)) {
             smsService.sendBulkSMS(studentListDB, ApplicationConstants.ATTENDANCE, day);
@@ -648,6 +658,13 @@ public class StudentService {
         return apiResponse;
     }
 
+    
+    /**
+     * Method to set student attendance of particular day
+     * @param day
+     * @param studentList
+     * @return
+     */
     private List<Student> getStudentList(List<Student> studentList, int day) {
         List<Student> updatedStudentList = new ArrayList<>();
         Iterator<Student> it = studentList.iterator();
@@ -683,5 +700,59 @@ public class StudentService {
             updatedStudentList.add(students);
         }
         return updatedStudentList;
+    }
+    
+    
+    /**
+     * Method to update student in bulk by csv
+     * @param file
+     * @param flag
+     * @return apiresponse
+     */
+    public ApiResponse updateStudentInBulk(MultipartFile file, String flag) {
+        ApiResponse apiResponse = new ApiResponse();
+            List<StudentWrapper> studentUploadAttendanceList = FileImportUtil.convertToStudentCSVBean(file,flag);
+            StudentNullAwareBeanUtil onlyNotNullCopyProperty = new StudentNullAwareBeanUtil();
+            List<Integer> studentIdList = new ArrayList<Integer>();
+            for (StudentWrapper stuAttendance : studentUploadAttendanceList) {
+                studentIdList.add(Integer.parseInt(stuAttendance.getId()));
+            }
+
+            List<Student> studentListDB = getStudentsList(studentIdList);
+            
+            Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIdList, studentListDB);
+
+            if(validVsInvalidMap.get(ApplicationConstants.INVALID).size()>0){
+                throw new BadRequestException("Id's"+validVsInvalidMap.get(ApplicationConstants.INVALID)+" not exist.Failed to processed");
+            }
+            copyBeanProperty(studentListDB,studentUploadAttendanceList,onlyNotNullCopyProperty);
+            
+            // getting inValidIdList whose data is not correct
+            Set<Integer> invalidDataIdList = onlyNotNullCopyProperty.getInvalidDataList();
+            if(invalidDataIdList.size()>0){
+                throw new BadRequestException("Id's "+invalidDataIdList+" data is not correct.Failed to processed");
+            }
+            studentRepository.save(studentListDB);
+            apiResponse = populateResponse(validVsInvalidMap);
+        return apiResponse;
+    }
+    
+    /**
+     * Method to copy bean StudentUploadAttendance into Student
+     * @param studentListDB
+     * @param studentUploadAttendanceList
+     * @param onlyNotNullCopyProperty
+     */
+    private void copyBeanProperty(List<Student> studentListDB,List<StudentWrapper>studentUploadAttendanceList,BeanUtilsBean onlyNotNullCopyProperty){
+        for (Student studentDB : studentListDB) {
+            BeanPropertyValueEqualsPredicate predicate = new BeanPropertyValueEqualsPredicate("id",String.valueOf(studentDB.getId()));
+            StudentWrapper stuAttendance = (StudentWrapper) CollectionUtils.find(studentUploadAttendanceList, predicate);
+            try {
+                    onlyNotNullCopyProperty.copyProperties(studentDB, stuAttendance);
+            } catch (InvocationTargetException | IllegalAccessException e) {
+                throw new BadRequestException(ApplicationConstants.FAILED_TO_UPDATE + e);
+            }
+        }
+        
     }
 }

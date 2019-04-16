@@ -275,5 +275,18 @@ public class StudentController {
     public List<SMSFlags> getAllFlags() {
         return smsService.getAllFlags();
     }
+    
+    /**
+     * Used to update records by CSV File
+     * 
+     * @param MultipartFile
+     * @return response
+     */
+    @RequestMapping(value = "/upload/db_update", method = RequestMethod.PUT)
+    public ResponseEntity<ApiResponse> updateStudent(@RequestParam(value = "file", required = false) MultipartFile file) {
+        ApiResponse response = studentService.updateStudentInBulk(file, ApplicationConstants.BULK_UPDATE);
+        return new ResponseEntity<ApiResponse>(response, HttpStatus.MULTI_STATUS);
+    }
+
 
 }
