@@ -73,4 +73,11 @@ public class ApplicationConstants {
   public static final String FROM_AND_TO_DATE_NOT_VALID=" from date and to date of shivir is not valid";
   public static final String[] HEADERS = { "id","name","father_name","gender","age","education","occupation","mother_mobile","father_mobile","email","address","bus_num","bus_stop","remark","class_attended_2016","class_attended_2017","class_attended_2018","class_attended_2019","class_room_no_2016","class_room_no_2017","class_room_no_2018","class_room_no_2019","attendance_2016","attendance_2017","attendance_2018","attendance_2019","marks_2016","marks_2017","marks_2018","marks_2019","opt_in_2018","course_2018","course_2019","course_2017","course_2016","secret_key","remark","created_date","last_modified_date","opt_in_2019","print_status", "day1","day2","day3", "day4","day5", "day6", "day7", "day8"};
   public static final String BULK_UPDATE = "bulk update";
+  public static final String FILE_NOT_FOUND ="File not found..! Please select a file";
+  public static final String INVALID_FILE_FORMAT="Upload is supported only for 'CSV' data files";
+  public static final String REQUIRED_HEADERS="Uploaded file should contain column as: ";
+  public static final String EMPTY_FILE="There is no record found in file";
+  public static final String MOBILE="mobile";
+  public static final String ID="id";
+  public static final String NULL="NULL";
 }

@@ -2,7 +2,7 @@ package com.pepcus.appstudent.entity;
 
 import com.opencsv.bean.CsvBindByName;
 
-public class StudentUploadAttendance {
+public class StudentWrapper {
 
     @CsvBindByName
     private String id;
@@ -180,11 +180,11 @@ public class StudentUploadAttendance {
         this.optIn2019 = optIn2019;
     }
 
-    public StudentUploadAttendance() {
+    public StudentWrapper() {
         super();
     }
 
-    public StudentUploadAttendance(String id, String day1, String day2) {
+    public StudentWrapper(String id, String day1, String day2) {
         super();
         this.id = id;
         this.day1 = day1;
