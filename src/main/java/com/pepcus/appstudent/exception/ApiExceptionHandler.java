@@ -25,7 +25,7 @@ public class ApiExceptionHandler {
 	 * 
 	 * @param req
 	 * @param ex
-	 * @return
+	 * @return response
 	 */
 	@ExceptionHandler({ BadRequestException.class })
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -44,7 +44,7 @@ public class ApiExceptionHandler {
 	 * 
 	 * @param req
 	 * @param ex
-	 * @return
+	 * @return response
 	 */
 	@ExceptionHandler({ AuthorizationFailedException.class })
 	@ResponseStatus(HttpStatus.UNAUTHORIZED)

@@ -16,23 +16,22 @@ import com.pepcus.appstudent.repository.StudentRepository;
  */
 @Service
 public class AuthorizationManager {
-	
-	@Autowired
-	private StudentRepository studentRepository;
-	
-	/**
-	 * Method to check valid studentId and secret key 
-	 * 
-	 * @param secretKey
-	 * @return
-	 */
-	public boolean checkAuthorization(Integer studentId, String secretKey) {
 
-        //Validate studentId and secretKey
-        if (null == studentRepository.findByIdAndSecretKey(studentId, secretKey)) {  
+    @Autowired
+    private StudentRepository studentRepository;
+
+    /**
+     * Method to check valid studentId and secret key
+     * 
+     * @param secretKey
+     * @return boolean
+     */
+    public boolean checkAuthorization(Integer studentId, String secretKey) {
+
+        // Validate studentId and secretKey
+        if (null == studentRepository.findByIdAndSecretKey(studentId, secretKey)) {
             throw new AuthorizationFailedException("Unauthorized to access the service");
         }
-        
         return true;
     }
 

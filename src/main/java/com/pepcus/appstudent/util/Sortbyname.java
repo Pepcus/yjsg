@@ -1,9 +1,16 @@
 package com.pepcus.appstudent.util;
 
 import java.util.Comparator;
-
+/**
+ * class is used to sorting by name
+ *
+ */
 public class Sortbyname implements Comparator<String> {
 
+    /**
+     * compare name strings
+     * @return int
+     */
     public int compare(String a, String b) {
         try {
             if (a.trim() != null && a.trim().length() > 2 && b.trim() != null && b.trim().length() > 2) {

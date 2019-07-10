@@ -9,6 +9,10 @@ import javax.persistence.Table;
 
 import lombok.Data;
 
+/**
+ * Entity class used to set value of SMS Flag
+ *  
+ */
 @Data
 @Entity
 @Table(name = "flag")

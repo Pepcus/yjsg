@@ -21,6 +21,8 @@ import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.exception.BadRequestException;
 
 /**
+ * This is SMS Utility class
+ * 
  * @author Ajay
  *
  */
@@ -37,9 +39,7 @@ public class SMSUtil {
     public static final String SMS_GATEWAY_PATH = "httpapi/httpapi";
     public static final String SMS_GATEWAY_METHOD = "POST";
     public static final String NON_STANDARD_HTTP_HEADER = "X-Forwarded-For";
-    public static final String INIT_VECTOR = "PepcusEMSProduct"; // must be
-                                                                 // within 16
-                                                                 // bytes IV
+    public static final String INIT_VECTOR = "PepcusEMSProduct"; // must be within 16 bytes IV
 
     /**
      * Sends a SMS to newly created student

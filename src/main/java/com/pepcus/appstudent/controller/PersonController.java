@@ -14,6 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pepcus.appstudent.entity.Person;
 import com.pepcus.appstudent.service.PersonService;
 
+/**
+ * This is a controller for handling/delegating requests to person.
+ * 
+ * @author
+ *
+ */
 @RestController
 @RequestMapping("/v1/events")
 public class PersonController {
@@ -36,7 +42,7 @@ public class PersonController {
     /**
      * Used to get person record by personId
      * 
-     * @param personId
+     * @param pathVars
      * @return
      **/
     @GetMapping(value = "/{personId}")

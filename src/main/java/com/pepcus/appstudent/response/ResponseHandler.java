@@ -52,7 +52,7 @@ public class ResponseHandler implements ResponseBodyAdvice<Object> {
      * @param selectedConverterType
      * @param request
      * @param response
-     * @return
+     * @return body
      */
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,

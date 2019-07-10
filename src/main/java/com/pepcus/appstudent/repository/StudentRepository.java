@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import com.pepcus.appstudent.entity.Student;
 
 /**
- * Repository for student entity
+ * Student repository for manipulation of student data
  * 
  * @author Shubham Solanki
  * @since 12-02-2018

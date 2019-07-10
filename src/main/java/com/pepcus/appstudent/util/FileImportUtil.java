@@ -37,6 +37,12 @@ import com.pepcus.appstudent.entity.StudentWrapper;
 import com.pepcus.appstudent.exception.ApplicationException;
 import com.pepcus.appstudent.exception.BadRequestException;
 
+/**
+ * Class is specific to keep utility methods for file import
+ * 
+ * @author Rahul.Panwar
+ *
+ */
 @Component
 public class FileImportUtil implements CsvToBeanFilter {
 
@@ -52,14 +58,15 @@ public class FileImportUtil implements CsvToBeanFilter {
 
     /**
      * Used to convert into StudentUploadAttendence bean
+     * 
      * @return studentUploadAttendanceList
      */
     public static List<StudentWrapper> convertToStudentCSVBean(MultipartFile file, String flag) {
         List<StudentWrapper> studentUploadAttendanceList = null;
-        BufferedReader brFileContent=null;
+        BufferedReader brFileContent = null;
         try {
             FileImportUtil.validateFile(file, flag);
-            brFileContent=new BufferedReader(new InputStreamReader(file.getInputStream()));
+            brFileContent = new BufferedReader(new InputStreamReader(file.getInputStream()));
             studentUploadAttendanceList = new ArrayList<StudentWrapper>();
             HeaderColumnNameMappingStrategy<StudentWrapper> strategy = new HeaderColumnNameMappingStrategy<StudentWrapper>();
             strategy.setType(StudentWrapper.class);
@@ -67,14 +74,17 @@ public class FileImportUtil implements CsvToBeanFilter {
             CsvToBeanFilter filter = new FileImportUtil();
             studentUploadAttendanceList = csvToBean.parse(strategy, brFileContent, filter);
             brFileContent.close();
-        } catch (IOException e) {            throw new BadRequestException(UNABLE_TO_READ_CSV);
+        } catch (IOException e) {
+            throw new BadRequestException(UNABLE_TO_READ_CSV);
         }
         return studentUploadAttendanceList;
 
     }
 
     /**
-     * Used to check Attendance Headers,whether required headers in CSV file present or not 
+     * Used to check Attendance Headers,whether required headers in CSV file
+     * present or not
+     * 
      * @return boolean
      */
     private static boolean checkAttendanceHeaders(String[] headersInFile) {
@@ -90,7 +100,9 @@ public class FileImportUtil implements CsvToBeanFilter {
     }
 
     /**
-     * Used to check opt headers,whether required headers in CSV file present or not 
+     * Used to check opt headers,whether required headers in CSV file
+     * present or not
+     * 
      * @return boolean
      */
     private static boolean checkoptInHeaders(String[] headersInFile) {
@@ -106,7 +118,8 @@ public class FileImportUtil implements CsvToBeanFilter {
     }
 
     /**
-     * Used to check headers,whether required headers in CSV file present or not 
+     * Used to check headers,whether required headers in CSV file present or not
+     * 
      * @return boolean
      */
     private static boolean checkHeaders(String headers[], String flag) {
@@ -116,20 +129,21 @@ public class FileImportUtil implements CsvToBeanFilter {
             result = checkoptInHeaders(headers);
             break;
 
-        case  ATTENDANCE:
+        case ATTENDANCE:
             result = checkAttendanceHeaders(headers);
             break;
-        
+
         default:
-           result=checkHeaders(headers);
-        break;
+            result = checkHeaders(headers);
+            break;
         }
-        
+
         return result;
     }
 
     /**
-     * Used to get CSVData from multipart file and validate the file 
+     * Used to get CSVData from multipart file and validate the file
+     * 
      * @return completeRecord
      */
     public static List<String> getCSVData(MultipartFile file) {
@@ -139,13 +153,13 @@ public class FileImportUtil implements CsvToBeanFilter {
             throw new BadRequestException(FILE_NOT_FOUND);
         }
         // Validate if file has valid extension
-        if (!FilenameUtils.isExtension(file.getOriginalFilename(),  VALID_FILE_EXTENSION_IMPORT)) {
+        if (!FilenameUtils.isExtension(file.getOriginalFilename(), VALID_FILE_EXTENSION_IMPORT)) {
             throw new BadRequestException(INVALID_FILE_FORMAT);
         }
         String line = "";
-        try(BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             while ((line = br.readLine()) != null) {
-                String singleRecord[] = line.trim().split( COMMA_SEPARATOR);
+                String singleRecord[] = line.trim().split(COMMA_SEPARATOR);
                 if (singleRecord != null && singleRecord.length > 2 && !singleRecord.equals("")) {
                     completeRecord.add(line);
                 }
@@ -157,7 +171,9 @@ public class FileImportUtil implements CsvToBeanFilter {
     }
 
     /**
-     * Used to get duplicate csv data and generate new csv file containing duplicate data  
+     * Used to get duplicate csv data and generate new csv file containing
+     * duplicate data
+     * 
      * @return duplicateCSVData
      */
     public static File getDuplicateDataCSV(String[] headers, List<String[]> finalDuplicateList) {
@@ -176,7 +192,8 @@ public class FileImportUtil implements CsvToBeanFilter {
     }
 
     /**
-     * Used to check headers,whether required headers in CSV file present or not 
+     * Used to check headers,whether required headers in CSV file present or not
+     * 
      * @return boolean
      */
     private static boolean checkHeaders(String[] headersInFile) {
@@ -193,8 +210,10 @@ public class FileImportUtil implements CsvToBeanFilter {
         }
         return true;
     }
-        /**
-     * Used to validate file 
+
+    /**
+     * Used to validate file
+     * 
      * @param file
      * @param flag
      */
@@ -227,5 +246,5 @@ public class FileImportUtil implements CsvToBeanFilter {
             throw new BadRequestException(UNABLE_TO_READ_CSV);
         }
     }
-    
+
 }

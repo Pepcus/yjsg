@@ -13,6 +13,12 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.pepcus.appstudent.entity.Student;
 
+/**
+ * check for invalid data student data
+ * 
+ * @author 
+ *
+ */
 public class StudentNullAwareBeanUtil extends BeanUtilsBean {
 
     public Set<Integer> invalidDataList = new LinkedHashSet<Integer>();

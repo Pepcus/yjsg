@@ -118,7 +118,8 @@ public class StudentController {
      * Used to update attendance record by CSV File
      * 
      * @param file
-     * @return response
+     * @param day
+     * @return
      */
     @RequestMapping(value = "/bulk-attendance", method = RequestMethod.PATCH)
     public ResponseEntity<ApiResponse> uploadAttendance(
@@ -130,7 +131,7 @@ public class StudentController {
     /**
      * Used to update Opt In 2019 record by CSV File
      * 
-     * @param MultipartFile
+     * @param file
      * @return response
      */
     @RequestMapping(value = "/bulk-optin", method = RequestMethod.PATCH)
@@ -275,7 +276,7 @@ public class StudentController {
     public List<SMSFlags> getAllFlags() {
         return smsService.getAllFlags();
     }
-    
+
     /**
      * Used to update records by CSV File
      * 
@@ -283,10 +284,10 @@ public class StudentController {
      * @return response
      */
     @RequestMapping(value = "/upload/db_update", method = RequestMethod.PUT)
-    public ResponseEntity<ApiResponse> updateStudent(@RequestParam(value = "file", required = false) MultipartFile file) {
+    public ResponseEntity<ApiResponse> updateStudent(
+            @RequestParam(value = "file", required = false) MultipartFile file) {
         ApiResponse response = studentService.updateStudentInBulk(file, ApplicationConstants.BULK_UPDATE);
         return new ResponseEntity<ApiResponse>(response, HttpStatus.MULTI_STATUS);
     }
-
 
 }

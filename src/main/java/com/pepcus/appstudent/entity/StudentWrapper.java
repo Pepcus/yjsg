@@ -2,6 +2,11 @@ package com.pepcus.appstudent.entity;
 
 import com.opencsv.bean.CsvBindByName;
 
+/**
+ * class used to wrapped CSV data
+ * @author
+ *  
+ */
 public class StudentWrapper {
 
     @CsvBindByName
