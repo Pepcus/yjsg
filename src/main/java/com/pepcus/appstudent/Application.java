@@ -6,7 +6,6 @@ import org.springframework.cache.annotation.EnableCaching;
 
 /**
  * Application start class
- * 
  * @author Shubham Solanki
  * @since 12-02-2018
  *

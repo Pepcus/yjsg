@@ -18,7 +18,6 @@ import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.repository.PersonRepository;
 /**
  * Provides a collection of all services related with Person type
- * 
  */
 @Service
 public class PersonService {

@@ -14,7 +14,6 @@ import com.pepcus.appstudent.service.EntitySearchSpecification;
 
 /**
  * Class is specific to keep utility methods for Student Search feature.
- * 
  * @author Shubham Solanki
  * @since 2018-18-04
  *
@@ -23,12 +22,10 @@ public class EntitySearchUtil {
 
     /**
      * To validate given Class has field with fieldName or not
-     * 
      * @param <T>
-     * 
      * @param kclass
      * @param fieldName
-     * @return
+     * @return boolean
      * @throws SecurityException
      * @throws NoSuchFieldException
      */
@@ -48,12 +45,11 @@ public class EntitySearchUtil {
     /**
      * To check type of field for given parameters and validate it is
      * java.lang.String or not
-     * 
      * @param <T>
      * @param kclass
      * @param fieldName
      * @param fieldType
-     * @return
+     * @return boolean
      */
     public static <T> boolean isFieldOfType(Class<T> kclass, String fieldName, Class<?> fieldType) {
         Field field = null;
@@ -72,11 +68,10 @@ public class EntitySearchUtil {
     /**
      * To check type of field for given parameters and validate it is
      * java.lang.String or not
-     * 
      * @param <T>
      * @param kclass
      * @param fieldName
-     * @return
+     * @return boolean
      */
     public static <T> boolean isStringField(Class<T> kclass, String fieldName) {
         return isFieldOfType(kclass, fieldName, String.class);
@@ -84,12 +79,10 @@ public class EntitySearchUtil {
 
     /**
      * To filter request parameters on field Name
-     * 
      * @param <T>
-     * 
      * @param allRequestParams
      * @param kclass
-     * @return
+     * @return <T>
      */
     public static <T> Map<String, String> extractParametersForFilterRecords(Map<String, String> allRequestParams,
             Class<T> kclass) {
@@ -110,10 +103,9 @@ public class EntitySearchUtil {
     /**
      * Create Entity Search Specification It will give priority over
      * requestParameters on searchSpec
-     * 
      * @param searchSpec
      * @param requestParameters
-     * @return
+     * @return <T>
      * @throws ApplicationException
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })

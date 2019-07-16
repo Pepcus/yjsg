@@ -25,19 +25,16 @@ import com.pepcus.appstudent.exception.ApiErrorResponse;
 
 /**
  * Global response handler for all APIs
- * 
  * @author Shubham Solanki
  * @since 12-02-2018
- *
  */
 @ControllerAdvice("com.pepcus.appstudent.controller")
 public class ResponseHandler implements ResponseBodyAdvice<Object> {
 
     /**
-     * 
      * @param methodParameter
      * @param request
-     * @return
+     * @return boolean
      */
     @Override
     public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> request) {
@@ -45,7 +42,6 @@ public class ResponseHandler implements ResponseBodyAdvice<Object> {
     }
 
     /**
-     * 
      * @param body
      * @param returnType
      * @param selectedContentType

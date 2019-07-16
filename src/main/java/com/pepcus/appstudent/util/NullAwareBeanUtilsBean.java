@@ -8,9 +8,6 @@ import com.pepcus.appstudent.entity.Student;
 
 /**
  * check for invalid data list
- * 
- * @author 
- *
  */
 public class NullAwareBeanUtilsBean extends BeanUtilsBean{
 

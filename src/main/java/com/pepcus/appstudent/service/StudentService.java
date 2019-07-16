@@ -57,7 +57,6 @@ import com.pepcus.appstudent.util.StudentNullAwareBeanUtil;
 
 /**
  * Provides a collection of all services related with Student type
- * 
  * @author Shubham Solanki
  * @since 12-02-2018
  *
@@ -76,7 +75,6 @@ public class StudentService {
 
     /**
      * Method to get student details
-     * 
      * @param studentId
      * @return savedStudent
      */
@@ -93,7 +91,6 @@ public class StudentService {
 
     /**
      * Method used to check whether student exists or not
-     * 
      * @param studentId
      * @return student
      */
@@ -107,7 +104,6 @@ public class StudentService {
 
     /**
      * Method used to get student list of given student ids
-     * 
      * @param ids
      * @return students
      */
@@ -121,7 +117,6 @@ public class StudentService {
 
     /**
      * Method to create student record
-     * 
      * @param student
      * @return savedStudent
      */
@@ -155,7 +150,6 @@ public class StudentService {
 
     /**
      * Method to generate secretKey for student
-     * 
      * @return string
      */
     public String generateSecretKey() {
@@ -165,10 +159,8 @@ public class StudentService {
 
     /**
      * Method to update student details
-     * 
      * @param student
      * @param studentId
-     * @return
      * @throws JsonProcessingException
      * @throws IOException
      * @return studentInDB
@@ -209,7 +201,6 @@ public class StudentService {
 
     /**
      * Method to update student OptIn
-     * 
      * @param studentIds
      * @param student
      * @return response
@@ -251,7 +242,6 @@ public class StudentService {
 
     /**
      * Method to populate response
-     * 
      * @param validInvalidIdsMap
      * @return response
      */
@@ -284,7 +274,6 @@ public class StudentService {
 
     /**
      * Method to update student Print Status
-     * 
      * @param studentIds
      * @param student
      * @return response
@@ -313,7 +302,6 @@ public class StudentService {
 
     /**
      * Method to update student attendance
-     * 
      * @param studentIds
      * @param isPresent
      * @param day
@@ -372,7 +360,6 @@ public class StudentService {
 
     /**
      * Method to update student by file upload
-     * 
      * @param file
      * @param flag
      * @return apiresponse
@@ -437,7 +424,6 @@ public class StudentService {
 
     /**
      * Method to remove student invalid data
-     * 
      * @param studentListDB
      * @param invalidDataIdList
      * @return studentListDB
@@ -454,7 +440,6 @@ public class StudentService {
     /**
      * This function overwrites values from given json string in to given
      * objectToUpdate
-     * 
      * @param json
      * @param objectToUpdate
      * @return
@@ -471,7 +456,6 @@ public class StudentService {
 
     /**
      * Method to get all students based on specific search criteria
-     * 
      * @param allRequestParams
      * @return students
      */
@@ -496,7 +480,6 @@ public class StudentService {
 
     /**
      * Method to get Map of students invalid and valid list
-     * 
      * @param studentIds
      *            // coming from request
      * @param studentList
@@ -517,8 +500,6 @@ public class StudentService {
 
     /**
      * Method to reset print status
-     * 
-     * @return
      */
     public void updatePrint() {
         studentRepository.resetPrintStatus();
@@ -526,7 +507,6 @@ public class StudentService {
 
     /**
      * Method to get duplicate studentds records
-     * 
      * @param allRequestParams
      * @return duplicateCSVData
      */
@@ -561,7 +541,6 @@ public class StudentService {
 
     /**
      * Method to get duplicate record from original record
-     * 
      * @param duplicateRecords
      * @param originalRecords
      * @return duplicateList
@@ -582,7 +561,6 @@ public class StudentService {
 
     /**
      * Method to get duplicate records
-     * 
      * @param originalRecords
      * @return duplicateRecords
      */
@@ -613,7 +591,6 @@ public class StudentService {
 
     /**
      * Method to update student attendance by csv
-     * 
      * @param day
      * @param flag
      * @param file
@@ -662,7 +639,6 @@ public class StudentService {
 
     /**
      * Method to set student attendance of particular day
-     * 
      * @param day
      * @param studentList
      * @return updatedStudentList
@@ -706,7 +682,6 @@ public class StudentService {
 
     /**
      * Method to update student in bulk by csv
-     * 
      * @param file
      * @param flag
      * @return apiresponse
@@ -742,7 +717,6 @@ public class StudentService {
 
     /**
      * Method to copy bean StudentUploadAttendance into Student
-     * 
      * @param studentListDB
      * @param studentUploadAttendanceList
      * @param onlyNotNullCopyProperty

@@ -9,7 +9,6 @@ import com.pepcus.appstudent.repository.StudentRepository;
 
 /**
  * This layer is used to validate secretKey from DB
- * 
  * @author Shubham Solanki
  * @since 12-02-2018
  *
@@ -22,7 +21,7 @@ public class AuthorizationManager {
 
     /**
      * Method to check valid studentId and secret key
-     * 
+     * @param studentId
      * @param secretKey
      * @return boolean
      */

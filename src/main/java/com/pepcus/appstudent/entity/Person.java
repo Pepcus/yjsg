@@ -22,8 +22,6 @@ import lombok.Data;
 
 /**
  * Entity class used to map table in DB
- * @author
- *  
  */
 @Entity
 @Table(name = "person")

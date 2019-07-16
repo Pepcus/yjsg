@@ -3,7 +3,6 @@ package com.pepcus.appstudent.util;
 import java.util.Comparator;
 /**
  * class is used to sorting by name
- *
  */
 public class Sortbyname implements Comparator<String> {
 

@@ -39,9 +39,7 @@ import com.pepcus.appstudent.exception.BadRequestException;
 
 /**
  * Class is specific to keep utility methods for file import
- * 
  * @author Rahul.Panwar
- *
  */
 @Component
 public class FileImportUtil implements CsvToBeanFilter {
@@ -58,7 +56,6 @@ public class FileImportUtil implements CsvToBeanFilter {
 
     /**
      * Used to convert into StudentUploadAttendence bean
-     * 
      * @return studentUploadAttendanceList
      */
     public static List<StudentWrapper> convertToStudentCSVBean(MultipartFile file, String flag) {
@@ -84,7 +81,7 @@ public class FileImportUtil implements CsvToBeanFilter {
     /**
      * Used to check Attendance Headers,whether required headers in CSV file
      * present or not
-     * 
+     * @param headersInFile
      * @return boolean
      */
     private static boolean checkAttendanceHeaders(String[] headersInFile) {
@@ -102,7 +99,7 @@ public class FileImportUtil implements CsvToBeanFilter {
     /**
      * Used to check opt headers,whether required headers in CSV file
      * present or not
-     * 
+     * @param headersInFile
      * @return boolean
      */
     private static boolean checkoptInHeaders(String[] headersInFile) {
@@ -119,7 +116,8 @@ public class FileImportUtil implements CsvToBeanFilter {
 
     /**
      * Used to check headers,whether required headers in CSV file present or not
-     * 
+     * @param headers[]
+     * @param flag
      * @return boolean
      */
     private static boolean checkHeaders(String headers[], String flag) {
@@ -143,7 +141,7 @@ public class FileImportUtil implements CsvToBeanFilter {
 
     /**
      * Used to get CSVData from multipart file and validate the file
-     * 
+     * @param MultipartFile
      * @return completeRecord
      */
     public static List<String> getCSVData(MultipartFile file) {
@@ -173,7 +171,8 @@ public class FileImportUtil implements CsvToBeanFilter {
     /**
      * Used to get duplicate csv data and generate new csv file containing
      * duplicate data
-     * 
+     * @param headers[]
+     * @param finalDuplicateList
      * @return duplicateCSVData
      */
     public static File getDuplicateDataCSV(String[] headers, List<String[]> finalDuplicateList) {
@@ -193,7 +192,7 @@ public class FileImportUtil implements CsvToBeanFilter {
 
     /**
      * Used to check headers,whether required headers in CSV file present or not
-     * 
+     * @param headersInFile
      * @return boolean
      */
     private static boolean checkHeaders(String[] headersInFile) {
@@ -213,7 +212,6 @@ public class FileImportUtil implements CsvToBeanFilter {
 
     /**
      * Used to validate file
-     * 
      * @param file
      * @param flag
      */

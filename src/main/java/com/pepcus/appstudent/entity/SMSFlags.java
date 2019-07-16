@@ -11,7 +11,6 @@ import lombok.Data;
 
 /**
  * Entity class used to set value of SMS Flag
- *  
  */
 @Data
 @Entity

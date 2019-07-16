@@ -45,7 +45,6 @@ import com.pepcus.appstudent.util.ApplicationConstants;
 import com.pepcus.appstudent.util.SMSUtil;
 /**
  * Provides a collection of all services related with SMS type
- *
  */
 @Service
 public class SmsService {
@@ -87,10 +86,10 @@ public class SmsService {
 
     /**
      * Method to Send SMS for OptiIn or attendance activity
-     * 
      * @param studentList
      * @param activity
      * @param day
+     * @return response
      */
 
     public ApiResponse sendBulkSMS(List<Student> studentList, String activity, Integer day) {
@@ -117,6 +116,8 @@ public class SmsService {
     /**
      * Method to get List of Students who is Opted In 2019 and who is not
      * present on particular day
+     * @param day
+     * @return student list
      */
     private List<Student> getAbsentStudents(String day) {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
@@ -168,7 +169,6 @@ public class SmsService {
 
     /**
      * Method to Send SMS to students who are opted out for 2019 season
-     * 
      * @param studentList
      */
     public void sendOptOutSMS(List<Student> studentList) {
@@ -195,7 +195,6 @@ public class SmsService {
 
     /**
      * Method to Send SMS to students who are opted in for 2019 season
-     * 
      * @param studentList
      */
     public void sendOptInSMS(List<Student> studentList) {
@@ -222,7 +221,6 @@ public class SmsService {
 
     /**
      * Method to Send SMS to students who are present on particular day
-     * 
      * @param studentList
      * @param day
      */
@@ -256,7 +254,6 @@ public class SmsService {
 
     /**
      * Method to Send SMS to students who are absent on particular day
-     * 
      * @param day
      */
     private void sendSMSToAbsentStudents(Integer day) {
@@ -293,7 +290,6 @@ public class SmsService {
 
     /**
      * Method used to update SMS Flag
-     * 
      * @param smsFlagsList
      */
     @CacheEvict(cacheNames = "flagcache", allEntries = true)
@@ -304,9 +300,8 @@ public class SmsService {
 
     /**
      * Method used to check whether flag exists or not
-     * 
      * @param flagName
-     * @return
+     * @return SMSFlags
      */
     public SMSFlags validateFlag(String flagName) {
         SMSFlags flag = SMSRepository.findByflagName(flagName);
@@ -318,7 +313,6 @@ public class SmsService {
 
     /**
      * Method used to check whether flag is turned on or off
-     * 
      * @param flagName
      * @return boolean
      */
@@ -331,7 +325,6 @@ public class SmsService {
 
     /**
      * Method used to get All flags
-     * 
      * @return smsFlagList
      */
     @Cacheable("flagcache")

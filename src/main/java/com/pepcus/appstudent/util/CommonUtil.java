@@ -10,7 +10,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * Class to keep common utility methods
- * 
  * @author Shubham Solanki
  * @since 12-02-2018
  *
@@ -21,7 +20,6 @@ public class CommonUtil {
 
     /**
      * Method to convert Date to String
-     * 
      * @param date
      * @return string
      */
@@ -32,7 +30,6 @@ public class CommonUtil {
 
     /**
      * To set request attributes
-     * 
      * @param attributeName
      * @param attributeValue
      */
@@ -45,7 +42,6 @@ public class CommonUtil {
 
     /**
      * To fetch attribute value from request for given attribute name
-     * 
      * @param attributeName
      * @return Object
      */
@@ -60,7 +56,6 @@ public class CommonUtil {
 
     /**
      * Fetch request object from RequestContextHolder
-     * 
      * @return HttpServletRequest
      */
     public static HttpServletRequest getRequest() {

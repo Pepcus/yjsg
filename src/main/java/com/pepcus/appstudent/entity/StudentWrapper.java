@@ -4,8 +4,6 @@ import com.opencsv.bean.CsvBindByName;
 
 /**
  * class used to wrapped CSV data
- * @author
- *  
  */
 public class StudentWrapper {
 
@@ -27,41 +25,41 @@ public class StudentWrapper {
     private String day7;
     @CsvBindByName
     private String day8;
-    
-    @CsvBindByName(column="name")
+
+    @CsvBindByName(column = "name")
     private String name;
 
-    @CsvBindByName(column="father_name")
+    @CsvBindByName(column = "father_name")
     private String fatherName;
 
-    @CsvBindByName(column="gender")
+    @CsvBindByName(column = "gender")
     private String gender;
 
-    @CsvBindByName(column="age")
+    @CsvBindByName(column = "age")
     private String age;
 
-    @CsvBindByName(column="education")
+    @CsvBindByName(column = "education")
     private String education;
 
-    @CsvBindByName(column="occupation")
+    @CsvBindByName(column = "occupation")
     private String occupation;
 
     @CsvBindByName
     private String motherMobile;
 
-    @CsvBindByName(column="father_mobile")
+    @CsvBindByName(column = "father_mobile")
     private String mobile;
 
-    @CsvBindByName(column="email")
+    @CsvBindByName(column = "email")
     private String email;
 
-    @CsvBindByName(column="address")
+    @CsvBindByName(column = "address")
     private String address;
 
-    @CsvBindByName(column="bus_num")
+    @CsvBindByName(column = "bus_num")
     private String busNumber;
 
-    @CsvBindByName(column="bus_stop")
+    @CsvBindByName(column = "bus_stop")
     private String busStop;
 
     @CsvBindByName
@@ -70,52 +68,52 @@ public class StudentWrapper {
     @CsvBindByName
     private String remark;
 
-    @CsvBindByName(column="class_attended_2016")
+    @CsvBindByName(column = "class_attended_2016")
     private String classAttended2016;
 
-    @CsvBindByName(column="class_attended_2017")
+    @CsvBindByName(column = "class_attended_2017")
     private String classAttended2017;
 
-    @CsvBindByName(column="class_attended_2018")
+    @CsvBindByName(column = "class_attended_2018")
     private String classAttended2018;
 
-    @CsvBindByName(column="class_attended_2019")
+    @CsvBindByName(column = "class_attended_2019")
     private String classAttended2019;
 
-    @CsvBindByName(column="class_room_no_2016")
+    @CsvBindByName(column = "class_room_no_2016")
     private String classRoomNo2016;
 
-    @CsvBindByName(column="class_room_no_2017")
+    @CsvBindByName(column = "class_room_no_2017")
     private String classRoomNo2017;
 
-    @CsvBindByName(column="class_room_no_2018")
+    @CsvBindByName(column = "class_room_no_2018")
     private String classRoomNo2018;
 
-    @CsvBindByName(column="class_room_no_2019")
+    @CsvBindByName(column = "class_room_no_2019")
     private String classRoomNo2019;
 
-    @CsvBindByName(column="attendance_2016")
+    @CsvBindByName(column = "attendance_2016")
     private String attendance2016;
 
-    @CsvBindByName(column="attendance_2017")
+    @CsvBindByName(column = "attendance_2017")
     private String attendance2017;
 
-    @CsvBindByName(column="attendance_2018")
+    @CsvBindByName(column = "attendance_2018")
     private String attendance2018;
 
-    @CsvBindByName(column="attendance_2019")
+    @CsvBindByName(column = "attendance_2019")
     private String attendance2019;
 
-    @CsvBindByName(column="marks_ 2016")
+    @CsvBindByName(column = "marks_ 2016")
     private String marks2016;
 
-    @CsvBindByName(column="marks_2017")
+    @CsvBindByName(column = "marks_2017")
     private String marks2017;
 
-    @CsvBindByName(column="marks_2018")
+    @CsvBindByName(column = "marks_2018")
     private String marks2018;
 
-    @CsvBindByName(column="marks_2019")
+    @CsvBindByName(column = "marks_2019")
     private String marks2019;
 
     @CsvBindByName
@@ -129,14 +127,13 @@ public class StudentWrapper {
 
     @CsvBindByName
     private String secret_key;
-    
+
     @CsvBindByName
     private String created_date;
-   
+
     @CsvBindByName
     private String last_modified_date;
-    
-    
+
     public String getReprint() {
         return reprint;
     }

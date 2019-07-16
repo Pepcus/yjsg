@@ -16,9 +16,6 @@ import com.pepcus.appstudent.service.PersonService;
 
 /**
  * This is a controller for handling/delegating requests to person.
- * 
- * @author
- *
  */
 @RestController
 @RequestMapping("/v1/events")
@@ -29,9 +26,7 @@ public class PersonController {
 
     /**
      * Used to create Person record
-     * 
      * @param person
-     * @return
      */
     @PostMapping
     public ResponseEntity<Person> createPerson(@RequestBody Person person) {
@@ -41,10 +36,8 @@ public class PersonController {
 
     /**
      * Used to get person record by personId
-     * 
-     * @param pathVars
-     * @return
-     **/
+     * @param personId
+     */
     @GetMapping(value = "/{personId}")
     public ResponseEntity<Person> getPerson(@PathVariable Map<String, String> pathVars) {
         Integer personId = Integer.valueOf(pathVars.get("personId"));

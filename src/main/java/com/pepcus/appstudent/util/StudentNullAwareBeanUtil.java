@@ -15,9 +15,6 @@ import com.pepcus.appstudent.entity.Student;
 
 /**
  * check for invalid data student data
- * 
- * @author 
- *
  */
 public class StudentNullAwareBeanUtil extends BeanUtilsBean {
 

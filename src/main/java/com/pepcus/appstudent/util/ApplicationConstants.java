@@ -2,7 +2,6 @@ package com.pepcus.appstudent.util;
 
 /**
  * Class to keep all the constants used by application
- * 
  * @author Akshay Sakunde
  * @since 2019-02-09
  *

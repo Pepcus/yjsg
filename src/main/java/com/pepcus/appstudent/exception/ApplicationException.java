@@ -6,11 +6,8 @@ import lombok.Data;
 
 /**
  * Custom exception class to handle exception those are related with Application
- * 
- * 
  * @author Surabhi Bhawsar
  * @since 2017-11-03
- *
  */
 @Data
 public class ApplicationException extends RuntimeException {
@@ -22,7 +19,6 @@ public class ApplicationException extends RuntimeException {
 
     /**
      * ApplicationException constructor
-     * 
      * @param msg
      */
     public ApplicationException(String msg) {
@@ -31,7 +27,6 @@ public class ApplicationException extends RuntimeException {
 
     /**
      * ApplicationException constructor
-     * 
      * @param errorCode
      * @param params
      */
@@ -42,7 +37,6 @@ public class ApplicationException extends RuntimeException {
 
     /**
      * ApplicationException constructor
-     * 
      * @param errorCode
      * @param params
      * @param httpStatus
@@ -54,7 +48,6 @@ public class ApplicationException extends RuntimeException {
 
     /**
      * Method used to generate badRequest exception
-     * 
      * @param errorCode
      * @param params
      * @return ApplicationException
@@ -67,7 +60,6 @@ public class ApplicationException extends RuntimeException {
 
     /**
      * Method used to generate encryptionError exception
-     * 
      * @param errorCode
      * @param params
      * @return ApplicationException
@@ -80,7 +72,6 @@ public class ApplicationException extends RuntimeException {
 
     /**
      * Method used to generate authorizationError exception
-     * 
      * @param errorCode
      * @param params
      * @return ApplicationException
@@ -93,7 +84,6 @@ public class ApplicationException extends RuntimeException {
 
     /**
      * Method used to generate accessDeniedError exception
-     * 
      * @param errorCode
      * @param params
      * @return ApplicationException
@@ -106,7 +96,6 @@ public class ApplicationException extends RuntimeException {
 
     /**
      * Method used to generate internalError exception
-     * 
      * @param errorCode
      * @param params
      * @return ApplicationException
@@ -119,7 +108,6 @@ public class ApplicationException extends RuntimeException {
 
     /**
      * Method used to generate entityNotFoundError exception
-     * 
      * @param errorCode
      * @param params
      * @return ApplicationException
@@ -132,7 +120,6 @@ public class ApplicationException extends RuntimeException {
 
     /**
      * Method used to generate bulkImportError exception
-     * 
      * @param errorCode
      * @param params
      * @return ApplicationException
@@ -145,7 +132,6 @@ public class ApplicationException extends RuntimeException {
 
     /**
      * Method used to generate sendEmailError exception
-     * 
      * @param errorCode
      * @param ex
      * @return ApplicationException
@@ -158,7 +144,6 @@ public class ApplicationException extends RuntimeException {
 
     /**
      * Method used to generate serviceNotAvailable exception
-     * 
      * @param errorCode
      * @param ex
      * @return ApplicationException

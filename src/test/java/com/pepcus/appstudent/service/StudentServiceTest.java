@@ -31,7 +31,6 @@ import com.pepcus.appstudent.util.ApplicationConstants;
 
 /**
  * class use for Junit Test of Student service
- * 
  * @author Rahul.Panwar
  * @since 2019-07-08
  */
@@ -98,7 +97,6 @@ public class StudentServiceTest {
 
     /**
      * Test updateStudent when student not exist in db
-     * 
      * @throws JsonProcessingException
      * @throws IOException
      */
@@ -113,7 +111,6 @@ public class StudentServiceTest {
 
     /**
      * Test updateStudent when vstudent not exist in db
-     * 
      * @throws JsonProcessingException
      * @throws IOException
      */

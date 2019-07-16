@@ -19,7 +19,6 @@ import lombok.Data;
 
 /**
  * Specification specific to Student
- * 
  * @author Shubham Solanki
  * @since 2018-18-04
  *
@@ -32,7 +31,6 @@ public class EntitySearchSpecification<T extends Student> implements Specificati
 
     /**
      * Constructor to create Specification specific to Student
-     * 
      * @param searchSpec
      * @param entity
      */
@@ -43,7 +41,6 @@ public class EntitySearchSpecification<T extends Student> implements Specificati
 
     /**
      * Constructor to create Specification specific to Student
-     * 
      * @param searchParams
      * @param entity
      */
@@ -69,7 +66,6 @@ public class EntitySearchSpecification<T extends Student> implements Specificati
     }
 
     /**
-     * 
      * @param from
      * @param criteriaBuilder
      * @param requestParameters

@@ -17,7 +17,6 @@ import com.pepcus.appstudent.entity.Student;
 public class APItestDataUtil {
     /**
      * Method used to get single Student data
-     * 
      * @author Rahul.Panwar
      * @return Student
      */
@@ -34,22 +33,20 @@ public class APItestDataUtil {
         student.setPrintStatus("N");
         return student;
     }
-    
+
     /**
      * Method to get Student data as string
-     * 
      * @return String
      * @throws JsonProcessingException
      */
     public static String getStudentJsonData() throws JsonProcessingException {
         return new ObjectMapper().writeValueAsString(getStudentData());
     }
-    
+
     /**
      * Method to get Student list
-     * 
      * @author Rahul.Panwar
-     * @return
+     * @return student list
      */
     public static List<Student>getStudentList() {
         Student student1 = new Student();
@@ -66,21 +63,20 @@ public class APItestDataUtil {
         
         return new ArrayList<>(Arrays.asList(new Student[] {student1, student2, student3}));
     }
-    
+
     /**
      * Method to get list of Student ids
-     * 
      * @author Rahul.Panwar
      * @return List<Integer>
      */
     public static List<Integer> getStudentIds() {
         return new ArrayList<>(Arrays.asList(new Integer[] {1, 2, 3}));
     }
-    
+
     /**
      * Method used to get person data
      * @author Rahul.Panwar
-     * @return
+     * @return Person
      */
     public static Person getPersonData() {
         Person person = new Person();

@@ -47,10 +47,8 @@ import com.pepcus.appstudent.util.ApplicationConstants;
 
 /**
  * This is a controller for handling/delegating requests to service layer.
- * 
  * @author Shubham Solanki
  * @since 12-02-2018
- *
  */
 @RestController
 @RequestMapping("/v1/students")
@@ -64,9 +62,7 @@ public class StudentController {
 
     /**
      * Used to fetch student record by studentId
-     * 
      * @param pathVars
-     * @return
      */
     @GetMapping(value = "/{studentId}")
     public ResponseEntity<Student> getStudent(@PathVariable Map<String, String> pathVars) {
@@ -77,9 +73,7 @@ public class StudentController {
 
     /**
      * Used to fetch all students based on specific search criteria.
-     * 
      * @param pathVars
-     * @return
      */
     @GetMapping
     public List<Student> getAllStudents(@RequestParam Map<String, String> allRequestParams) {
@@ -88,9 +82,7 @@ public class StudentController {
 
     /**
      * Used to create student record
-     * 
      * @param student
-     * @return
      */
     @PostMapping
     public ResponseEntity<Student> createStudent(@RequestBody Student student) {
@@ -101,11 +93,10 @@ public class StudentController {
 
     /**
      * Used to update student record by studentId
-     * 
      * @param studentId
-     * @return
      * @throws JsonProcessingException
      * @throws IOException
+     * @return Student
      */
     @PutMapping(value = "/{studentId}", consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Student> updateStudent(@PathVariable(value = "studentId") Integer studentId,
@@ -116,10 +107,9 @@ public class StudentController {
 
     /**
      * Used to update attendance record by CSV File
-     * 
-     * @param file
+     * @param MultipartFile
      * @param day
-     * @return
+     * @return response
      */
     @RequestMapping(value = "/bulk-attendance", method = RequestMethod.PATCH)
     public ResponseEntity<ApiResponse> uploadAttendance(
@@ -130,8 +120,7 @@ public class StudentController {
 
     /**
      * Used to update Opt In 2019 record by CSV File
-     * 
-     * @param file
+     * @param MultipartFile
      * @return response
      */
     @RequestMapping(value = "/bulk-optin", method = RequestMethod.PATCH)
@@ -142,9 +131,8 @@ public class StudentController {
 
     /**
      * Used to update days attendance
-     * 
      * @param studentId[]
-     * @param json
+     * @param Day
      * @return response
      */
     @PutMapping(value = "/attendance")
@@ -158,10 +146,9 @@ public class StudentController {
 
     /**
      * Used to update reprint
-     * 
      * @param studentId[]
      * @param student
-     * @return
+     * @return response
      */
     @RequestMapping(value = "/reprint", method = RequestMethod.PATCH)
     public ResponseEntity<ApiResponse> updateReprintStatus(
@@ -173,10 +160,9 @@ public class StudentController {
 
     /**
      * Used to update optIn
-     * 
      * @param studentId[]
      * @param student
-     * @return
+     * @return response
      */
     @RequestMapping(value = "/optin", method = RequestMethod.PATCH)
     public ResponseEntity<ApiResponse> updateOptIn(@RequestParam(value = "id", required = true) Integer studentId[],
@@ -188,7 +174,6 @@ public class StudentController {
 
     /**
      * Used to update print status record which is 'Y' as 'N'
-     * 
      * @return response
      */
     @RequestMapping(value = "/reset-reprint", method = RequestMethod.PATCH)
@@ -202,8 +187,8 @@ public class StudentController {
 
     /**
      * Used to download duplicate data CSV
-     * 
-     * @return response
+     * @param MultipartFile
+     * @param response
      */
     @RequestMapping(method = RequestMethod.GET, value = "/download-duplicate", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<InputStreamResource> findDuplicate(
@@ -227,6 +212,8 @@ public class StudentController {
 
     /**
      * Used to send SMS to absent student
+     * @param day
+     * @return response
      */
     @RequestMapping(value = "/absents/sms", method = RequestMethod.POST)
     public ResponseEntity<ApiResponse> sendSMSToAbsentStudent(@RequestBody Day day) {
@@ -244,7 +231,7 @@ public class StudentController {
 
     /**
      * Used to update SMS flag
-     * 
+     * @param String
      * @throws IOException
      * @throws JsonProcessingException
      */
@@ -279,7 +266,6 @@ public class StudentController {
 
     /**
      * Used to update records by CSV File
-     * 
      * @param MultipartFile
      * @return response
      */
