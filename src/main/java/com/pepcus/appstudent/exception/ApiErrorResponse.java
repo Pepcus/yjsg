@@ -12,9 +12,9 @@ import lombok.Data;
 @Data
 public class ApiErrorResponse {
 
-	private String error;
-	private int status;
-	private String url;
-	private String message;
+    private String error;
+    private int status;
+    private String url;
+    private String message;
 
 }

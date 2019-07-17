@@ -19,35 +19,32 @@ import lombok.Data;
 
 /**
  * Specification specific to Student
- * 
  * @author Shubham Solanki
  * @since 2018-18-04
  *
  */
 @Data
-public class EntitySearchSpecification<T extends Student> implements Specification<T>{
+public class EntitySearchSpecification<T extends Student> implements Specification<T> {
 
     private Map<String, String> searchParameters;
-    private T t ;
+    private T t;
 
     /**
-     * Constructor to create Specification specific to Student 
-     * 
+     * Constructor to create Specification specific to Student
      * @param searchSpec
      * @param entity
      */
     public EntitySearchSpecification(T entity) {
         super();
-        this.t =  entity;
+        this.t = entity;
     }
 
     /**
-     * Constructor to create Specification specific to Student 
-     * 
+     * Constructor to create Specification specific to Student
      * @param searchParams
      * @param entity
      */
-    public EntitySearchSpecification (Map<String, String> searchParams, T entity) {
+    public EntitySearchSpecification(Map<String, String> searchParams, T entity) {
         super();
         this.searchParameters = searchParams;
         this.t = entity;
@@ -69,28 +66,27 @@ public class EntitySearchSpecification<T extends Student> implements Specificati
     }
 
     /**
-     * 
      * @param from
      * @param criteriaBuilder
      * @param requestParameters
-     * @return
+     * @return filterPredicate
      */
-    private Predicate createPredicate(Root<T> from,
-            CriteriaBuilder criteriaBuilder, Map<String, String> requestParameters) {
-        
+    private Predicate createPredicate(Root<T> from, CriteriaBuilder criteriaBuilder,
+            Map<String, String> requestParameters) {
+
         Predicate filterPredicate = criteriaBuilder.conjunction();
-        requestParameters.entrySet().forEach( searchParam -> { 
+        requestParameters.entrySet().forEach(searchParam -> {
             if (isStringField(t.getClass(), searchParam.getKey())) {
-            	if (searchParam.getKey().equals("mobile")) {
-            		filterPredicate.getExpressions().
-                    add(criteriaBuilder.equal(from.get(searchParam.getKey()), searchParam.getValue()));
-            	} else {
-            		filterPredicate.getExpressions().
-                    add(criteriaBuilder.like(from.get(searchParam.getKey()), "%" + searchParam.getValue() + "%"));
-				}
+                if (searchParam.getKey().equals("mobile")) {
+                    filterPredicate.getExpressions()
+                            .add(criteriaBuilder.equal(from.get(searchParam.getKey()), searchParam.getValue()));
+                } else {
+                    filterPredicate.getExpressions().add(
+                            criteriaBuilder.like(from.get(searchParam.getKey()), "%" + searchParam.getValue() + "%"));
+                }
             } else {
-                filterPredicate.getExpressions().
-                add(criteriaBuilder.equal(from.get(searchParam.getKey()), searchParam.getValue())); 
+                filterPredicate.getExpressions()
+                        .add(criteriaBuilder.equal(from.get(searchParam.getKey()), searchParam.getValue()));
             }
         });
         return filterPredicate;

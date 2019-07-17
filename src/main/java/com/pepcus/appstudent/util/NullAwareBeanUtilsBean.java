@@ -6,6 +6,9 @@ import java.util.Set;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import com.pepcus.appstudent.entity.Student;
 
+/**
+ * check for invalid data list
+ */
 public class NullAwareBeanUtilsBean extends BeanUtilsBean{
 
     public Set<Integer> invalidDataList = new LinkedHashSet<Integer>();

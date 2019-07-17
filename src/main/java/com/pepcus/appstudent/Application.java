@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 
 /**
- * 
+ * Application start class
  * @author Shubham Solanki
  * @since 12-02-2018
  *
@@ -15,7 +15,7 @@ import org.springframework.cache.annotation.EnableCaching;
 public class Application {
 
     /**
-     * 
+     * Its main method to bootstrap the application
      * @param args
      */
     public static void main(String[] args) {

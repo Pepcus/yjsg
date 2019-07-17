@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Global exception handler for all APIs
- * 
  * @author Shubham Solanki
  * @since 12-02-2018
- *
  */
 @ControllerAdvice
 @RestController
@@ -22,10 +20,9 @@ public class ApiExceptionHandler {
 
 	/**
 	 * Method used to handle {@link BadRequestException}
-	 * 
 	 * @param req
 	 * @param ex
-	 * @return
+	 * @return response
 	 */
 	@ExceptionHandler({ BadRequestException.class })
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -41,10 +38,9 @@ public class ApiExceptionHandler {
 	
 	/**
 	 * Method used to handle {@link AuthorizationFailedException}
-	 * 
 	 * @param req
 	 * @param ex
-	 * @return
+	 * @return response
 	 */
 	@ExceptionHandler({ AuthorizationFailedException.class })
 	@ResponseStatus(HttpStatus.UNAUTHORIZED)

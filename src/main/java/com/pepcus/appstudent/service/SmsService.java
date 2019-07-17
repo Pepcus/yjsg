@@ -43,7 +43,9 @@ import com.pepcus.appstudent.repository.SmsRepository;
 import com.pepcus.appstudent.response.ApiResponse;
 import com.pepcus.appstudent.util.ApplicationConstants;
 import com.pepcus.appstudent.util.SMSUtil;
-
+/**
+ * Provides a collection of all services related with SMS type
+ */
 @Service
 public class SmsService {
 
@@ -52,28 +54,28 @@ public class SmsService {
 
     @Value("${com.pepcus.appstudent.day1}")
     private String day_1;
-    
+
     @Value("${com.pepcus.appstudent.day2}")
     private String day_2;
-    
+
     @Value("${com.pepcus.appstudent.day3}")
     private String day_3;
-    
+
     @Value("${com.pepcus.appstudent.day4}")
     private String day_4;
-    
+
     @Value("${com.pepcus.appstudent.day5}")
     private String day_5;
-    
+
     @Value("${com.pepcus.appstudent.day6}")
     private String day_6;
-    
+
     @Value("${com.pepcus.appstudent.day7}")
     private String day_7;
-    
+
     @Value("${com.pepcus.appstudent.day8}")
     private String day_8;
-    
+
     @Autowired
     private SmsRepository SMSRepository;
 
@@ -84,10 +86,10 @@ public class SmsService {
 
     /**
      * Method to Send SMS for OptiIn or attendance activity
-     * 
      * @param studentList
      * @param activity
      * @param day
+     * @return response
      */
 
     public ApiResponse sendBulkSMS(List<Student> studentList, String activity, Integer day) {
@@ -114,6 +116,8 @@ public class SmsService {
     /**
      * Method to get List of Students who is Opted In 2019 and who is not
      * present on particular day
+     * @param day
+     * @return student list
      */
     private List<Student> getAbsentStudents(String day) {
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
@@ -134,7 +138,7 @@ public class SmsService {
     /**
      * Method to get map<day,date>
      */
-    private  Map<Integer, String> getDateMap() {
+    private Map<Integer, String> getDateMap() {
         Map<Integer, String> map = new HashMap<Integer, String>();
         map.put(1, day_1);
         map.put(2, day_2);
@@ -150,7 +154,7 @@ public class SmsService {
     /**
      * Method to get map<day no.,day1..day2>
      */
-    private  Map<Integer, String> getDayMap() {
+    private Map<Integer, String> getDayMap() {
         Map<Integer, String> map = new HashMap<Integer, String>();
         map.put(1, "day1");
         map.put(2, "day2");
@@ -165,7 +169,6 @@ public class SmsService {
 
     /**
      * Method to Send SMS to students who are opted out for 2019 season
-     * 
      * @param studentList
      */
     public void sendOptOutSMS(List<Student> studentList) {
@@ -192,7 +195,6 @@ public class SmsService {
 
     /**
      * Method to Send SMS to students who are opted in for 2019 season
-     * 
      * @param studentList
      */
     public void sendOptInSMS(List<Student> studentList) {
@@ -219,7 +221,6 @@ public class SmsService {
 
     /**
      * Method to Send SMS to students who are present on particular day
-     * 
      * @param studentList
      * @param day
      */
@@ -253,13 +254,12 @@ public class SmsService {
 
     /**
      * Method to Send SMS to students who are absent on particular day
-     * 
      * @param day
      */
     private void sendSMSToAbsentStudents(Integer day) {
         logger.info("##### ######### sendSMSToAbsentStudents method invoked  ######### #####");
-        String mapDay = getDayMap().get(day); 
-        if(Objects.isNull(mapDay)){
+        String mapDay = getDayMap().get(day);
+        if (Objects.isNull(mapDay)) {
             throw new BadRequestException(ApplicationConstants.DAY_INVALID);
         }
         String mapDate = getDateMap().get(day);
@@ -290,7 +290,6 @@ public class SmsService {
 
     /**
      * Method used to update SMS Flag
-     * 
      * @param smsFlagsList
      */
     @CacheEvict(cacheNames = "flagcache", allEntries = true)
@@ -301,9 +300,8 @@ public class SmsService {
 
     /**
      * Method used to check whether flag exists or not
-     * 
      * @param flagName
-     * @return
+     * @return SMSFlags
      */
     public SMSFlags validateFlag(String flagName) {
         SMSFlags flag = SMSRepository.findByflagName(flagName);
@@ -315,7 +313,6 @@ public class SmsService {
 
     /**
      * Method used to check whether flag is turned on or off
-     * 
      * @param flagName
      * @return boolean
      */
@@ -328,7 +325,6 @@ public class SmsService {
 
     /**
      * Method used to get All flags
-     * 
      * @return smsFlagList
      */
     @Cacheable("flagcache")

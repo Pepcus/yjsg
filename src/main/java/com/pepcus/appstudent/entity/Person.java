@@ -20,6 +20,9 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import lombok.Data;
 
+/**
+ * Entity class used to map table in DB
+ */
 @Entity
 @Table(name = "person")
 @Data

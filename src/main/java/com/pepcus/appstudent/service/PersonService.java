@@ -16,7 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.pepcus.appstudent.entity.Person;
 import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.repository.PersonRepository;
-
+/**
+ * Provides a collection of all services related with Person type
+ */
 @Service
 public class PersonService {
 
@@ -28,9 +30,8 @@ public class PersonService {
 
     /**
      * Method to create person record
-     * 
      * @param person
-     * @return
+     * @return person
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public Person createPerson(Person person) {
@@ -45,7 +46,6 @@ public class PersonService {
 
     /**
      * Method to get a person record
-     * 
      * @param studentid
      * @return savedPerson
      */
@@ -60,9 +60,8 @@ public class PersonService {
         return savedPerson;
     }
 
-
     /**
-     * Method to validate person,whether person with the given id exist or not 
+     * Method to validate person,whether person with the given id exist or not
      * @param personid
      * @return person
      */
