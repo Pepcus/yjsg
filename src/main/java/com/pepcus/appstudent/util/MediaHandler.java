@@ -5,6 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+/**
+ *  Interface to have method to upload/remove/download media on media-server
+ * 
+ * @author Sandeep.Vishwakarma
+ * @since 05-02-2020
+ *
+ */
 public interface MediaHandler {
 
 	public void init();

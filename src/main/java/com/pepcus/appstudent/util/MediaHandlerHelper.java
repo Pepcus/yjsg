@@ -5,12 +5,19 @@ import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
+
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 
 import lombok.extern.log4j.Log4j;
 
+/**
+ * Helper class to upload/remove/download media on media-server 
+ * 
+ * @author Sandeep.Vishwakarma
+ * @since 05-02-2020
+ *
+ */
 @Log4j
 public class MediaHandlerHelper {
 
@@ -109,26 +116,5 @@ public class MediaHandlerHelper {
 		return isDeleteSuccess;
 	}
 
-	public static List<String> uploadFileList(MediaHandler mediaSaver, String bucketName, String mediaKey,
-			List<File> files) {
-		List<String> fileDescriptions = null;
-		try {
-			fileDescriptions = mediaSaver.uploadFiles(bucketName, mediaKey, files);
-			log.info("{} account statements successfully uploaded on s3bucket" + fileDescriptions.size());
-		} catch (AmazonServiceException ase) {
-			log.error("Caught an AmazonServiceException : Request rejected with an error response for some reason.",
-					ase);
-			log.error("Error Message: " + ase.getMessage());
-		} catch (AmazonClientException ace) {
-			log.error("Caught an AmazonClientException, Problem to communicate with S3.", ace);
-			// getMessage(), override method, will return serviceName, Status
-			// Code, Error Code, Request Id
-			log.error("Error Message: " + ace.getMessage());
-		} catch (Exception e) {
-			log.error("Error in uploading file on bucket : " + bucketName);
-			log.error(e);
-		}
-		return fileDescriptions;
-	}
 
 }

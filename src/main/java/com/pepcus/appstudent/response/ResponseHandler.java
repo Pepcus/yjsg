@@ -30,7 +30,9 @@ import com.pepcus.appstudent.exception.ApiErrorResponse;
  * @since 12-02-2018
  *
  */
-@ControllerAdvice("com.pepcus.appstudent.controller")
+
+@ControllerAdvice(basePackages = { "com.pepcus.appstudent.controller.StudentController",
+		"com.pepcus.appstudent.controller.PersonController" })
 public class ResponseHandler implements ResponseBodyAdvice<Object> {
 
     /**
@@ -107,7 +109,7 @@ public class ResponseHandler implements ResponseBodyAdvice<Object> {
         }
 
         if (httpRequest.getMethod().equals(HttpMethod.GET)) {
-            if (body instanceof Student) {
+        	 if (body instanceof Student) {
                 apiResponse.setStudent((Student) body);
             } else if (((List) body).get(0) instanceof Student) {
                 if ((List) body == null || ((List) body).isEmpty()) {

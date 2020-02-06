@@ -24,7 +24,7 @@ import lombok.Data;
  * Entity class used to map table in DB
  * 
  * @author Sandeep Vishwakarma
- * @since 30-01-2020
+ * @since 05-02-2020
  *
  */
 @Entity

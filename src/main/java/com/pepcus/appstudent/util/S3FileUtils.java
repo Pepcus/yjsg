@@ -19,7 +19,10 @@ import com.pepcus.appstudent.exception.ApplicationException;
 import lombok.extern.log4j.Log4j;
 
 /**
- * @author Surabhi Bhawsar
+ * Utility class to load/remove/upload class on media server 
+ * 
+ * @author Sandeep.Vishwakarma
+ * @since 05-02-2020
  *
  */
 @Component

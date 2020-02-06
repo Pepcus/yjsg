@@ -9,7 +9,7 @@ import com.pepcus.appstudent.entity.Document;
  * Repository for document entity
  * 
  * @author Sandeep Vishwakarma
- * @since 30-01-2020
+ * @since 05-02-2020
  *
  */
 public interface DocumentRepository extends JpaRepository<Document, Integer>, JpaSpecificationExecutor<Document> {

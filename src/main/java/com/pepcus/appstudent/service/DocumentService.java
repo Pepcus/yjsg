@@ -54,6 +54,15 @@ public class DocumentService {
 	@Autowired
 	S3FileUtils s3FileUtils;
 
+	/**
+	 * Method to upload document
+	 * @param id
+	 * @param displayName
+	 * @param rank
+	 * @param file
+	 * @return
+	 * @throws Exception
+	 */
 	public Document uploadDocument(Integer id, String displayName, Integer rank, MultipartFile file) throws Exception {
 		Document documentEntity = (id != null) ? getDocumentEntity(id) : null;
 		documentEntity = (documentEntity == null) ? DocumentEntityConvertor.convertToDocumentEntity(displayName, rank)
@@ -63,11 +72,22 @@ public class DocumentService {
 		return documentEntity;
 	}
 
+	/**
+	 * Method to persist document entity
+	 * @param documentEntity
+	 */
 	@Transactional
 	public void persistDocumentEntity(Document documentEntity) {
 		documentRepository.save(documentEntity);
 	}
 
+	/**
+	 * Method to upload document on S3 server
+	 * @param documentEntity
+	 * @param multipartFile
+	 * @return
+	 * @throws IOException
+	 */
 	private Document uploadDocuments(Document documentEntity, MultipartFile multipartFile) throws IOException {
 		// Get file from media server
 		String fileName = multipartFile.getOriginalFilename();
@@ -87,10 +107,19 @@ public class DocumentService {
 		return documentEntity;
 	}
 
+	/**
+	 * Method to fetch all document from database
+	 * @return
+	 */
 	public List<Document> getDocumentsList() {
 		return DocumentEntityConvertor.setDateInDocumentEntityList(documentRepository.findAll());
 	}
 
+	/**
+	 * Method to get document for given documentId
+	 * @param documentId
+	 * @return
+	 */
 	public Document getDocumentEntity(Integer documentId) {
 		Document documentEntity = documentRepository.findOne(documentId);
 		if (null == documentEntity) {
@@ -100,6 +129,11 @@ public class DocumentService {
 
 	}
 
+	/**
+	 * Method to delete document reference from DB and also remove document file from S3 server
+	 * @param documentId
+	 * @return
+	 */
 	public boolean deleteDocument(Integer documentId) {
 		Document documentEntity = getDocumentEntity(documentId);
 		String fileName = FileUtil.getFileNameFromUrl(documentEntity.getUrl());
@@ -111,6 +145,12 @@ public class DocumentService {
 		return isDocumentDelete;
 	}
 
+	/**
+	 * Method to fetch document file from S3 server and make available for download for given documentId
+	 * @param documentId
+	 * @return
+	 * @throws Exception
+	 */
 	public ResponseEntity<InputStreamResource> downloadDocument(Integer documentId) throws Exception {
 		Document documentEntity = getDocumentEntity(documentId);
 

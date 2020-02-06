@@ -29,6 +29,13 @@ import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 
+/**
+ * Class to upload/remove/download media on S3 media-server 
+ * 
+ * @author Sandeep.Vishwakarma
+ * @since 05-02-2020
+ *
+ */
 @Component
 public class S3FileHandler implements MediaHandler {
 

@@ -2426,5 +2426,21 @@ ALTER TABLE `student` ADD COLUMN `bus_num` varchar(20) AFTER `bus_stop`;
 
 ALTER TABLE `student` ADD COLUMN `class_room_no_2018` int AFTER `marks_2017`;
 
+/*Table structure for table `document` */
+
+DROP TABLE IF EXISTS `document`;
+
+CREATE TABLE `document` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `display_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `document_rank` int(11) DEFAULT NULL,
+   `document_url` varchar(2056) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+   `document_uploaded_date` date DEFAULT NULL,
+   `created_date` date DEFAULT NULL,
+   `last_modified_date` date DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
