@@ -336,4 +336,27 @@ public class SmsService {
         List<SMSFlags> smsFlagList = SMSRepository.findAll();
         return smsFlagList;
     }
+    
+	public void sendAlreadyRegisterSMS(Student student) {
+		logger.info("##### ######### sendAlreadyRegisterSMS method invoked  ######### #####");
+		Map<String, String> queryParamMap = new HashMap<String, String>();
+
+		String numbers = student.getMobile();
+		try {
+			queryParamMap.put("number", numbers);
+			if (!StringUtils.isEmpty(numbers) && student.getOptIn2020().equalsIgnoreCase("Y")) {
+				String message = ApplicationConstants.ALREADY_REGISTER_SMS.replace("{{name}}", student.getName());
+				message = message.replace("{{studentid}}", String.valueOf(student.getId()));
+				message = message.replace("<ID>", String.valueOf(student.getId()));
+				message = message.replace("<Code>",
+						StringUtils.isEmpty(student.getSecretKey()) ? "<Code>" : student.getSecretKey());
+				queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
+				SMSUtil.invokeSendSMSAPI(queryParamMap);
+			}
+		} catch (IOException | GeneralSecurityException e) {
+			logger.info("Exception: inside sendAlreadyRegisterSMS method ", e);
+			throw new BadRequestException("Unable to send the SMS to the user" + student.getId());
+		}
+
+	}
 }

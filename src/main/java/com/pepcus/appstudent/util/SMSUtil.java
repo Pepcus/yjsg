@@ -169,4 +169,28 @@ public class SMSUtil {
         }
 
     }
+    
+    public static void sendSMSForDuplicateRegistrationToStudent(Student student, String adminNumber) {
+        Map<String, String> queryParamMap = new HashMap<String, String>();
+
+        try {
+            String numbers = student.getMobile();
+            if (!"".equals(numbers)) {
+                String message = ApplicationConstants.ALREADY_REGISTER_SMS_TO_ADMIN.replace("{{name}}", student.getName());
+                message = message.replace("{{studentid}}", String.valueOf(student.getId()));
+
+                queryParamMap.put("number", adminNumber);
+                queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
+                try {
+                    invokeSendSMSAPI(queryParamMap);
+                } catch (Exception e) {
+                    throw new BadRequestException("Unable to send the SMS to the user" + student.getId());
+                }
+            }
+
+        } catch (Exception e) {
+            throw new BadRequestException("Unable to send the SMS to the user" + e.getMessage());
+        }
+
+    }
 }

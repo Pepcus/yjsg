@@ -38,8 +38,6 @@ public class ApplicationConstants {
   public static final String IS_ABSENT = "isabsent";
   public static final String OPTOUT = "optout";
   public static final String WELCOME_SMS="Dear {{name}}, We have received your registration for 'Jain Bal & Yuva Sanskar Sikshan Shivir' in Shri Digambar Jain H.S. School from 9 June to 16 June, 2019. Your ID number is {{studentid}}. Thanks! YJSG Group.";
-  public static final String ALREADY_REGISTER_SMS = "Dear {{name}}, We are already register for 'Jain Bal & Yuva Sanskar Sikshan Shivir' in Shri Digambar Jain H.S. School from 9 June to 16 June, 2019. Your ID number is {{studentid}}. Thanks! YJSG Group.";
-  public static final String ALREADY_REGISTER_SMS_TO_ADMIN = "Student {{name}}, looking like already register for 'Jain Bal & Yuva Sanskar Sikshan Shivir' in Shri Digambar Jain H.S. School from 9 June to 16 June, 2019. with ID number {{studentid}}. Thanks! YJSG Group.";
   public static final String SMS_CREATE="smsCreate";
   public static final String SMS_OPTIN="smsOptIn";
   public static final String SMS_OPTOUT="smsOptOut";
@@ -82,6 +80,9 @@ public class ApplicationConstants {
   public static final String MOBILE="mobile";
   public static final String ID="id";
   public static final String NULL="NULL";
-  public static final String PARTIAL_DUPLICATE = "Its look like you already register, Admin will contact with you soon.";
-  public static final String EXACT_DUPLICATE = "You are already register.";
+  public static final String ALREADY_REGISTER_SMS = "Dear {{name}} (ID # {{studentid}}), We already have your registration. You can check it from the link given below! https://yjsg.in/reg?id=<ID>&secretCode=<Code>. Thanks! YJSG Group.";
+  public static final String ALREADY_REGISTER_SMS_TO_ADMIN = "Student {{name}}, looks like already register for 'Jain Bal & Yuva Sanskar Sikshan Shivir' in Shri Digambar Jain H.S. School from 9 June to 16 June, 2019. with ID number {{studentid}}. Thanks! YJSG Group.";
+  public static final String PARTIAL_DUPLICATE_SMS = "We probably already have your registration! We will contact you on SMS soon. You can also contact YJSG Helpline at (7447-0-56789). Thanks! YJSG Group.";
+  public static final String PARTIAL_DUPLICATE = "We probably already have your registration! We will contact you on SMS soon. You can also contact YJSG Helpline at (7447-0-56789)";
+  public static final String EXACT_DUPLICATE = "We already have your registration.";
 }

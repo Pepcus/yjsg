@@ -130,10 +130,9 @@ public class StudentService {
      * @param student
      * @return
      */
-    @Transactional(propagation = Propagation.REQUIRED)
     public Student createStudent(Student student) {
     	Student savedStudent = null;
-    	Student duplicateStudent = null;
+    	
         Date currentDate = Calendar.getInstance().getTime();
         student.setDateCreatedInDB(currentDate);
         student.setDateLastModifiedInDB(currentDate);
@@ -141,7 +140,7 @@ public class StudentService {
         // Generate secretKey for student
         String secretKey = generateSecretKey();
         student.setSecretKey(secretKey);
-		duplicateStudent = student.getIsAllowDuplicate() ? null : validateDuplicateStudent(student);
+        Student duplicateStudent = student.isAllowDuplicate() ? null : validateDuplicateStudent(student);
         
         if (duplicateStudent != null) {
 			// update optin if duplicate
@@ -149,16 +148,18 @@ public class StudentService {
 				savedStudent = studentRepository.save(duplicateStudent);
 			} else {
 				DuplicateRegistration duplicateRegistration = getDuplicateRegistrationEntity(student, duplicateStudent);
-				duplicateRegistrationRepository.save(duplicateRegistration);
+				duplicateRegistration = duplicateRegistrationRepository.save(duplicateRegistration);
 				if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
 					SMSUtil.sendSMSForDuplicateRegistrationToAdmin(duplicateStudent, adminContact);
 				}
+				
 				throw new BadRequestException(ApplicationConstants.PARTIAL_DUPLICATE);
 			}
 		} else {
         	savedStudent = studentRepository.save(student);
         }
-		if (savedStudent != null) {
+        
+		
 
 			savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
 			savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateCreatedInDB()));
@@ -166,18 +167,13 @@ public class StudentService {
 			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
 				SMSUtil.sendSMS(savedStudent);
 			}
-			// This is required otherwise insertable=false field (remark) is not
-			// synced with
-			// database when remark field is passed in payload .
-			em.flush();
-			em.refresh(savedStudent);
 			if (duplicateStudent != null) {
 				if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
-					smsService.sendOptInSMS(Arrays.asList(duplicateStudent));
+					smsService.sendAlreadyRegisterSMS(duplicateStudent);
 				}
 				throw new BadRequestException(ApplicationConstants.EXACT_DUPLICATE);
 			}
-		}
+		
         return savedStudent;
     }
 
@@ -804,11 +800,16 @@ public class StudentService {
     }
     
 	private Student validateDuplicateStudent(Student student) {
+		Student duplicateStudent = null;
 		String studentName = student.getName().toLowerCase();
 		String fatherName = student.getFatherName().toLowerCase();
 		String fatherMobileNumber = student.getMobile();
-		Student duplicateStudent = null;
 		List<Student> students = null;
+		
+		String compressStudentName = studentName.replaceAll("[aeiou]", "");
+		String compressFatherName = fatherName.replaceAll("[aeiou]", "");
+		String studentNameForSearch = studentName.replaceAll("[aeiou]", "%");
+		String fatherNameForsearch = fatherName.replaceAll("[aeiou]", "%");
 		// get 10 digit phone number
 		if (student.getMobile() != null && student.getMobile().length() > 10) {
 			int length = fatherMobileNumber.length();
@@ -816,53 +817,47 @@ public class StudentService {
 			fatherMobileNumber = "%" + fatherMobileNumber.substring(extraNumberCount);
 		}
 		// check for exactly match
-		students = studentRepository
-				.findAll(StudentSpecification.getStudents(studentName, fatherName, fatherMobileNumber));
-		if (CollectionUtils.isNotEmpty(students)) {
-			duplicateStudent = students.stream().findFirst().get();
-			duplicateStudent.setOptIn2020("Y");
-			return duplicateStudent;
+		students = getStudentsByFilterAttributes(studentName, fatherName, fatherMobileNumber);
+		if(CollectionUtils.isNotEmpty(students)) {
+			return getDuplicateStudent(students);
 		}
-		// check if fatherMobileNumber match
-		students = studentRepository.findAll(StudentSpecification.getStudents(null, null, fatherMobileNumber));
-		if (CollectionUtils.isNotEmpty(students)) {
-			for (Student studentDB : students) {
-				if (studentDB.getName().toLowerCase().contains(studentName)
-						|| studentName.contains(studentDB.getName().toLowerCase())) {
-					duplicateStudent = studentDB;
-					duplicateStudent.setOptIn2020("Y");
-					return duplicateStudent;
-				} else {
-					String compressStudentNameDB = studentDB.getName().toLowerCase().replaceAll("[aeiou]", "");
-					String compressStudentName = studentName.replaceAll("[aeiou]", "");
-					if (compressStudentNameDB.toLowerCase().contains(compressStudentName)
-							|| compressStudentName.contains(compressStudentNameDB.toLowerCase())) {
-						duplicateStudent = studentDB;
-						duplicateStudent.setOptIn2020("Y");
-						return duplicateStudent;
-					}
-				}
+		
+		students = getStudentsByFilterAttributes(studentNameForSearch, null, fatherMobileNumber);
+		if(CollectionUtils.isNotEmpty(students)) {
+			student = students.stream().findFirst().get();
+			String compressStudentNameDB = student.getName().toLowerCase().replaceAll("[aeiou]", "");
+			if(compressStudentNameDB.toLowerCase().contains(compressStudentName)
+					|| compressStudentName.contains(compressStudentNameDB.toLowerCase())) {//check after remove vowels
+				return getDuplicateStudent(students);
 			}
 		}
-		// check partial match
-		String fatherNameForsearch = fatherName.replaceAll("[aeiou]", "%");
-		students = studentRepository.findAll(StudentSpecification.getStudents(null, fatherNameForsearch, null));
-		if (CollectionUtils.isNotEmpty(students)) {
-			for (Student studentDB : students) {
-				String compressFatherNameDB = studentDB.getFatherName().toLowerCase().replaceAll("[aeiou]", "");
-				String compressFatherName = fatherName.replaceAll("[aeiou]", "");
-				String compressStudentNameDB = studentDB.getName().toLowerCase().replaceAll("[aeiou]", "");
-				String compressStudentName = studentName.replaceAll("[aeiou]", "");
-				if ((compressFatherNameDB.toLowerCase().contains(compressFatherName)
-						|| compressFatherName.contains(compressFatherNameDB.toLowerCase())) && (compressStudentNameDB.toLowerCase().contains(compressStudentName)
-								|| compressStudentName.contains(compressStudentNameDB.toLowerCase()))) {
-					duplicateStudent = studentDB;
-					duplicateStudent.setOptIn2020("N");
-					return duplicateStudent;
-				}
-			}
 
+		// check partial match
+		students = getStudentsByFilterAttributes(studentNameForSearch, fatherNameForsearch, null);
+		if (CollectionUtils.isNotEmpty(students)) {
+			student = students.stream().findFirst().get();
+			String compressFatherNameDB = student.getFatherName().toLowerCase().replaceAll("[aeiou]", "");
+			String compressStudentNameDB = student.getName().toLowerCase().replaceAll("[aeiou]", "");
+			if((compressFatherNameDB.toLowerCase().contains(compressFatherName)
+					|| compressFatherName.contains(compressFatherNameDB.toLowerCase())) && (compressStudentNameDB.toLowerCase().contains(compressStudentName)
+							|| compressStudentName.contains(compressStudentNameDB.toLowerCase()))) {
+				duplicateStudent = getDuplicateStudent(students);
+				duplicateStudent.setOptIn2020("N");
+				return duplicateStudent;
+			}
+			
 		}
 		return duplicateStudent;
+	}
+	
+	private List<Student> getStudentsByFilterAttributes(String studentName, String fatherName, String fatherMobileNumber) {
+		return studentRepository
+				.findAll(StudentSpecification.getStudents(studentName, fatherName, fatherMobileNumber));
+	}
+	
+	private static Student getDuplicateStudent(List<Student> students) {
+		Student student = students.stream().findFirst().get();
+		student.setOptIn2020("Y");
+		return student;
 	}
 }

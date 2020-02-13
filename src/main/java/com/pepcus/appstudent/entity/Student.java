@@ -88,7 +88,7 @@ public class Student {
     @Column(name = "printStatus")
     private String printStatus;
 
-    @Column(name = "remark", insertable = false)
+    @Column(name = "remark")
     private String remark;
 
     @Column(name = "secret_key")
@@ -208,6 +208,6 @@ public class Student {
     
     @Transient
     @JsonProperty(access = Access.READ_ONLY)
-    private Boolean isAllowDuplicate;
+    private boolean isAllowDuplicate;
 
 }
