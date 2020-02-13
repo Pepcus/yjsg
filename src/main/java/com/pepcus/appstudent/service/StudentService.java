@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -32,6 +33,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -42,12 +44,15 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.pepcus.appstudent.entity.DuplicateRegistration;
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.entity.StudentWrapper;
 import com.pepcus.appstudent.exception.ApplicationException;
 import com.pepcus.appstudent.exception.BadRequestException;
+import com.pepcus.appstudent.repository.DuplicateRegistrationRepository;
 import com.pepcus.appstudent.repository.StudentRepository;
 import com.pepcus.appstudent.response.ApiResponse;
+import com.pepcus.appstudent.specifications.StudentSpecification;
 import com.pepcus.appstudent.util.ApplicationConstants;
 import com.pepcus.appstudent.util.FileImportUtil;
 import com.pepcus.appstudent.util.NullAwareBeanUtilsBean;
@@ -67,12 +72,18 @@ public class StudentService {
 
     @Autowired
     private StudentRepository studentRepository;
+    
+    @Autowired
+    private DuplicateRegistrationRepository duplicateRegistrationRepository;
 
     @Autowired
     private SmsService smsService;
 
     @PersistenceContext
     private EntityManager em;
+    
+    @Value("${admin.contact}")
+    private String adminContact;
 
     /**
      * Method to get student details
@@ -121,6 +132,8 @@ public class StudentService {
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public Student createStudent(Student student) {
+    	Student savedStudent = null;
+    	Student duplicateStudent = null;
         Date currentDate = Calendar.getInstance().getTime();
         student.setDateCreatedInDB(currentDate);
         student.setDateLastModifiedInDB(currentDate);
@@ -128,26 +141,60 @@ public class StudentService {
         // Generate secretKey for student
         String secretKey = generateSecretKey();
         student.setSecretKey(secretKey);
-
-        Student savedStudent = studentRepository.save(student);
-
-        savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
-        savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateCreatedInDB()));
-
-        // send SMS only if SendSMS = true
-        if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
-            SMSUtil.sendSMS(savedStudent);
+		duplicateStudent = student.getIsAllowDuplicate() ? null : validateDuplicateStudent(student);
+        
+        if (duplicateStudent != null) {
+			// update optin if duplicate
+			if (duplicateStudent.getOptIn2020().equals("Y")) {
+				savedStudent = studentRepository.save(duplicateStudent);
+			} else {
+				DuplicateRegistration duplicateRegistration = getDuplicateRegistrationEntity(student, duplicateStudent);
+				duplicateRegistrationRepository.save(duplicateRegistration);
+				if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
+					SMSUtil.sendSMSForDuplicateRegistrationToAdmin(duplicateStudent, adminContact);
+				}
+				throw new BadRequestException(ApplicationConstants.PARTIAL_DUPLICATE);
+			}
+		} else {
+        	savedStudent = studentRepository.save(student);
         }
-        // This is required otherwise insertable=false field (remark) is not
-        // synced with
-        // database when remark field is passed in payload .
-        em.flush();
-        em.refresh(savedStudent);
+		if (savedStudent != null) {
 
+			savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
+			savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateCreatedInDB()));
+			// send SMS only if SendSMS = true
+			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
+				SMSUtil.sendSMS(savedStudent);
+			}
+			// This is required otherwise insertable=false field (remark) is not
+			// synced with
+			// database when remark field is passed in payload .
+			em.flush();
+			em.refresh(savedStudent);
+			if (duplicateStudent != null) {
+				if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
+					smsService.sendOptInSMS(Arrays.asList(duplicateStudent));
+				}
+				throw new BadRequestException(ApplicationConstants.EXACT_DUPLICATE);
+			}
+		}
         return savedStudent;
     }
 
-    /**
+	private DuplicateRegistration getDuplicateRegistrationEntity(Student student, Student duplicateStudent) {
+		DuplicateRegistration duplicateRegistration = new DuplicateRegistration();
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			String studentJsonString = objectMapper.writeValueAsString(student);
+			duplicateRegistration.setDuplicateOfStudentId(duplicateStudent.getId());
+			duplicateRegistration.setDuplicateStudentJson(studentJsonString);
+		} catch (JsonProcessingException e) {
+			return null;
+		}
+		return duplicateRegistration;
+	}
+
+	/**
      * Method to generate secretKey for student
      * 
      * @return
@@ -168,7 +215,7 @@ public class StudentService {
      */
     public Student updateStudent(String student, Integer studentId) throws JsonProcessingException, IOException {
         Student std = validateStudent(studentId);
-        String optIn2019 = std.getOptIn2019();
+        String optIn2020 = std.getOptIn2020();
         Student updatedStudent = update(student, std);
         Date currentDate = Calendar.getInstance().getTime();
         List<Student> studentList = new ArrayList<Student>();
@@ -176,15 +223,15 @@ public class StudentService {
         updatedStudent.setDateLastModifiedInDB(currentDate);
 
         Student studentInDB = studentRepository.save(updatedStudent);
-        if (!StringUtils.isEmpty(std.getOptIn2019()) && (optIn2019!=null && !optIn2019.equalsIgnoreCase(updatedStudent.getOptIn2019()))) {
+        if (!StringUtils.isEmpty(std.getOptIn2020()) && (optIn2020!=null && !optIn2020.equalsIgnoreCase(updatedStudent.getOptIn2020()))) {
             if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTIN)) {
-                if (updatedStudent.getOptIn2019().equalsIgnoreCase(ISPRESENT)) {
+                if (updatedStudent.getOptIn2020().equalsIgnoreCase(ISPRESENT)) {
                     studentList.add(updatedStudent);
                     smsService.sendOptInSMS(studentList);
                 }
             }
             if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTOUT)) {
-                if (updatedStudent.getOptIn2019().equalsIgnoreCase(ApplicationConstants.NO)) {
+                if (updatedStudent.getOptIn2020().equalsIgnoreCase(ApplicationConstants.NO)) {
                     studentList.add(updatedStudent);
                     smsService.sendOptOutSMS(studentList);
                 }
@@ -209,13 +256,13 @@ public class StudentService {
     public ApiResponse updateStudentOptin(List<Integer> studentIds, Student student) {
         ApiResponse response = null;
 
-        if (student.getOptIn2019() != null && (student.getOptIn2019().equalsIgnoreCase(ISPRESENT)
-                || student.getOptIn2019().equalsIgnoreCase(ApplicationConstants.NO))) {
+        if (student.getOptIn2020() != null && (student.getOptIn2020().equalsIgnoreCase(ISPRESENT)
+                || student.getOptIn2020().equalsIgnoreCase(ApplicationConstants.NO))) {
             List<Student> studentList = getStudentsList(studentIds);
             Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIds, studentList);
             response = populateResponse(validVsInvalidMap);
             for (Student students : studentList) {
-                students.setOptIn2019(student.getOptIn2019());
+                students.setOptIn2020(student.getOptIn2020());
             }
             studentRepository.save(studentList);
             // Send Opt SMS
@@ -755,4 +802,67 @@ public class StudentService {
         }
         
     }
+    
+	private Student validateDuplicateStudent(Student student) {
+		String studentName = student.getName().toLowerCase();
+		String fatherName = student.getFatherName().toLowerCase();
+		String fatherMobileNumber = student.getMobile();
+		Student duplicateStudent = null;
+		List<Student> students = null;
+		// get 10 digit phone number
+		if (student.getMobile() != null && student.getMobile().length() > 10) {
+			int length = fatherMobileNumber.length();
+			int extraNumberCount = length - 10;
+			fatherMobileNumber = "%" + fatherMobileNumber.substring(extraNumberCount);
+		}
+		// check for exactly match
+		students = studentRepository
+				.findAll(StudentSpecification.getStudents(studentName, fatherName, fatherMobileNumber));
+		if (CollectionUtils.isNotEmpty(students)) {
+			duplicateStudent = students.stream().findFirst().get();
+			duplicateStudent.setOptIn2020("Y");
+			return duplicateStudent;
+		}
+		// check if fatherMobileNumber match
+		students = studentRepository.findAll(StudentSpecification.getStudents(null, null, fatherMobileNumber));
+		if (CollectionUtils.isNotEmpty(students)) {
+			for (Student studentDB : students) {
+				if (studentDB.getName().toLowerCase().contains(studentName)
+						|| studentName.contains(studentDB.getName().toLowerCase())) {
+					duplicateStudent = studentDB;
+					duplicateStudent.setOptIn2020("Y");
+					return duplicateStudent;
+				} else {
+					String compressStudentNameDB = studentDB.getName().toLowerCase().replaceAll("[aeiou]", "");
+					String compressStudentName = studentName.replaceAll("[aeiou]", "");
+					if (compressStudentNameDB.toLowerCase().contains(compressStudentName)
+							|| compressStudentName.contains(compressStudentNameDB.toLowerCase())) {
+						duplicateStudent = studentDB;
+						duplicateStudent.setOptIn2020("Y");
+						return duplicateStudent;
+					}
+				}
+			}
+		}
+		// check partial match
+		String fatherNameForsearch = fatherName.replaceAll("[aeiou]", "%");
+		students = studentRepository.findAll(StudentSpecification.getStudents(null, fatherNameForsearch, null));
+		if (CollectionUtils.isNotEmpty(students)) {
+			for (Student studentDB : students) {
+				String compressFatherNameDB = studentDB.getFatherName().toLowerCase().replaceAll("[aeiou]", "");
+				String compressFatherName = fatherName.replaceAll("[aeiou]", "");
+				String compressStudentNameDB = studentDB.getName().toLowerCase().replaceAll("[aeiou]", "");
+				String compressStudentName = studentName.replaceAll("[aeiou]", "");
+				if ((compressFatherNameDB.toLowerCase().contains(compressFatherName)
+						|| compressFatherName.contains(compressFatherNameDB.toLowerCase())) && (compressStudentNameDB.toLowerCase().contains(compressStudentName)
+								|| compressStudentName.contains(compressStudentNameDB.toLowerCase()))) {
+					duplicateStudent = studentDB;
+					duplicateStudent.setOptIn2020("N");
+					return duplicateStudent;
+				}
+			}
+
+		}
+		return duplicateStudent;
+	}
 }

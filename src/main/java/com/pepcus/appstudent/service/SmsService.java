@@ -112,7 +112,7 @@ public class SmsService {
     }
 
     /**
-     * Method to get List of Students who is Opted In 2019 and who is not
+     * Method to get List of Students who is Opted In 2020 and who is not
      * present on particular day
      */
     private List<Student> getAbsentStudents(String day) {
@@ -121,7 +121,7 @@ public class SmsService {
         Root<Student> root = criteriaQuery.from(Student.class);
         ParameterExpression<String> optInExp = criteriaBuilder.parameter(String.class);
         ParameterExpression<String> dayExp = criteriaBuilder.parameter(String.class);
-        Predicate predicate = criteriaBuilder.and(criteriaBuilder.equal(root.get("optIn2019"), optInExp),
+        Predicate predicate = criteriaBuilder.and(criteriaBuilder.equal(root.get("optIn2020"), optInExp),
                 criteriaBuilder.or(criteriaBuilder.equal(root.get(day), ""), criteriaBuilder.isNull(root.get(day)),
                         criteriaBuilder.equal(root.get(day), dayExp)));
         criteriaQuery.where(predicate);
@@ -164,7 +164,7 @@ public class SmsService {
     }
 
     /**
-     * Method to Send SMS to students who are opted out for 2019 season
+     * Method to Send SMS to students who are opted out for 2020 season
      * 
      * @param studentList
      */
@@ -175,7 +175,7 @@ public class SmsService {
             String numbers = student.getMobile();
             try {
                 queryParamMap.put("number", numbers);
-                if (!StringUtils.isEmpty(numbers) && student.getOptIn2019().equalsIgnoreCase("N")) {
+                if (!StringUtils.isEmpty(numbers) && student.getOptIn2020().equalsIgnoreCase("N")) {
                     String message = OPTOUTMESSAGECONTENT.replace("{{name}}", student.getName());
                     message = message.replace("<ID>", String.valueOf(student.getId()));
                     message = message.replace("<Code>",
@@ -191,7 +191,7 @@ public class SmsService {
     }
 
     /**
-     * Method to Send SMS to students who are opted in for 2019 season
+     * Method to Send SMS to students who are opted in for 2020 season
      * 
      * @param studentList
      */
@@ -202,7 +202,7 @@ public class SmsService {
             String numbers = student.getMobile();
             try {
                 queryParamMap.put("number", numbers);
-                if (!StringUtils.isEmpty(numbers) && student.getOptIn2019().equalsIgnoreCase("Y")) {
+                if (!StringUtils.isEmpty(numbers) && student.getOptIn2020().equalsIgnoreCase("Y")) {
                     String message = OPTINMESSAGECONTENT.replace("{{name}}", student.getName());
                     message = message.replace("<ID>", String.valueOf(student.getId()));
                     message = message.replace("<Code>",
