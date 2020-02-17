@@ -17,6 +17,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pepcus.appstudent.entity.DuplicateRegistration;
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.exception.BadRequestException;
 
@@ -96,21 +97,20 @@ public class SMSUtil {
 
     }
     
-    public static void sendSMSForDuplicateRegistrationToAdmin(Student student, String adminNumber) {
+    public static void sendSMSForDuplicateRegistrationToAdmin(DuplicateRegistration duplicateRegistration, String adminNumber) {
         Map<String, String> queryParamMap = new HashMap<String, String>();
 
         try {
-            String numbers = student.getMobile();
-            if (!"".equals(numbers)) {
-                String message = ApplicationConstants.ALREADY_REGISTER_SMS_TO_ADMIN.replace("{{name}}", student.getName());
-                message = message.replace("{{studentid}}", String.valueOf(student.getId()));
+            if (!"".equals(adminNumber)) {
+                String message = ApplicationConstants.PARTIAL_DUPLICATE_SMS_TO_ADMIN.replace("{{DuplicateRegistrationId}}", duplicateRegistration.getId().toString());
+                message = message.replace("{{studentId}}", String.valueOf(duplicateRegistration.getDuplicateOfStudentId()));
 
                 queryParamMap.put("number", adminNumber);
                 queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
                 try {
                     invokeSendSMSAPI(queryParamMap);
                 } catch (Exception e) {
-                    throw new BadRequestException("Unable to send the SMS to the user" + student.getId());
+                    throw new BadRequestException("Unable to send the SMS to Admin for Duplicate Registration");
                 }
             }
 
@@ -170,16 +170,16 @@ public class SMSUtil {
 
     }
     
-    public static void sendSMSForDuplicateRegistrationToStudent(Student student, String adminNumber) {
+    public static void sendSMSForDuplicateRegistrationToStudent(Student student) {
         Map<String, String> queryParamMap = new HashMap<String, String>();
 
         try {
             String numbers = student.getMobile();
             if (!"".equals(numbers)) {
-                String message = ApplicationConstants.ALREADY_REGISTER_SMS_TO_ADMIN.replace("{{name}}", student.getName());
+                String message = ApplicationConstants.PARTIAL_DUPLICATE_SMS.replace("{{name}}", student.getName());
                 message = message.replace("{{studentid}}", String.valueOf(student.getId()));
 
-                queryParamMap.put("number", adminNumber);
+                queryParamMap.put("number", student.getMobile());
                 queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
                 try {
                     invokeSendSMSAPI(queryParamMap);

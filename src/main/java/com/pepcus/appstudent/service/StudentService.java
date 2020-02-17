@@ -150,7 +150,9 @@ public class StudentService {
 				DuplicateRegistration duplicateRegistration = getDuplicateRegistrationEntity(student, duplicateStudent);
 				duplicateRegistration = duplicateRegistrationRepository.save(duplicateRegistration);
 				if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
-					SMSUtil.sendSMSForDuplicateRegistrationToAdmin(duplicateStudent, adminContact);
+					System.out.println("adminContact"+adminContact);
+					SMSUtil.sendSMSForDuplicateRegistrationToAdmin(duplicateRegistration, adminContact);
+					SMSUtil.sendSMSForDuplicateRegistrationToStudent(student);
 				}
 				
 				throw new BadRequestException(ApplicationConstants.PARTIAL_DUPLICATE_SMS);
@@ -169,9 +171,9 @@ public class StudentService {
 			}
 			if (duplicateStudent != null) {
 				if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
-					smsService.sendAlreadyRegisterSMS(duplicateStudent);
+					smsService.sendAlreadyRegisterSMS(savedStudent);
 				}
-				throw new BadRequestException(ApplicationConstants.EXACT_DUPLICATE+"with Student Id : "+savedStudent.getId()+" and SecretCode : "+savedStudent.getSecretKey());
+				throw new BadRequestException("Dear "+savedStudent.getName()+" (ID # "+savedStudent.getId()+"), "+ApplicationConstants.EXACT_DUPLICATE +"(# "+savedStudent.getMobile()+").");
 			}
 		
         return savedStudent;

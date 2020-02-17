@@ -347,6 +347,7 @@ public class SmsService {
 			if (!StringUtils.isEmpty(numbers) && student.getOptIn2020().equalsIgnoreCase("Y")) {
 				String message = ApplicationConstants.ALREADY_REGISTER_SMS.replace("{{name}}", student.getName());
 				message = message.replace("{{studentid}}", String.valueOf(student.getId()));
+				message = message.replace("{{secretCode}}", String.valueOf(student.getSecretKey()));
 				message = message.replace("<ID>", String.valueOf(student.getId()));
 				message = message.replace("<Code>",
 						StringUtils.isEmpty(student.getSecretKey()) ? "<Code>" : student.getSecretKey());
