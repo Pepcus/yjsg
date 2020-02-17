@@ -33,8 +33,8 @@ import com.pepcus.appstudent.util.S3FileUtils;
 @Service
 public class DocumentService {
 
-	protected static final String TEMP_UPLOAD_URL = DocumentService.class.getClassLoader().getResource("temp_upload")
-			.getPath();
+	@Value("${document_temp_upload_path}")
+	String documentTempUploadPath;
 
 	@Value("${document_bucket}")
 	String documentsBucket;
@@ -94,15 +94,15 @@ public class DocumentService {
 		InputStream inputStream = multipartFile.getInputStream();
 
 		// Upload file at temp location to upload on S3
-		FileUtil.uploadFile(inputStream, TEMP_UPLOAD_URL, fileName);
+		FileUtil.uploadFile(inputStream, documentTempUploadPath, fileName);
 
 		// Upload file on S3
 		String mediaKey = documentFolder;
-		String fileUrl = s3FileUtils.uploadDocument(documentsBucket, mediaKey, TEMP_UPLOAD_URL, fileName, mediaHandler);
+		String fileUrl = s3FileUtils.uploadDocument(documentsBucket, mediaKey, documentTempUploadPath, fileName, mediaHandler);
 		documentEntity.setUrl(fileUrl);
 		FileStream fileStream = MediaHandlerHelper.loadFile(mediaHandler, documentsBucket, mediaKey, fileName);
 		documentEntity.setDocumentUploadedDate(fileStream.getLastModified());
-		s3FileUtils.cleanup(TEMP_UPLOAD_URL, fileName);
+		s3FileUtils.cleanup(documentTempUploadPath, fileName);
 
 		return documentEntity;
 	}
