@@ -150,7 +150,6 @@ public class StudentService {
 				DuplicateRegistration duplicateRegistration = getDuplicateRegistrationEntity(student, duplicateStudent);
 				duplicateRegistration = duplicateRegistrationRepository.save(duplicateRegistration);
 				if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
-					System.out.println("adminContact"+adminContact);
 					SMSUtil.sendSMSForDuplicateRegistrationToAdmin(duplicateRegistration, adminContact);
 					SMSUtil.sendSMSForDuplicateRegistrationToStudent(student);
 				}
