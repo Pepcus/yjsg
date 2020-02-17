@@ -171,7 +171,7 @@ public class StudentService {
 				if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
 					smsService.sendAlreadyRegisterSMS(duplicateStudent);
 				}
-				throw new BadRequestException(ApplicationConstants.EXACT_DUPLICATE);
+				throw new BadRequestException(ApplicationConstants.EXACT_DUPLICATE+"with Student Id : "+savedStudent.getId()+" and SecretCode : "+savedStudent.getSecretKey());
 			}
 		
         return savedStudent;
@@ -799,17 +799,17 @@ public class StudentService {
         
     }
     
-	private Student validateDuplicateStudent(Student student) {
+ 	private Student validateDuplicateStudent(Student student) {
 		Student duplicateStudent = null;
-		String studentName = student.getName().toLowerCase();
-		String fatherName = student.getFatherName().toLowerCase();
-		String fatherMobileNumber = student.getMobile();
+		String studentName = student.getName().toLowerCase().trim();
+		String fatherName = student.getFatherName().toLowerCase().trim();
+		String fatherMobileNumber = student.getMobile().trim();
 		List<Student> students = null;
 		
 		String compressStudentName = studentName.replaceAll("[aeiou]", "");
 		String compressFatherName = fatherName.replaceAll("[aeiou]", "");
-		String studentNameForSearch = studentName.replaceAll("[aeiou]", "%");
-		String fatherNameForsearch = fatherName.replaceAll("[aeiou]", "%");
+		String studentNameForSearch = "%"+studentName.replaceAll("[aeiou]", "%")+"%";
+		String fatherNameForsearch = "%"+fatherName.replaceAll("[aeiou]", "%")+"%";
 		// get 10 digit phone number
 		if (student.getMobile() != null && student.getMobile().length() > 10) {
 			int length = fatherMobileNumber.length();
@@ -822,16 +822,23 @@ public class StudentService {
 			return getDuplicateStudent(students);
 		}
 		
-		students = getStudentsByFilterAttributes(studentNameForSearch, null, fatherMobileNumber);
-		if(CollectionUtils.isNotEmpty(students)) {
-			student = students.stream().findFirst().get();
-			String compressStudentNameDB = student.getName().toLowerCase().replaceAll("[aeiou]", "");
-			if(compressStudentNameDB.toLowerCase().contains(compressStudentName)
-					|| compressStudentName.contains(compressStudentNameDB.toLowerCase())) {//check after remove vowels
-				return getDuplicateStudent(students);
+	
+		//check for exactly match 
+		students = getStudentsByFilterAttributes(null, null, fatherMobileNumber);
+		if (CollectionUtils.isNotEmpty(students)) {
+			for (Student studentDB : students) {
+				if (studentDB.getName().toLowerCase().contains(studentName)
+						|| studentName.contains(studentDB.getName().toLowerCase())) {
+					return getDuplicateStudent(students);
+				} else {
+					String compressStudentNameDB = studentDB.getName().toLowerCase().replaceAll("[aeiou]", "");
+					if (compressStudentNameDB.toLowerCase().contains(compressStudentName)
+							|| compressStudentName.contains(compressStudentNameDB.toLowerCase())) {
+						return getDuplicateStudent(students);
+					}
+				}
 			}
 		}
-
 		// check partial match
 		students = getStudentsByFilterAttributes(studentNameForSearch, fatherNameForsearch, null);
 		if (CollectionUtils.isNotEmpty(students)) {

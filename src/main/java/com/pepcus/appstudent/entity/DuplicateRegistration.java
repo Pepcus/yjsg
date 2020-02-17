@@ -23,7 +23,7 @@ public class DuplicateRegistration {
     @Column(name = "duplicate_of_student_id")
     private Integer duplicateOfStudentId;
     
-    @Column(name = "duplicate_student_json")
+    @Column(name = "duplicate_student_json",columnDefinition = "text")
     private String duplicateStudentJson;
 
 }
