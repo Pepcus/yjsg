@@ -18,6 +18,8 @@ import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import com.pepcus.appstudent.controller.PersonController;
+import com.pepcus.appstudent.controller.StudentController;
 import com.pepcus.appstudent.entity.Person;
 import com.pepcus.appstudent.entity.SMSFlags;
 import com.pepcus.appstudent.entity.Student;
@@ -30,7 +32,8 @@ import com.pepcus.appstudent.exception.ApiErrorResponse;
  * @since 12-02-2018
  *
  */
-@ControllerAdvice("com.pepcus.appstudent.controller")
+
+@ControllerAdvice(assignableTypes = {StudentController.class, PersonController.class})
 public class ResponseHandler implements ResponseBodyAdvice<Object> {
 
     /**
@@ -107,7 +110,7 @@ public class ResponseHandler implements ResponseBodyAdvice<Object> {
         }
 
         if (httpRequest.getMethod().equals(HttpMethod.GET)) {
-            if (body instanceof Student) {
+        	 if (body instanceof Student) {
                 apiResponse.setStudent((Student) body);
             } else if (((List) body).get(0) instanceof Student) {
                 if ((List) body == null || ((List) body).isEmpty()) {
