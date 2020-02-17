@@ -154,7 +154,7 @@ public class StudentService {
 					SMSUtil.sendSMSForDuplicateRegistrationToStudent(student);
 				}
 				
-				throw new BadRequestException(ApplicationConstants.PARTIAL_DUPLICATE_SMS);
+				throw new BadRequestException(ApplicationConstants.PARTIAL_DUPLICATE_SMS, 1001);
 			}
 		} else {
         	savedStudent = studentRepository.save(student);
@@ -172,7 +172,7 @@ public class StudentService {
 				if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
 					smsService.sendAlreadyRegisterSMS(savedStudent);
 				}
-				throw new BadRequestException("Dear "+savedStudent.getName()+" (ID # "+savedStudent.getId()+"), "+ApplicationConstants.EXACT_DUPLICATE +"(# "+savedStudent.getMobile()+").");
+				throw new BadRequestException("Dear "+savedStudent.getName()+" (ID # "+savedStudent.getId()+"), "+ApplicationConstants.EXACT_DUPLICATE +"(# "+savedStudent.getMobile()+").", 1000);
 			}
 		
         return savedStudent;

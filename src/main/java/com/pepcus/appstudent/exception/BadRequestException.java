@@ -7,9 +7,15 @@ package com.pepcus.appstudent.exception;
  *
  */
 public class BadRequestException extends RuntimeException {
+	Integer errorCode;
 
 	public BadRequestException(String message) {
 		super(message);
+	}
+	
+	public BadRequestException(String message, Integer errorCode) {
+		super(message);
+		this.errorCode = errorCode;
 	}
 
 }
