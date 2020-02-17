@@ -153,7 +153,7 @@ public class StudentService {
 					SMSUtil.sendSMSForDuplicateRegistrationToAdmin(duplicateStudent, adminContact);
 				}
 				
-				throw new BadRequestException(ApplicationConstants.PARTIAL_DUPLICATE);
+				throw new BadRequestException(ApplicationConstants.PARTIAL_DUPLICATE_SMS);
 			}
 		} else {
         	savedStudent = studentRepository.save(student);
