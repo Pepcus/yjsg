@@ -22,7 +22,7 @@
 					},
 					{
 						"key": "secretKey",
-						"value": "451727",
+						"value": "{{secret_key}}",
 						"type": "text"
 					}
 				],
@@ -32,7 +32,7 @@
 						{
 							"key": "file",
 							"type": "file",
-							"src": "/C:/Users/Sandeep.Vishwakarma/Desktop/Test.png"
+							"src": []
 						},
 						{
 							"key": "displayName",
@@ -72,7 +72,7 @@
 				"header": [
 					{
 						"key": "secretKey",
-						"value": "451727",
+						"value": "{{secret_key}}",
 						"type": "text"
 					}
 				],
@@ -106,7 +106,7 @@
 					},
 					{
 						"key": "secretKey",
-						"value": "451727",
+						"value": "{{secret_key}}",
 						"type": "text"
 					}
 				],
@@ -149,7 +149,7 @@
 					},
 					{
 						"key": "secretKey",
-						"value": "451727",
+						"value": "{{secret_key}}",
 						"type": "text"
 					}
 				],
@@ -158,16 +158,14 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "http://localhost:8080/v1/documents/1/file",
-					"protocol": "http",
+					"raw": "{{URL}}/v1/documents/{{documentId}}/file",
 					"host": [
-						"localhost"
+						"{{URL}}"
 					],
-					"port": "8080",
 					"path": [
 						"v1",
 						"documents",
-						"1",
+						"{{documentId}}",
 						"file"
 					]
 				}
@@ -191,7 +189,7 @@
 					},
 					{
 						"key": "secretKey",
-						"value": "451727",
+						"value": "{{secret_key}}",
 						"type": "text"
 					}
 				],
@@ -201,7 +199,7 @@
 						{
 							"key": "file",
 							"type": "file",
-							"src": "/C:/Users/Sandeep.Vishwakarma/Desktop/HoldingTest.java"
+							"src": []
 						},
 						{
 							"key": "displayName",
@@ -222,12 +220,10 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8080/v1/{{documentId}}/documents",
-					"protocol": "http",
+					"raw": "{{URL}}/v1/{{documentId}}/documents",
 					"host": [
-						"localhost"
+						"{{URL}}"
 					],
-					"port": "8080",
 					"path": [
 						"v1",
 						"{{documentId}}",
