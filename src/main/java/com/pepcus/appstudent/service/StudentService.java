@@ -144,7 +144,8 @@ public class StudentService {
         
         if (duplicateStudent != null) {
 			// update optin if duplicate
-			if (duplicateStudent.getOptIn2020().equals("Y")) {
+			if (!duplicateStudent.isPartialMatch()) {
+				duplicateStudent.setOptIn2020("Y");
 				savedStudent = studentRepository.save(duplicateStudent);
 			} else {
 				DuplicateRegistration duplicateRegistration = getDuplicateRegistrationEntity(student, duplicateStudent);
@@ -160,21 +161,22 @@ public class StudentService {
         	savedStudent = studentRepository.save(student);
         }
         
-		
-
-			savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
+        if(savedStudent.getDateCreatedInDB()!=null) {
 			savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateCreatedInDB()));
-			// send SMS only if SendSMS = true
+        }
+		if (savedStudent.getDateLastModifiedInDB() != null) {
+			savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
+		}
 			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
-				SMSUtil.sendSMS(savedStudent);
-			}
-			if (duplicateStudent != null) {
-				if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
+				if (duplicateStudent != null) {
 					smsService.sendAlreadyRegisterSMS(savedStudent);
 				}
-				throw new BadRequestException("Dear "+savedStudent.getName()+" (ID # "+savedStudent.getId()+"), "+ApplicationConstants.EXACT_DUPLICATE +"(# "+savedStudent.getMobile()+").", 1000);
+				SMSUtil.sendSMS(savedStudent);
 			}
-		
+		if (duplicateStudent != null) {
+			throw new BadRequestException("Dear " + savedStudent.getName() + " (ID # " + savedStudent.getId() + "), "
+					+ ApplicationConstants.EXACT_DUPLICATE + "(# " + savedStudent.getMobile() + ").", 1000);
+		}
         return savedStudent;
     }
 
@@ -820,22 +822,23 @@ public class StudentService {
 		// check for exactly match
 		students = getStudentsByFilterAttributes(studentName, fatherName, fatherMobileNumber);
 		if(CollectionUtils.isNotEmpty(students)) {
-			return getDuplicateStudent(students);
+			return students.stream().findFirst().get();
 		}
 		
 	
 		//check for exactly match 
 		students = getStudentsByFilterAttributes(null, null, fatherMobileNumber);
-		if (CollectionUtils.isNotEmpty(students)) {
+		if (CollectionUtils.isNotEmpty(students)) {;
+			duplicateStudent = students.stream().findFirst().get();
 			for (Student studentDB : students) {
 				if (studentDB.getName().toLowerCase().contains(studentName)
 						|| studentName.contains(studentDB.getName().toLowerCase())) {
-					return getDuplicateStudent(students);
+					return duplicateStudent;
 				} else {
 					String compressStudentNameDB = studentDB.getName().toLowerCase().replaceAll("[aeiou]", "");
 					if (compressStudentNameDB.toLowerCase().contains(compressStudentName)
 							|| compressStudentName.contains(compressStudentNameDB.toLowerCase())) {
-						return getDuplicateStudent(students);
+						return duplicateStudent;
 					}
 				}
 			}
@@ -849,8 +852,8 @@ public class StudentService {
 			if((compressFatherNameDB.toLowerCase().contains(compressFatherName)
 					|| compressFatherName.contains(compressFatherNameDB.toLowerCase())) && (compressStudentNameDB.toLowerCase().contains(compressStudentName)
 							|| compressStudentName.contains(compressStudentNameDB.toLowerCase()))) {
-				duplicateStudent = getDuplicateStudent(students);
-				duplicateStudent.setOptIn2020("N");
+				duplicateStudent = students.stream().findFirst().get();
+				duplicateStudent.setPartialMatch(true);
 				return duplicateStudent;
 			}
 			
@@ -862,10 +865,5 @@ public class StudentService {
 		return studentRepository
 				.findAll(StudentSpecification.getStudents(studentName, fatherName, fatherMobileNumber));
 	}
-	
-	private static Student getDuplicateStudent(List<Student> students) {
-		Student student = students.stream().findFirst().get();
-		student.setOptIn2020("Y");
-		return student;
-	}
+
 }
