@@ -167,12 +167,13 @@ public class StudentService {
 		if (savedStudent.getDateLastModifiedInDB() != null) {
 			savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
 		}
-			if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
-				if (duplicateStudent != null) {
-					smsService.sendAlreadyRegisterSMS(savedStudent);
-				}
+		if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
+			if (duplicateStudent != null) {
+				smsService.sendAlreadyRegisterSMS(savedStudent);
+			} else {
 				SMSUtil.sendSMS(savedStudent);
 			}
+		}
 		if (duplicateStudent != null) {
 			throw new BadRequestException("Dear " + savedStudent.getName() + " (ID # " + savedStudent.getId() + "), "
 					+ ApplicationConstants.EXACT_DUPLICATE + "(# " + savedStudent.getMobile() + ").", 1000);
