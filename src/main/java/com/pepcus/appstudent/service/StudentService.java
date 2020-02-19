@@ -130,23 +130,28 @@ public class StudentService {
      * @param student
      * @return
      */
-    public Student createStudent(Student student) {
-    	Student savedStudent = null;
-    	
-        Date currentDate = Calendar.getInstance().getTime();
-        student.setDateCreatedInDB(currentDate);
-        student.setDateLastModifiedInDB(currentDate);
+	public Student createStudent(Student student) {
+		Student savedStudent = null;
 
-        // Generate secretKey for student
-        String secretKey = generateSecretKey();
-        student.setSecretKey(secretKey);
-        Student duplicateStudent = student.isAllowDuplicate() ? null : validateDuplicateStudent(student);
-        
-        if (duplicateStudent != null) {
+		Date currentDate = Calendar.getInstance().getTime();
+		student.setDateCreatedInDB(currentDate);
+		student.setDateLastModifiedInDB(currentDate);
+
+		// Generate secretKey for student
+		String secretKey = generateSecretKey();
+		student.setSecretKey(secretKey);
+		Student duplicateStudent = student.isAllowDuplicate() ? null : validateDuplicateStudent(student);
+
+		if (duplicateStudent != null) {
 			// update optin if duplicate
 			if (!duplicateStudent.isPartialMatch()) {
 				duplicateStudent.setOptIn2020("Y");
 				savedStudent = studentRepository.save(duplicateStudent);
+				if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
+					smsService.sendAlreadyRegisterSMS(savedStudent);
+				}
+				throw new BadRequestException("Dear " + savedStudent.getName() + " (ID # " + savedStudent.getId() + "), "
+						+ ApplicationConstants.EXACT_DUPLICATE + "(# " + savedStudent.getMobile() + ").", 1000);
 			} else {
 				DuplicateRegistration duplicateRegistration = getDuplicateRegistrationEntity(student, duplicateStudent);
 				duplicateRegistration = duplicateRegistrationRepository.save(duplicateRegistration);
@@ -154,32 +159,24 @@ public class StudentService {
 					SMSUtil.sendSMSForDuplicateRegistrationToAdmin(duplicateRegistration, adminContact);
 					SMSUtil.sendSMSForDuplicateRegistrationToStudent(student);
 				}
-				
+
 				throw new BadRequestException(ApplicationConstants.PARTIAL_DUPLICATE_SMS, 1001);
 			}
 		} else {
-        	savedStudent = studentRepository.save(student);
-        }
-        
-        if(savedStudent.getDateCreatedInDB()!=null) {
+			savedStudent = studentRepository.save(student);
+		}
+
+		if (savedStudent.getDateCreatedInDB() != null) {
 			savedStudent.setCreatedDate(convertDateToString(savedStudent.getDateCreatedInDB()));
-        }
+		}
 		if (savedStudent.getDateLastModifiedInDB() != null) {
 			savedStudent.setLastModifiedDate(convertDateToString(savedStudent.getDateLastModifiedInDB()));
 		}
 		if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
-			if (duplicateStudent != null) {
-				smsService.sendAlreadyRegisterSMS(savedStudent);
-			} else {
-				SMSUtil.sendSMS(savedStudent);
-			}
+			SMSUtil.sendSMS(savedStudent);
 		}
-		if (duplicateStudent != null) {
-			throw new BadRequestException("Dear " + savedStudent.getName() + " (ID # " + savedStudent.getId() + "), "
-					+ ApplicationConstants.EXACT_DUPLICATE + "(# " + savedStudent.getMobile() + ").", 1000);
-		}
-        return savedStudent;
-    }
+		return savedStudent;
+	}
 
 	private DuplicateRegistration getDuplicateRegistrationEntity(Student student, Student duplicateStudent) {
 		DuplicateRegistration duplicateRegistration = new DuplicateRegistration();
