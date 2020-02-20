@@ -93,8 +93,9 @@ public class StudentController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<Student> createStudent(@RequestBody Student student) {
+    public ResponseEntity<Student> createStudent(@RequestBody Student student, @RequestParam(value = "isAllowDuplicate", required=false) boolean isAllowDuplicate) {
         student.setPrintStatus(ISPRESENT);
+        student.setAllowDuplicate(isAllowDuplicate);
         Student savedStudent = studentService.createStudent(student);
         return new ResponseEntity<Student>(savedStudent, HttpStatus.CREATED);
     }
