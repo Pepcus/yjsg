@@ -826,17 +826,16 @@ public class StudentService {
 	
 		//check for exactly match 
 		students = getStudentsByFilterAttributes(null, null, fatherMobileNumber);
-		if (CollectionUtils.isNotEmpty(students)) {;
-			duplicateStudent = students.stream().findFirst().get();
+		if (CollectionUtils.isNotEmpty(students)) {
 			for (Student studentDB : students) {
 				if (studentDB.getName().toLowerCase().contains(studentName)
 						|| studentName.contains(studentDB.getName().toLowerCase())) {
-					return duplicateStudent;
+					return studentDB;
 				} else {
 					String compressStudentNameDB = studentDB.getName().toLowerCase().replaceAll("[aeiou]", "");
 					if (compressStudentNameDB.toLowerCase().contains(compressStudentName)
 							|| compressStudentName.contains(compressStudentNameDB.toLowerCase())) {
-						return duplicateStudent;
+						return studentDB;
 					}
 				}
 			}
