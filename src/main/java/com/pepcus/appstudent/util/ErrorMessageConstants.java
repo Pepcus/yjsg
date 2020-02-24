@@ -8,5 +8,6 @@ public interface ErrorMessageConstants {
     public static final String INVALID_MOBILE_NUMBER ="Invalid mobile number";
     public static final String INVALID_EMAIL = "Invalid email address";
     public static final String INVALID_ID = "Invalid Id";
+    public static final String ALREADY_REGISTRATION = "Coordinator is already register with Id :";
     
 }

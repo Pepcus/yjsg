@@ -9,4 +9,5 @@ import com.pepcus.appstudent.entity.Coordinator;
 public interface CoordinatorRepository extends JpaRepository<Coordinator , Integer>{
 public Coordinator findById(Integer id);
 public List<Coordinator> findAll();
+public Coordinator findByPrimaryContactNumberOrAlternateContactNumber(String primaryContactNumber, String alternateContactNumber);
 }

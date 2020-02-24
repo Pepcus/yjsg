@@ -55,7 +55,7 @@ private String area;
 @Column(name = "intrested_departments")
 private String intrestedDepartment;
 
-@Column(name = "assigned_department")
+@Column(name = "assigned_departments")
 private String assignedDepartment;
 
 @Transient

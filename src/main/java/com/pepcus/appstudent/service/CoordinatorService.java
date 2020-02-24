@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.pepcus.appstudent.entity.Coordinator;
 import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.repository.CoordinatorRepository;
+import com.pepcus.appstudent.util.CommonUtil;
 import com.pepcus.appstudent.util.ErrorMessageConstants;
 
 @Service
@@ -24,6 +25,12 @@ public class CoordinatorService {
 	CoordinatorRepository coordinatorRepository;
 
 	public Coordinator createCoordinator(Coordinator coordinator) throws ParseException {
+		Coordinator coordinatorDB = coordinatorRepository.findByPrimaryContactNumberOrAlternateContactNumber(
+				coordinator.getPrimaryContactNumber(), coordinator.getAlternateContactNumber());
+		if(coordinatorDB!=null) {
+			throw new BadRequestException(
+					ErrorMessageConstants.ALREADY_REGISTRATION + "{" + coordinatorDB.getId() + "}", 1000);
+		}
 		tranformRequest(coordinator);
 		coordinator = coordinatorRepository.save(coordinator);
 		transformResponse(coordinator);
@@ -166,20 +173,6 @@ public class CoordinatorService {
 		return coordinator;
 	}
 
-	public String dateFormatForJsonResponse(String stringDate) {
-		String responseDate = null;
-		try {
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			Date date = dateFormat.parse(stringDate);
-			DateFormat dateFormat1 = new SimpleDateFormat("dd-MM-yyyy");
-			responseDate = dateFormat1.format(date);
-			return responseDate;
-		} catch (ParseException e) {
-			return responseDate;
-		}
-
-	}
-
 	public void transformResponse(Coordinator coordinator) {
 		if (StringUtils.isNotEmpty(coordinator.getAssignedDepartment())) {
 			coordinator.setAssignedDepartments(Arrays.asList(coordinator.getAssignedDepartment().split(",")));
@@ -187,6 +180,6 @@ public class CoordinatorService {
 		if (StringUtils.isNotEmpty(coordinator.getIntrestedDepartment())) {
 			coordinator.setIntrestedDepartments(Arrays.asList(coordinator.getIntrestedDepartment().split(",")));
 		}
-		coordinator.setDob(dateFormatForJsonResponse(coordinator.getDob()));
+		coordinator.setDob(CommonUtil.dateFormatForJsonResponse(coordinator.getDob()));
 	}
 }
