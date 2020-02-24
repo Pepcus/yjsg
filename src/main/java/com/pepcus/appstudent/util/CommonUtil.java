@@ -1,7 +1,11 @@
 package com.pepcus.appstudent.util;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -70,5 +74,37 @@ public class CommonUtil {
         }
         return null;
     }
+    
+	public static boolean isValidateEmail(String email) {
+		Pattern p = Pattern.compile("^(.+)@(.+)$");
+		Matcher m = p.matcher(email);
+		return (m.find() && m.group().equals(email));
+	}
+
+	public static boolean isContentAlphabetsOnly(String fieldName) {
+		Pattern p = Pattern.compile("^[a-zA-Z]*$");
+		Matcher m = p.matcher(fieldName);
+		return (m.find() && m.group().equals(fieldName));
+
+	}
+
+	public static boolean isValidMobileNumber(String mobileNumber) {
+		Pattern p = Pattern.compile("[- +()0-9]+");
+		Matcher m = p.matcher(mobileNumber);
+		return (m.find() && m.group().equals(mobileNumber));
+	}
+	
+	public static String dateFormatForJsonResponse(String stringDate) {
+		String responseDate = null;
+		try {
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			Date date = dateFormat.parse(stringDate);
+			DateFormat dateFormat1 = new SimpleDateFormat("dd-MM-yyyy");
+			responseDate = dateFormat1.format(date);
+			return responseDate;
+		} catch (ParseException e) {
+			return responseDate;
+		}
+	}
 
 }
