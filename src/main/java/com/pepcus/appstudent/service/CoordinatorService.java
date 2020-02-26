@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import com.pepcus.appstudent.entity.Coordinator;
 import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.repository.CoordinatorRepository;
-import com.pepcus.appstudent.util.CommonUtil;
+import com.pepcus.appstudent.specifications.CoordinatorSpecification;
 import com.pepcus.appstudent.util.ErrorMessageConstants;
 
 @Service
@@ -25,11 +25,11 @@ public class CoordinatorService {
 	CoordinatorRepository coordinatorRepository;
 
 	public Coordinator createCoordinator(Coordinator coordinator) throws ParseException {
-		Coordinator coordinatorDB = coordinatorRepository.findByPrimaryContactNumberOrAlternateContactNumber(
-				coordinator.getPrimaryContactNumber(), coordinator.getAlternateContactNumber());
-		if(coordinatorDB!=null) {
+		List<Coordinator> coordinators = getCoordinatorList(coordinator.getFirstName(), coordinator.getLastName(), null , coordinator.getDob());
+		if(CollectionUtils.isNotEmpty(coordinators)) {
+			Integer duplicateCoordinatorId = coordinators.stream().findFirst().get().getId();
 			throw new BadRequestException(
-					ErrorMessageConstants.ALREADY_REGISTRATION + "{" + coordinatorDB.getId() + "}", 1000);
+					ErrorMessageConstants.ALREADY_REGISTRATION + "{" + duplicateCoordinatorId + "}", 1000);
 		}
 		tranformRequest(coordinator);
 		coordinator = coordinatorRepository.save(coordinator);
@@ -46,8 +46,8 @@ public class CoordinatorService {
 		return coordinator;
 	}
 
-	public List<Coordinator> getAll() {
-		List<Coordinator> coordinators = coordinatorRepository.findAll();
+	public List<Coordinator> getCoordinators(String firstName, String lastName, String primaryContactNumber, String dob) {
+		List<Coordinator> coordinators = getCoordinatorList(firstName, lastName, primaryContactNumber, dob);
 		if (CollectionUtils.isNotEmpty(coordinators)) {
 			for (Coordinator coordinator : coordinators) {
 				transformResponse(coordinator);
@@ -97,15 +97,6 @@ public class CoordinatorService {
 			String lastLetter = coordinator.getLastName().substring(0, 1);
 			coordinator.setLastName(lastName.replaceFirst("[" + lastLetter + "]", lastLetter.toUpperCase()));
 		}
-		if (coordinator.getDob() != null) {
-			String stringDate = coordinator.getDob();
-			SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-			Date date = dateFormat.parse(stringDate);
-			DateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd");
-			String strDate = dateFormat1.format(date);
-			coordinator.setDob(strDate);
-		}
-
 	}
 
 	public Coordinator ConvertToEntity(Coordinator coordinator, Coordinator coordinatorRequest) {
@@ -180,6 +171,9 @@ public class CoordinatorService {
 		if (StringUtils.isNotEmpty(coordinator.getIntrestedDepartment())) {
 			coordinator.setIntrestedDepartments(Arrays.asList(coordinator.getIntrestedDepartment().split(",")));
 		}
-		coordinator.setDob(CommonUtil.dateFormatForJsonResponse(coordinator.getDob()));
+	}
+	
+	public List<Coordinator> getCoordinatorList(String firstName, String lastName, String primaryContactNumber, String dob) {
+		return coordinatorRepository.findAll(CoordinatorSpecification.getCoordinators(firstName, lastName, primaryContactNumber, dob));
 	}
 }

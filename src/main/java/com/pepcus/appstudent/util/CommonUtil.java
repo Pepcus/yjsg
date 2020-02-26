@@ -106,5 +106,18 @@ public class CommonUtil {
 			return responseDate;
 		}
 	}
+	
+	public static boolean validateStringDateWithFormat(String stringDate, String format) {
+		boolean isValidDate = false;
+		try {
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
+			simpleDateFormat.setLenient(false);
+			simpleDateFormat.parse(stringDate);
+			isValidDate = true;
+		} catch (ParseException e) {
+			isValidDate = false;
+		}
+		return isValidDate;
+	}
 
 }

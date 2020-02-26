@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.pepcus.appstudent.entity.Coordinator;
 import com.pepcus.appstudent.service.CoordinatorService;
@@ -44,8 +45,11 @@ public class CoordinatorController {
 	}
 
 	@GetMapping
-	public List<Coordinator> getAll() {
-		return coordinatorservice.getAll();
+	public List<Coordinator> getCoordinators(@RequestParam(value = "firstName", required = false) String firstName,
+			@RequestParam(value = "lastName", required = false) String lastName,
+			@RequestParam(value = "primaryContactNumber", required = false) String primaryContactNumber,
+			@RequestParam(value = "dob", required = false) String dob) {
+		return coordinatorservice.getCoordinators(firstName, lastName, primaryContactNumber, dob);
 	}
 
 	@DeleteMapping("/{id}")

@@ -84,4 +84,5 @@ public class ApplicationConstants {
   public static final String PARTIAL_DUPLICATE_SMS = "We probably already have your registration! We will contact you on SMS soon. You can also contact YJSG Helpline at (7447-0-56789).";
   public static final String PARTIAL_DUPLICATE_SMS_TO_ADMIN = "Potential Duplicate Entry Created with Duplicate Record ID # {{DuplicateRegistrationId}} matching with Student ID # {{studentId}}.";
   public static final String EXACT_DUPLICATE = " We already have your registration. To login you will receive an SMS on your registered phone number ";
+  public static final String DATE_FORMAT_YYYY_MM_DD = "yyyy-MM-dd";
 }
