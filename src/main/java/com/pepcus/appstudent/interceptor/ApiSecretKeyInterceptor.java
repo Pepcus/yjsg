@@ -43,8 +43,18 @@ public class ApiSecretKeyInterceptor extends HandlerInterceptorAdapter {
                 .getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 
         Integer studentId = null;
+        Integer coordinatorId = null;
         String id = pathVariables.get("studentId");
         String secretKey = key;
+        String coordinatorRequestId= pathVariables.get("id");
+        
+        if(!StringUtils.isEmpty(coordinatorRequestId)) {
+        	 try {
+        		 coordinatorId = Integer.valueOf(coordinatorRequestId);
+             } catch (NumberFormatException e) {
+                 throw new BadRequestException(id + " is not a valid coordinator Id");
+             }
+        }
 
         if (StringUtils.isEmpty(secretKey)) {
             throw new AuthorizationFailedException("Unauthorized to access the service");
@@ -65,7 +75,7 @@ public class ApiSecretKeyInterceptor extends HandlerInterceptorAdapter {
         } catch (NumberFormatException e) {
             throw new BadRequestException(id + " is not a valid studentId");
         }
-        return authManager.checkAuthorization(studentId, secretKey);
+        return authManager.checkAuthorization(coordinatorId, studentId, secretKey);
     }
 
 }

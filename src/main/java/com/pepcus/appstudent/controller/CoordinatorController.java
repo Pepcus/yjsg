@@ -15,7 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.pepcus.appstudent.entity.Coordinator;
+import com.pepcus.appstudent.response.ApiResponse;
 import com.pepcus.appstudent.service.CoordinatorService;
 import com.pepcus.appstudent.validation.CoordinatorValidation;
 
@@ -56,6 +59,12 @@ public class CoordinatorController {
 	public ResponseEntity<Coordinator> deleteCoordinator(@PathVariable Integer id) {
 		Coordinator deleteCoordinator = coordinatorservice.deleteCoordinator(id);
 		return new ResponseEntity<Coordinator>(deleteCoordinator, HttpStatus.ACCEPTED);
+	}
+	
+	@PostMapping("/bulk-upload")
+	public ResponseEntity<ApiResponse> uploadCoordinators(
+			@RequestParam(value = "file", required = true) MultipartFile file) throws ParseException {
+		return new ResponseEntity<ApiResponse>(coordinatorservice.uploadCoordinators(file), HttpStatus.CREATED);
 	}
 
 }

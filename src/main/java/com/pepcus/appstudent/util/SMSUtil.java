@@ -17,6 +17,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pepcus.appstudent.entity.Coordinator;
 import com.pepcus.appstudent.entity.DuplicateRegistration;
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.exception.BadRequestException;
@@ -185,6 +186,31 @@ public class SMSUtil {
                     invokeSendSMSAPI(queryParamMap);
                 } catch (Exception e) {
                     throw new BadRequestException("Unable to send the SMS to the user" + student.getId());
+                }
+            }
+
+        } catch (Exception e) {
+            throw new BadRequestException("Unable to send the SMS to the user" + e.getMessage());
+        }
+
+    }
+    
+    public static void sendSMStoCoordinator(Coordinator coordinator) {
+        Map<String, String> queryParamMap = new HashMap<String, String>();
+
+        try {
+            String numbers = coordinator.getPrimaryContactNumber();
+            if (!"".equals(numbers)) {
+                String message = ApplicationConstants.COORDINATOR_WELCOME_SMS.replace("{{name}}", coordinator.getFirstName());
+                message = message.replace("{{coordinatorId}}", String.valueOf(coordinator.getId()));
+                message = message.replace("{{secretCode}}", String.valueOf(coordinator.getSecretKey()));
+
+                queryParamMap.put("number", numbers);
+                queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
+                try {
+                    invokeSendSMSAPI(queryParamMap);
+                } catch (Exception e) {
+                    throw new BadRequestException("Unable to send the SMS to the user" + coordinator.getId());
                 }
             }
 

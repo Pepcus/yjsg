@@ -76,6 +76,9 @@ private Integer classNumber;
 @Column(name="isActive")
 private Boolean isActive;
 
+@Column(name = "secret_key")
+private String secretKey;
+
 }
 
 

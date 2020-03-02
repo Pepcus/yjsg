@@ -33,4 +33,7 @@ public class ApiResponse {
 	private String idNotExist;
 	private String smsMessage;
 	private List<SMSFlags> smsFlags;
+	private List<Integer> successRecordIds;
+	private List<String> invalidRecords;
+	private List<String> duplicateRecords;
 }

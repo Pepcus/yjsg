@@ -9,5 +9,6 @@ public interface ErrorMessageConstants {
     public static final String INVALID_EMAIL = "Invalid email address";
     public static final String INVALID_ID = "Invalid Id";
     public static final String ALREADY_REGISTRATION = "Coordinator is already register with Id :";
+    public static final String INVALID_CSV= "Invalid CSV file or empty records in CSV"; 
     
 }

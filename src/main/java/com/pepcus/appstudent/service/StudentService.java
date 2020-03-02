@@ -54,6 +54,7 @@ import com.pepcus.appstudent.repository.StudentRepository;
 import com.pepcus.appstudent.response.ApiResponse;
 import com.pepcus.appstudent.specifications.StudentSpecification;
 import com.pepcus.appstudent.util.ApplicationConstants;
+import com.pepcus.appstudent.util.CommonUtil;
 import com.pepcus.appstudent.util.FileImportUtil;
 import com.pepcus.appstudent.util.NullAwareBeanUtilsBean;
 import com.pepcus.appstudent.util.SMSUtil;
@@ -138,7 +139,7 @@ public class StudentService {
 		student.setDateLastModifiedInDB(currentDate);
 
 		// Generate secretKey for student
-		String secretKey = generateSecretKey();
+		String secretKey = CommonUtil.generateSecretKey();
 		student.setSecretKey(secretKey);
 		Student duplicateStudent = student.isAllowDuplicate() ? null : validateDuplicateStudent(student);
 
@@ -190,16 +191,6 @@ public class StudentService {
 		}
 		return duplicateRegistration;
 	}
-
-	/**
-     * Method to generate secretKey for student
-     * 
-     * @return
-     */
-    public String generateSecretKey() {
-        Random random = new Random();
-        return String.format("%04d", random.nextInt(10000));
-    }
 
     /**
      * Method to update student details
