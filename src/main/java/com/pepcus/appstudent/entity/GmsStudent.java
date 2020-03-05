@@ -70,12 +70,11 @@ public class GmsStudent {
 	private String foodOpt;
 
 	@Column(name = "created_date")
-	@Temporal(TemporalType.DATE)
 	@JsonIgnore
 	private Date dateCreatedInDB;
 
 	@Column(name = "last_modified_date")
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	@JsonIgnore
 	private Date dateLastModifiedInDB;
 

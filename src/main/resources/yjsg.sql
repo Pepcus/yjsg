@@ -2456,8 +2456,8 @@ CREATE TABLE `student_gms` (
    `status` varchar(255) DEFAULT NULL,
    `payment_status` varchar(255) DEFAULT NULL,
    `food_opt` varchar(255) DEFAULT NULL,
-   `created_date` date DEFAULT NULL,
-   `last_modified_date` date DEFAULT NULL,
+   `created_date` datetime DEFAULT NULL,
+   `last_modified_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
