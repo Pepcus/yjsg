@@ -1,0 +1,195 @@
+{
+	"info": {
+		"_postman_id": "15f0ffc3-0b2d-4fad-8406-684db61b6376",
+		"name": "GMS Student APIs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create GMS Student",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"sandeep\",\n    \"age\": \"30\",\n    \"mobile\": \"9977070460\",\n    \"city\": \"Indore\",\n    \"isWhatsApp\": \"false\"\n    \n}"
+				},
+				"url": {
+					"raw": "{{URL}}/api/gms/students",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"gms",
+						"students"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update GMS Student",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"sandeepupdate\",\r\n    \"age\": \"31\",\r\n    \"mobile\": \"9977070461\",\r\n    \"city\": \"Dewas\",\r\n    \"isWhatsApp\": \"true\",\r\n    \"registrationStatus\": \"CNF\",\r\n    \"paymentStatus\": \"Complete\",\r\n    \"foodOpt\": \"Y\",\r\n    \"address\":\"Indore\"\r\n}\r\n"
+				},
+				"url": {
+					"raw": "{{URL}}/api/gms/students/2",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"gms",
+						"students",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get GMS Student by Student Id",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{URL}}/api/gms/students/{{studentId}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"gms",
+						"students",
+						"{{studentId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get GMS Student List",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{URL}}/api/gms/students",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"gms",
+						"students"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get GMS Student List by Phone Number",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{URL}}/api/gms/students/phone/{{phoneNumber}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"gms",
+						"students",
+						"phone",
+						"{{phoneNumber}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
