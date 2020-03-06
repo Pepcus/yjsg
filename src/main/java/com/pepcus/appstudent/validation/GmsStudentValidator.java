@@ -34,7 +34,7 @@ public class GmsStudentValidator {
 				Arrays.asList(ApplicationConstants.REG_STATUS_REG, ApplicationConstants.REG_STATUS_CNF));
 
 		validateValues("paymentStatus", request.getPaymentStatus(),
-				Arrays.asList(ApplicationConstants.PAYMENT_STATUS_COMPLETE, ApplicationConstants.PAYMENT_STATUS_NA));
+				Arrays.asList(ApplicationConstants.PAYMENT_STATUS_COMPLETE, ApplicationConstants.PAYMENT_STATUS_PENDING, ApplicationConstants.PAYMENT_STATUS_NA));
 
 		validateValues("foodOpt", request.getFoodOpt(), Arrays.asList(ApplicationConstants.VAL_Y, ApplicationConstants.VAL_N));
 	}
@@ -52,7 +52,7 @@ public class GmsStudentValidator {
 		validateValues("registrationStatus", request.getRegistrationStatus(),
 				Arrays.asList(ApplicationConstants.REG_STATUS_REG, ApplicationConstants.REG_STATUS_CNF));
 		validateValues("paymentStatus", request.getPaymentStatus(),
-				Arrays.asList(ApplicationConstants.PAYMENT_STATUS_COMPLETE, ApplicationConstants.PAYMENT_STATUS_NA));
+				Arrays.asList(ApplicationConstants.PAYMENT_STATUS_COMPLETE, ApplicationConstants.PAYMENT_STATUS_PENDING, ApplicationConstants.PAYMENT_STATUS_NA));
 		validateValues("foodOpt", request.getFoodOpt(), Arrays.asList(ApplicationConstants.VAL_Y, ApplicationConstants.VAL_N));
 		
 	}

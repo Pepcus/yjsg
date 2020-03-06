@@ -95,6 +95,7 @@ public class ApplicationConstants {
   public static final String REG_STATUS_CNF = "CNF";
   public static final String PAYMENT_STATUS_COMPLETE = "Complete";
   public static final String PAYMENT_STATUS_NA = "NA";
+  public static final String PAYMENT_STATUS_PENDING = "Pending";
   
   
   // Student GMS Constants
