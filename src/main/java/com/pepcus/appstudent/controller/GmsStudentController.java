@@ -1,11 +1,13 @@
 package com.pepcus.appstudent.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,7 +29,6 @@ import com.pepcus.appstudent.validation.GmsStudentValidator;
 @RestController
 @RequestMapping("/api/gms/students")
 public class GmsStudentController {
-	
 
 	@Autowired
 	GmsStudentService gmsStudentService;
@@ -49,9 +50,9 @@ public class GmsStudentController {
 	 * @param studentId
 	 * @return
 	 */
-	@GetMapping(value = "/{studentId}")
-	public ResponseEntity<GmsStudent> getStudent(@PathVariable("studentId") Integer studentId) {
-		GmsStudent gmsStudent = gmsStudentService.getStudent(studentId);
+	@GetMapping(value = "/{id}")
+	public ResponseEntity<GmsStudent> getStudent(@PathVariable("studentId") Integer id) {
+		GmsStudent gmsStudent = gmsStudentService.getStudent(id);
 		return new ResponseEntity<GmsStudent>(gmsStudent, HttpStatus.OK);
 	}
 
@@ -68,7 +69,8 @@ public class GmsStudentController {
 	}
 
 	/**
-	 * Used to create student record 
+	 * Used to create student record
+	 * 
 	 * @param request
 	 * @return
 	 */
@@ -78,17 +80,33 @@ public class GmsStudentController {
 		GmsStudent gmsStudentEntity = gmsStudentService.createStudent(request);
 		return new ResponseEntity<GmsStudent>(gmsStudentEntity, HttpStatus.OK);
 	}
-	
+
 	/**
-	 * Used to update student record 
+	 * Used to update student record
+	 * 
 	 * @param id
 	 * @param gmsStudent
 	 * @return
 	 */
-	@PutMapping("/{studentId}")
-	public ResponseEntity<GmsStudent> updateStudent(@PathVariable("studentId") Integer studentId, @RequestBody GmsStudent request) {
+	@PutMapping("/{id}")
+	public ResponseEntity<GmsStudent> updateStudent(@PathVariable("id") Integer id, @RequestBody GmsStudent request) {
 		GmsStudentValidator.validateUpdateStudentRequest(request);
-		GmsStudent gmsStudentEntity = gmsStudentService.updateStudent(studentId, request);
+		GmsStudent gmsStudentEntity = gmsStudentService.updateStudent(id, request);
+		return new ResponseEntity<GmsStudent>(gmsStudentEntity, HttpStatus.OK);
+	}
+
+	/**
+	 * Used to update student registration status
+	 * @param id
+	 * @param requestVariables
+	 * @return
+	 */
+	@PatchMapping("/{id}")
+	public ResponseEntity<GmsStudent> updateStudentRegistrationStatus(@PathVariable("id") Integer id,
+			@RequestBody Map<String, String> requestVariables) {
+		String registrationStatus = requestVariables.get("registrationStatus");
+		GmsStudentValidator.validateStudentRegistrationStatus(registrationStatus);
+		GmsStudent gmsStudentEntity = gmsStudentService.updateStudentStatus(id, registrationStatus);
 		return new ResponseEntity<GmsStudent>(gmsStudentEntity, HttpStatus.OK);
 	}
 

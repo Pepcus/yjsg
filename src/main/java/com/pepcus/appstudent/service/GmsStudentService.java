@@ -1,5 +1,6 @@
 package com.pepcus.appstudent.service;
 
+import java.util.Calendar;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,13 +45,13 @@ public class GmsStudentService {
 	/**
 	 * Method to get StudentGMS entity for id
 	 * 
-	 * @param studentId
+	 * @param id
 	 * @return
 	 */
-	public GmsStudent getGmsStudentEntity(Integer studentId) {
-		GmsStudent gmsStudentEntity = gmsStudentRepository.findOne(studentId);
+	public GmsStudent getGmsStudentEntity(Integer id) {
+		GmsStudent gmsStudentEntity = gmsStudentRepository.findOne(id);
 		if (null == gmsStudentEntity) {
-			throw new ResourceNotFoundException("No Student found for id : " + studentId);
+			throw new ResourceNotFoundException("No Student found for id : " + id);
 		}
 		return gmsStudentEntity;
 
@@ -79,11 +80,11 @@ public class GmsStudentService {
 	/**
 	 * Method to get GmsStudent for given studentId
 	 * 
-	 * @param studentId
+	 * @param id
 	 * @return
 	 */
-	public GmsStudent getStudent(Integer studentId) {
-		GmsStudent gmsStudentEntity = getGmsStudentEntity(studentId);
+	public GmsStudent getStudent(Integer id) {
+		GmsStudent gmsStudentEntity = getGmsStudentEntity(id);
 		return GmsStudentEntityConvertor.setDateInGmsStudentEntity(gmsStudentEntity);
 	}
 
@@ -117,14 +118,28 @@ public class GmsStudentService {
 	}
 
 	/**
-	 * Method to update existing gms student data
+	 * Method to update existing gms student data for given studentId
 	 * 
 	 * @param request
 	 */
-	public GmsStudent updateStudent(Integer studentId, GmsStudent request) {
-		GmsStudent gmsStudentEntity = getGmsStudentEntity(studentId);
+	public GmsStudent updateStudent(Integer id, GmsStudent request) {
+		GmsStudent gmsStudentEntity = getGmsStudentEntity(id);
 		gmsStudentEntity = persistStudentGMSEntity(
 				GmsStudentEntityConvertor.convertGmsStudentEntity(gmsStudentEntity, request));
+		return GmsStudentEntityConvertor.setDateInGmsStudentEntity(gmsStudentEntity);
+	}
+
+	/**
+	 * Method to update existing gms student registration status for given studentId
+	 * @param id
+	 * @param registrationStatus
+	 * @return
+	 */
+	public GmsStudent updateStudentStatus(Integer id, String registrationStatus) {
+		GmsStudent gmsStudentEntity = getGmsStudentEntity(id);
+		gmsStudentEntity.setRegistrationStatus(registrationStatus);
+		gmsStudentEntity.setDateLastModifiedInDB(Calendar.getInstance().getTime());
+		gmsStudentEntity = persistStudentGMSEntity(gmsStudentEntity);
 		return GmsStudentEntityConvertor.setDateInGmsStudentEntity(gmsStudentEntity);
 	}
 

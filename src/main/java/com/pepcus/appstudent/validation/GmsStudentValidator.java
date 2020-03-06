@@ -56,6 +56,16 @@ public class GmsStudentValidator {
 		validateValues("foodOpt", request.getFoodOpt(), Arrays.asList(ApplicationConstants.VAL_Y, ApplicationConstants.VAL_N));
 		
 	}
+
+	/**
+	 * Used to validate student registration status
+	 * @param registrationStatus
+	 */
+	public static void validateStudentRegistrationStatus(String registrationStatus) {
+		validate("registrationStatus", registrationStatus, expect(nonEmpty));
+		validateValues("registrationStatus", registrationStatus,
+				Arrays.asList(ApplicationConstants.REG_STATUS_REG, ApplicationConstants.REG_STATUS_CNF));		
+	}
 	
 	
 }

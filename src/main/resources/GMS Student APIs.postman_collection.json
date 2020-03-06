@@ -23,15 +23,13 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"name\": \"sandeep\",\n    \"age\": \"30\",\n    \"mobile\": \"9977070460\",\n    \"city\": \"Indore\",\n    \"isWhatsApp\": \"false\"\n    \n}"
+					"raw": "{\n\t\"id\": 2,\n    \"name\": \"sandeepone\",\n    \"age\": 30,\n    \"mobile\": \"9826012345\",\n    \"city\": \"Indore\",\n    \"address\": \"Indore\",\n    \"isWhatsApp\": \"false\",\n    \"registrationStatus\": \"REG\",\n    \"paymentStatus\": \"NA\",\n    \"foodOpt\": \"N\"\n}"
 				},
 				"url": {
 					"raw": "{{URL}}/api/gms/students",
-					"protocol": "http",
 					"host": [
-						"localhost"
+						"{{URL}}"
 					],
-					"port": "8080",
 					"path": [
 						"api",
 						"gms",
@@ -59,10 +57,10 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"sandeepupdate\",\r\n    \"age\": \"31\",\r\n    \"mobile\": \"9977070461\",\r\n    \"city\": \"Dewas\",\r\n    \"isWhatsApp\": \"true\",\r\n    \"registrationStatus\": \"CNF\",\r\n    \"paymentStatus\": \"Complete\",\r\n    \"foodOpt\": \"Y\",\r\n    \"address\":\"Indore\"\r\n}\r\n"
+					"raw": "{\r\n    \"name\": \"sandeepupdate\",\r\n    \"age\": \"31\",\r\n    \"mobile\": \"9826012345\",\r\n    \"city\": \"Dewas\",\r\n    \"isWhatsApp\": \"true\",\r\n    \"registrationStatus\": \"CNF\",\r\n    \"paymentStatus\": \"Complete\",\r\n    \"foodOpt\": \"Y\",\r\n    \"address\":\"Indore\"\r\n}\r\n"
 				},
 				"url": {
-					"raw": "{{URL}}/api/gms/students/2",
+					"raw": "{{URL}}/api/gms/students/{{studentId}}",
 					"host": [
 						"{{URL}}"
 					],
@@ -70,7 +68,7 @@
 						"api",
 						"gms",
 						"students",
-						"2"
+						"{{studentId}}"
 					]
 				}
 			},
@@ -185,6 +183,41 @@
 						"students",
 						"phone",
 						"{{phoneNumber}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update GMS Student Registration Status",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"registrationStatus\": \"CNF\"\r\n}\r\n"
+				},
+				"url": {
+					"raw": "{{URL}}/api/gms/students/{{studentId}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"api",
+						"gms",
+						"students",
+						"{{studentId}}"
 					]
 				}
 			},
