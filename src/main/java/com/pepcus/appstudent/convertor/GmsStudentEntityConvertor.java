@@ -26,14 +26,8 @@ public class GmsStudentEntityConvertor {
 		if (request.getIsWhatsApp() == null) {
 			request.setIsWhatsApp(ApplicationConstants.VAL_FALSE);
 		}
-		if (request.getRegistrationStatus() == null) {
-			request.setRegistrationStatus(ApplicationConstants.REG_STATUS_REG);
-		}
 		if (request.getPaymentStatus() == null) {
 			request.setPaymentStatus(ApplicationConstants.PAYMENT_STATUS_NA);
-		}
-		if (request.getFoodOpt() == null) {
-			request.setFoodOpt(ApplicationConstants.VAL_Y);
 		}
 		return request;
 	}

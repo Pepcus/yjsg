@@ -220,21 +220,18 @@ public class SMSUtil {
 
     }
     
-    public static void sendGmsStudentWelcomeSMS(Integer id, String name, String mobile) {
+    public static void sendSMS(Integer id, String userName, String mobile, String message) {
         Map<String, String> queryParamMap = new HashMap<String, String>();
-
+        
         try {
             String numbers = mobile;
             if (!"".equals(numbers)) {
-                String message = ApplicationConstants.WELCOME_GMS_SMS.replace("{{name}}", name);
-                message = message.replace("{{studentid}}", String.valueOf(id));
-
                 queryParamMap.put("number", numbers);
                 queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
                 try {
                     invokeSendSMSAPI(queryParamMap);
                 } catch (Exception e) {
-                    throw new BadRequestException("Unable to send the SMS to the user" + id);
+                    throw new BadRequestException("Unable to send the SMS to the user " + userName + " with id "+id);
                 }
             }
 

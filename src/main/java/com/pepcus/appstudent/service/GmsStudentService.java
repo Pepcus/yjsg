@@ -13,6 +13,7 @@ import com.pepcus.appstudent.entity.GmsStudent;
 import com.pepcus.appstudent.exception.ResourceNotFoundException;
 import com.pepcus.appstudent.repository.GmsStudentRepository;
 import com.pepcus.appstudent.specifications.GmsStudentSpecification;
+import com.pepcus.appstudent.util.ApplicationConstants;
 import com.pepcus.appstudent.util.SMSUtil;
 
 /**
@@ -27,6 +28,10 @@ public class GmsStudentService {
 	
 	@Value("${send_reg_sms_gms_student}")
 	String sendRegistrationSms;
+	
+	@Value("${payment_sms_gms_student}")
+	String sendRegistrationPayment;
+	
 
 	@Autowired
 	GmsStudentRepository gmsStudentRepository;
@@ -109,12 +114,31 @@ public class GmsStudentService {
 		GmsStudent gmsStudentEntity = persistStudentGMSEntity(
 				GmsStudentEntityConvertor.convertGmsStudentEntity(request));
 
-		// send welcome sms to student
-		if(Boolean.parseBoolean(sendRegistrationSms)){
-			SMSUtil.sendGmsStudentWelcomeSMS(gmsStudentEntity.getId(), gmsStudentEntity.getName(),
-					gmsStudentEntity.getMobile());	
+		if(gmsStudentEntity.getPaymentStatus().equalsIgnoreCase(ApplicationConstants.PAYMENT_STATUS_PENDING)){
+			// send welcome sms to student
+			sendPaymentSms(gmsStudentEntity);
+		} else if(Boolean.parseBoolean(sendRegistrationSms)){
+			// send welcome sms to student
+			sendRegistrationSms(gmsStudentEntity);	
 		}
 		return GmsStudentEntityConvertor.setDateInGmsStudentEntity(gmsStudentEntity);
+	}
+
+	private void sendPaymentSms(GmsStudent gmsStudentEntity) {
+		String name = gmsStudentEntity.getName();
+		String message = ApplicationConstants.GMS_WELCOME_SMS.replace("{{name}}", gmsStudentEntity.getName());
+		message = ApplicationConstants.GMS_PAYMENT_SMS.replace("{{name}}", name);
+        message = message.replace("{{gmsRegPayment}}", sendRegistrationPayment);
+		SMSUtil.sendSMS(null, name, gmsStudentEntity.getMobile(), message);
+		
+	}
+
+	private void sendRegistrationSms(GmsStudent gmsStudentEntity) {
+		Integer id = gmsStudentEntity.getId();
+		String name = gmsStudentEntity.getName();
+		String message = ApplicationConstants.GMS_WELCOME_SMS.replace("{{name}}", name);
+        message = message.replace("{{studentid}}", String.valueOf(id));
+		SMSUtil.sendSMS(id, name, gmsStudentEntity.getMobile(), message);
 	}
 
 	/**
@@ -126,6 +150,10 @@ public class GmsStudentService {
 		GmsStudent gmsStudentEntity = getGmsStudentEntity(id);
 		gmsStudentEntity = persistStudentGMSEntity(
 				GmsStudentEntityConvertor.convertGmsStudentEntity(gmsStudentEntity, request));
+		if (Boolean.parseBoolean(sendRegistrationSms)) {
+			// send welcome sms to student
+			sendRegistrationSms(gmsStudentEntity);
+		}
 		return GmsStudentEntityConvertor.setDateInGmsStudentEntity(gmsStudentEntity);
 	}
 

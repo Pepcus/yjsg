@@ -18,29 +18,40 @@ import com.pepcus.appstudent.util.ApplicationConstants;
 public class GmsStudentValidator {
 
 	/**
-	 * Used to validate create student request 
+	 * Used to validate create student request
+	 * 
 	 * @param request
 	 */
 	public static void validateCreateStudentRequest(GmsStudent request) {
-		validate("name", request.getName(), expect(nonEmpty, alphabetOnly));
-		validate("age", request.getAge(), expect(notNull, nonNegative, between(0, 100)));
-		validate("mobile", request.getMobile(), expect(nonEmpty, phone));
-		validate("city", request.getCity(), expect(nonEmpty));
 
-		validate("isWhatsApp", request.getIsWhatsApp(), expect(nonEmpty));
-		validateValues("isWhatsApp", request.getIsWhatsApp(), Arrays.asList(ApplicationConstants.VAL_TRUE, ApplicationConstants.VAL_FALSE));
+		validate("name", request.getName(), expect(nonEmpty, alphabetOnly));
+		validate("mobile", request.getMobile(), expect(nonEmpty, phone));
+		if (request.getPaymentStatus() != null
+				&& request.getPaymentStatus().equalsIgnoreCase(ApplicationConstants.PAYMENT_STATUS_PENDING)) {
+			validate("age", request.getAge(), expect(nonNegative, between(0, 100)));
+		} else {
+			validate("age", request.getAge(), expect(notNull, nonNegative, between(0, 100)));
+			validate("city", request.getCity(), expect(nonEmpty));
+			validate("isWhatsApp", request.getIsWhatsApp(), expect(nonEmpty));
+		}
+
+		validateValues("isWhatsApp", request.getIsWhatsApp(),
+				Arrays.asList(ApplicationConstants.VAL_TRUE, ApplicationConstants.VAL_FALSE));
 
 		validateValues("registrationStatus", request.getRegistrationStatus(),
 				Arrays.asList(ApplicationConstants.REG_STATUS_REG, ApplicationConstants.REG_STATUS_CNF));
 
 		validateValues("paymentStatus", request.getPaymentStatus(),
-				Arrays.asList(ApplicationConstants.PAYMENT_STATUS_COMPLETE, ApplicationConstants.PAYMENT_STATUS_PENDING, ApplicationConstants.PAYMENT_STATUS_NA));
+				Arrays.asList(ApplicationConstants.PAYMENT_STATUS_COMPLETE, ApplicationConstants.PAYMENT_STATUS_PENDING,
+						ApplicationConstants.PAYMENT_STATUS_NA));
 
-		validateValues("foodOpt", request.getFoodOpt(), Arrays.asList(ApplicationConstants.VAL_Y, ApplicationConstants.VAL_N));
+		validateValues("foodOpt", request.getFoodOpt(),
+				Arrays.asList(ApplicationConstants.VAL_Y, ApplicationConstants.VAL_N));
 	}
 
 	/**
-	 * Used to validate update student request 
+	 * Used to validate update student request
+	 * 
 	 * @param request
 	 */
 	public static void validateUpdateStudentRequest(GmsStudent request) {
@@ -48,24 +59,27 @@ public class GmsStudentValidator {
 		validate("age", request.getAge(), expect(nonNegative, between(0, 100)));
 		validate("mobile", request.getMobile(), expect(phone));
 
-		validateValues("isWhatsApp", request.getIsWhatsApp(), Arrays.asList(ApplicationConstants.VAL_TRUE, ApplicationConstants.VAL_FALSE));
+		validateValues("isWhatsApp", request.getIsWhatsApp(),
+				Arrays.asList(ApplicationConstants.VAL_TRUE, ApplicationConstants.VAL_FALSE));
 		validateValues("registrationStatus", request.getRegistrationStatus(),
 				Arrays.asList(ApplicationConstants.REG_STATUS_REG, ApplicationConstants.REG_STATUS_CNF));
 		validateValues("paymentStatus", request.getPaymentStatus(),
-				Arrays.asList(ApplicationConstants.PAYMENT_STATUS_COMPLETE, ApplicationConstants.PAYMENT_STATUS_PENDING, ApplicationConstants.PAYMENT_STATUS_NA));
-		validateValues("foodOpt", request.getFoodOpt(), Arrays.asList(ApplicationConstants.VAL_Y, ApplicationConstants.VAL_N));
-		
+				Arrays.asList(ApplicationConstants.PAYMENT_STATUS_COMPLETE, ApplicationConstants.PAYMENT_STATUS_PENDING,
+						ApplicationConstants.PAYMENT_STATUS_NA));
+		validateValues("foodOpt", request.getFoodOpt(),
+				Arrays.asList(ApplicationConstants.VAL_Y, ApplicationConstants.VAL_N));
+
 	}
 
 	/**
 	 * Used to validate student registration status
+	 * 
 	 * @param registrationStatus
 	 */
 	public static void validateStudentRegistrationStatus(String registrationStatus) {
 		validate("registrationStatus", registrationStatus, expect(nonEmpty));
 		validateValues("registrationStatus", registrationStatus,
-				Arrays.asList(ApplicationConstants.REG_STATUS_REG, ApplicationConstants.REG_STATUS_CNF));		
+				Arrays.asList(ApplicationConstants.REG_STATUS_REG, ApplicationConstants.REG_STATUS_CNF));
 	}
-	
-	
+
 }

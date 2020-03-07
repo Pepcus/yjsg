@@ -99,5 +99,7 @@ public class ApplicationConstants {
   
   
   // Student GMS Constants
-  public static final String WELCOME_GMS_SMS="Dear {{name}}, We have received your registration for 'Gommatsar Shivir'. Your ID number is {{studentid}}. Thanks!";
+  public static final String GMS_WELCOME_SMS="Dear {{name}}, We have received your registration for 'Gommatsar Shivir'. Your ID number is {{studentid}}. Thanks!";
+  public static final String GMS_PAYMENT_SMS="Dear {{name}}, Your registration for 'Gommatsar Shivir' is not done. You need to do payment of INR {{gmsRegPayment}}. Once Payment is received you will be notified to complete your registration. Thanks!";
+  
 }
