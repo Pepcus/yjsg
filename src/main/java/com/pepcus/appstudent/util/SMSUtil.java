@@ -219,4 +219,25 @@ public class SMSUtil {
         }
 
     }
+    
+    public static void sendSMS(Integer id, String userName, String mobile, String message) {
+        Map<String, String> queryParamMap = new HashMap<String, String>();
+        
+        try {
+            String numbers = mobile;
+            if (!"".equals(numbers)) {
+                queryParamMap.put("number", numbers);
+                queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
+                try {
+                    invokeSendSMSAPI(queryParamMap);
+                } catch (Exception e) {
+                    throw new BadRequestException("Unable to send the SMS to the user " + userName + " with id "+id);
+                }
+            }
+
+        } catch (Exception e) {
+            throw new BadRequestException("Unable to send the SMS to the user" + e.getMessage());
+        }
+
+    }
 }

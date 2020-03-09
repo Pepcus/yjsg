@@ -86,4 +86,20 @@ public class ApplicationConstants {
   public static final String EXACT_DUPLICATE = " We already have your registration. To login you will receive an SMS on your registered phone number ";
   public static final String DATE_FORMAT_YYYY_MM_DD = "yyyy-MM-dd";
   public static final String COORDINATOR_WELCOME_SMS="Dear {{name}}, We have received your coordinator registration for 'Jain Bal & Yuva Sanskar Sikshan Shivir' in Shri Digambar Jain H.S. School from 4 May to 11 May, 2020. Your ID # {{coordinatorId}} & SecretCode # {{secretCode}}. Thanks! YJSG Group.";
+  
+  public static final String VAL_Y = "Y";
+  public static final String VAL_N = "N";
+  public static final String VAL_TRUE = "true";
+  public static final String VAL_FALSE = "false";
+  public static final String REG_STATUS_REG = "REG";
+  public static final String REG_STATUS_CNF = "CNF";
+  public static final String PAYMENT_STATUS_COMPLETE = "Complete";
+  public static final String PAYMENT_STATUS_NA = "NA";
+  public static final String PAYMENT_STATUS_PENDING = "Pending";
+  
+  
+  // Student GMS Constants
+  public static final String GMS_WELCOME_SMS="Dear {{name}}, We have received your registration for 'Gommatsar Shivir'. Your ID number is {{studentid}}. Thanks!";
+  public static final String GMS_PAYMENT_SMS="Dear {{name}}, Your registration for 'Gommatsar Shivir' is not done. You need to do payment of INR {{gmsRegPayment}}. Once Payment is received you will be notified to complete your registration. Thanks!";
+  
 }
