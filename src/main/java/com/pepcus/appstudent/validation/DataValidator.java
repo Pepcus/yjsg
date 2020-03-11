@@ -328,7 +328,7 @@ public class DataValidator {
 
 	private static void alphabet(String propName, String value, BadRequestException error) {
 		if (value != null) {
-			Pattern p = Pattern.compile("^[a-zA-Z]*$");
+			Pattern p = Pattern.compile("^[a-zA-Z\\s]*$");
 			Matcher m = p.matcher(value);
 			Boolean match = (m.find() && m.group().equals(value));
 			if (!match) {

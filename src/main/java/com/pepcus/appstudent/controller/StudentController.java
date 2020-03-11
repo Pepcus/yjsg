@@ -288,6 +288,11 @@ public class StudentController {
         ApiResponse response = studentService.updateStudentInBulk(file, ApplicationConstants.BULK_UPDATE);
         return new ResponseEntity<ApiResponse>(response, HttpStatus.MULTI_STATUS);
     }
+    
+    @GetMapping(value = "/phone/{phone}")
+	public  List<Student> getStudents(@PathVariable("phone") String phoneNumber) {
+    	 return studentService.getStudentsByMobileNumber(phoneNumber);
+	}
 
 
 }

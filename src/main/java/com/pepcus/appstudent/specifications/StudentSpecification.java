@@ -39,5 +39,21 @@ public class StudentSpecification {
 		};
 
 	}
+	
+	public static Specification<Student> getStudentsByMobile(String mobile) {
 
+		return new Specification<Student>() {
+			@Override
+			public Predicate toPredicate(Root<Student> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+				List<Predicate> predicates = new ArrayList<>();
+				if (StringUtils.isNotEmpty(mobile)) {
+					predicates.add(cb.equal(cb.lower(root.get("motherMobile")), mobile));
+					predicates.add(cb.equal(cb.lower(root.get("mobile")), mobile));
+				}
+				return cb.or(predicates.toArray(new Predicate[predicates.size()]));
+			}
+		};
+	}
+	
+	
 }

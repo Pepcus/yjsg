@@ -854,4 +854,22 @@ public class StudentService {
 				.findAll(StudentSpecification.getStudents(studentName, fatherName, fatherMobileNumber));
 	}
 
+	public List<Student> getStudentsByMobileNumber(String mobile) {
+		Specification<Student> spec = StudentSpecification.getStudentsByMobile(mobile);
+
+		// Get and set the total number of records
+		setRequestAttribute(TOTAL_RECORDS, studentRepository.count(spec));
+
+		List<Student> students = studentRepository.findAll(spec);
+			students.forEach(student -> {
+				if (null != student.getDateLastModifiedInDB()) {
+					student.setLastModifiedDate(convertDateToString(student.getDateLastModifiedInDB()));
+				}
+				if (null != student.getDateCreatedInDB()) {
+					student.setCreatedDate(convertDateToString(student.getDateCreatedInDB()));
+				}
+			});
+		return students;
+	}
+
 }
