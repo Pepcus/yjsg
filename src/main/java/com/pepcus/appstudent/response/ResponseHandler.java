@@ -112,7 +112,7 @@ public class ResponseHandler implements ResponseBodyAdvice<Object> {
         if (httpRequest.getMethod().equals(HttpMethod.GET)) {
         	 if (body instanceof Student) {
                 apiResponse.setStudent((Student) body);
-            } else if (((List) body).get(0) instanceof Student) {
+            }  else if (((List) body).isEmpty() || ((List) body).get(0) instanceof Student) {
                 if ((List) body == null || ((List) body).isEmpty()) {
                     apiResponse.setMessage("No records found for request.");
                 } else {
