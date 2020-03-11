@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 import com.pepcus.appstudent.entity.GmsStudent;
-import com.pepcus.appstudent.util.ApplicationConstants;
 
 /**
  * Converter class to build/convert student gms entity
@@ -23,12 +22,6 @@ public class GmsStudentEntityConvertor {
 		Date currentDate = Calendar.getInstance().getTime();
 		request.setDateCreatedInDB(currentDate);
 		request.setDateLastModifiedInDB(currentDate);
-		if (request.getIsWhatsApp() == null) {
-			request.setIsWhatsApp(ApplicationConstants.VAL_FALSE);
-		}
-		if (request.getPaymentStatus() == null) {
-			request.setPaymentStatus(ApplicationConstants.PAYMENT_STATUS_NA);
-		}
 		return request;
 	}
 
