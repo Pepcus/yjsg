@@ -102,8 +102,8 @@ public class CoordinatorService {
 		if (CollectionUtils.isNotEmpty(coordinator.getAssignedDepartments())) {
 			coordinator.setAssignedDepartment(StringUtils.join(coordinator.getAssignedDepartments(), ","));
 		}
-		if (CollectionUtils.isNotEmpty(coordinator.getIntrestedDepartments())) {
-			coordinator.setIntrestedDepartment(StringUtils.join(coordinator.getIntrestedDepartments(), ","));
+		if (CollectionUtils.isNotEmpty(coordinator.getInterestedDepartments())) {
+			coordinator.setInterestedDepartment(StringUtils.join(coordinator.getInterestedDepartments(), ","));
 		}
 
 		if (StringUtils.isNotEmpty(coordinator.getFirstName())) {
@@ -134,8 +134,8 @@ public class CoordinatorService {
 			coordinator.setAssignedDepartment(coordinatorRequest.getAssignedDepartment());
 		}
 
-		if (StringUtils.isNotEmpty(coordinatorRequest.getIntrestedDepartment())) {
-			coordinator.setIntrestedDepartment(coordinatorRequest.getIntrestedDepartment());
+		if (StringUtils.isNotEmpty(coordinatorRequest.getInterestedDepartment())) {
+			coordinator.setInterestedDepartment(coordinatorRequest.getInterestedDepartment());
 		}
 
 		if (StringUtils.isNotEmpty(coordinatorRequest.getAlternateContactNumber())) {
@@ -188,8 +188,8 @@ public class CoordinatorService {
 		if (StringUtils.isNotEmpty(coordinator.getAssignedDepartment())) {
 			coordinator.setAssignedDepartments(Arrays.asList(coordinator.getAssignedDepartment().split(",")));
 		}
-		if (StringUtils.isNotEmpty(coordinator.getIntrestedDepartment())) {
-			coordinator.setIntrestedDepartments(Arrays.asList(coordinator.getIntrestedDepartment().split(",")));
+		if (StringUtils.isNotEmpty(coordinator.getInterestedDepartment())) {
+			coordinator.setInterestedDepartments(Arrays.asList(coordinator.getInterestedDepartment().split(",")));
 		}
 	}
 	
