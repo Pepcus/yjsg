@@ -52,14 +52,14 @@ private String address;
 @Column(name = "area")
 private String area;
 
-@Column(name = "intrested_departments")
-private String intrestedDepartment;
+@Column(name = "interested_departments")
+private String interestedDepartment;
 
 @Column(name = "assigned_departments")
 private String assignedDepartment;
 
 @Transient
-List<String> intrestedDepartments;
+List<String> interestedDepartments;
 
 @Transient
 List<String> assignedDepartments;
