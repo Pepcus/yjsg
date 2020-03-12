@@ -319,12 +319,14 @@ public class SmsService {
      * @param flagName
      * @return boolean
      */
-    public boolean isSMSFlagEnabled(String flagName) {
-        List<SMSFlags> smsFlagsList = smsService.getAllFlags();
-        SMSFlags filterFlag = smsFlagsList.stream()
-                .filter(predicate -> predicate.getFlagName().equalsIgnoreCase(flagName)).findFirst().get();
-        return filterFlag.getFlagValue() == 1 ? true : false;
-    }
+	public boolean isSMSFlagEnabled(String flagName) {
+		try {
+			SMSFlags smsFlag = validateFlag(flagName);
+			return smsFlag.getFlagValue() == 1 ? true : false;
+		} catch (Exception e) {
+			return false;
+		}
+	}
 
     /**
      * Method used to get All flags
