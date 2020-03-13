@@ -126,9 +126,7 @@ public class GmsStudentService {
 
 	private void sendPaymentSms(GmsStudent gmsStudentEntity) {
 		String name = gmsStudentEntity.getName();
-		String message = ApplicationConstants.GMS_WELCOME_SMS.replace("{{name}}", gmsStudentEntity.getName());
-		message = ApplicationConstants.GMS_PAYMENT_SMS.replace("{{name}}", name);
-        message = message.replace("{{gmsRegPayment}}", sendRegistrationPayment);
+		String message = ApplicationConstants.GMS_PAYMENT_SMS.replace("{{gmsRegPayment}}", sendRegistrationPayment);
 		SMSUtil.sendSMS(null, name, gmsStudentEntity.getMobile(), message);
 		
 	}
