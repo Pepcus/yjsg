@@ -29,9 +29,14 @@ public class GmsStudentService {
 	@Value("${send_reg_sms_gms_student}")
 	String sendRegistrationSms;
 	
-	@Value("${payment_sms_gms_student}")
-	String sendRegistrationPayment;
+	@Value("${send_payment_sms_gms_student}")
+	String sendPaymentSms;
 	
+	@Value("${gms_reg_payment_amt}")
+	String paymentAmount;
+
+	@Value("${gms_payment_contact_number}")
+	String paymentContactNumber;
 
 	@Autowired
 	GmsStudentRepository gmsStudentRepository;
@@ -114,19 +119,21 @@ public class GmsStudentService {
 		GmsStudent gmsStudentEntity = persistStudentGMSEntity(
 				GmsStudentEntityConvertor.convertGmsStudentEntity(request));
 
-		if(gmsStudentEntity.getPaymentStatus().equalsIgnoreCase(ApplicationConstants.PAYMENT_STATUS_PENDING)){
+		if (gmsStudentEntity.getPaymentStatus().equalsIgnoreCase(ApplicationConstants.PAYMENT_STATUS_PENDING)
+				&& Boolean.parseBoolean(sendPaymentSms)) {
 			// send welcome sms to student
 			sendPaymentSms(gmsStudentEntity);
-		} else if(Boolean.parseBoolean(sendRegistrationSms)){
+		} else if (Boolean.parseBoolean(sendRegistrationSms)) {
 			// send welcome sms to student
-			sendRegistrationSms(gmsStudentEntity);	
+			sendRegistrationSms(gmsStudentEntity);
 		}
 		return GmsStudentEntityConvertor.setDateInGmsStudentEntity(gmsStudentEntity);
 	}
 
 	private void sendPaymentSms(GmsStudent gmsStudentEntity) {
 		String name = gmsStudentEntity.getName();
-		String message = ApplicationConstants.GMS_PAYMENT_SMS.replace("{{gmsRegPayment}}", sendRegistrationPayment);
+		String message = ApplicationConstants.GMS_PAYMENT_SMS.replace("{{gmsRegPayment}}", paymentAmount);
+		message = message.replace("{{paymentContactNumber}}",paymentContactNumber);
 		SMSUtil.sendSMS(null, name, gmsStudentEntity.getMobile(), message);
 		
 	}
