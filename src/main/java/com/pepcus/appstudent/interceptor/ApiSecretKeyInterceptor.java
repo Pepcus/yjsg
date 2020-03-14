@@ -66,15 +66,16 @@ public class ApiSecretKeyInterceptor extends HandlerInterceptorAdapter {
             return true;
         }
 
-        if (StringUtils.isEmpty(id)) {
+        if (StringUtils.isEmpty(id) && StringUtils.isEmpty(coordinatorId)) {
             throw new AuthorizationFailedException("Unauthorized to access the service");
         }
-
-        try {
-            studentId = Integer.valueOf(id);
-        } catch (NumberFormatException e) {
-            throw new BadRequestException(id + " is not a valid studentId");
-        }
+		if (!StringUtils.isEmpty(id)) {
+			try {
+				studentId = Integer.valueOf(id);
+			} catch (NumberFormatException e) {
+				throw new BadRequestException(id + " is not a valid studentId");
+			}
+		}
         return authManager.checkAuthorization(coordinatorId, studentId, secretKey);
     }
 
