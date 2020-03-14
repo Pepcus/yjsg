@@ -24,7 +24,7 @@ public class GmsStudentValidator {
 	 */
 	public static void validateCreateStudentRequest(GmsStudent request) {
 
-		validate("name", request.getName(), expect(nonEmpty, alphabetOnly));
+		validate("name", request.getName(), expect(nonEmpty));
 		validate("mobile", request.getMobile(), expect(nonEmpty, phone));
 		if (request.getPaymentStatus() != null
 				&& request.getPaymentStatus().equalsIgnoreCase(ApplicationConstants.PAYMENT_STATUS_PENDING)) {
@@ -55,7 +55,6 @@ public class GmsStudentValidator {
 	 * @param request
 	 */
 	public static void validateUpdateStudentRequest(GmsStudent request) {
-		validate("name", request.getName(), expect(alphabetOnly));
 		validate("age", request.getAge(), expect(nonNegative, between(0, 100)));
 		validate("mobile", request.getMobile(), expect(phone));
 
