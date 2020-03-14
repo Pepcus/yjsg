@@ -145,7 +145,7 @@ public class StudentService {
 
 		if (duplicateStudent != null) {
 			// update optin if duplicate
-			if (!duplicateStudent.isPartialMatch()) {
+			if (!duplicateStudent.isPotentialMatch()) {
 				duplicateStudent.setOptIn2020("Y");
 				savedStudent = studentRepository.save(duplicateStudent);
 				if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
@@ -154,6 +154,7 @@ public class StudentService {
 				throw new BadRequestException("Dear " + savedStudent.getName() + " (ID # " + savedStudent.getId() + "), "
 						+ ApplicationConstants.EXACT_DUPLICATE + "(# " + savedStudent.getMobile() + ").", 1000);
 			} else {
+				student.setPotentialMatch(true);
 				DuplicateRegistration duplicateRegistration = getDuplicateRegistrationEntity(student, duplicateStudent);
 				duplicateRegistration = duplicateRegistrationRepository.save(duplicateRegistration);
 				if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
@@ -841,7 +842,7 @@ public class StudentService {
 					|| compressFatherName.contains(compressFatherNameDB.toLowerCase())) && (compressStudentNameDB.toLowerCase().contains(compressStudentName)
 							|| compressStudentName.contains(compressStudentNameDB.toLowerCase()))) {
 				duplicateStudent = students.stream().findFirst().get();
-				//duplicateStudent.setPartialMatch(true);
+				duplicateStudent.setPotentialMatch(true);
 				return duplicateStudent;
 			}
 			

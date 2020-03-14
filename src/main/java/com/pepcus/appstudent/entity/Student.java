@@ -212,6 +212,6 @@ public class Student {
     
     @Transient
     @JsonProperty(access = Access.READ_ONLY)
-    private boolean isPartialMatch;
+    private boolean isPotentialMatch;
 
 }
