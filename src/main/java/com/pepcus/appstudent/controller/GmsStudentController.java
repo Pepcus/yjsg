@@ -51,7 +51,7 @@ public class GmsStudentController {
 	 * @return
 	 */
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<GmsStudent> getStudent(@PathVariable("studentId") Integer id) {
+	public ResponseEntity<GmsStudent> getStudent(@PathVariable("id") Integer id) {
 		GmsStudent gmsStudent = gmsStudentService.getStudent(id);
 		return new ResponseEntity<GmsStudent>(gmsStudent, HttpStatus.OK);
 	}
