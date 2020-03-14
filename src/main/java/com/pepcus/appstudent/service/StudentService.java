@@ -833,6 +833,14 @@ public class StudentService {
 			}
 		}
 		// check partial match
+		students = getStudentsByFilterAttributes(studentName, fatherName, null);
+		if (CollectionUtils.isNotEmpty(students)) {
+			student = students.stream().findFirst().get();
+			duplicateStudent = students.stream().findFirst().get();
+			duplicateStudent.setPotentialMatch(true);
+			return duplicateStudent;
+		}
+			
 		students = getStudentsByFilterAttributes(studentNameForSearch, fatherNameForsearch, null);
 		if (CollectionUtils.isNotEmpty(students)) {
 			student = students.stream().findFirst().get();
