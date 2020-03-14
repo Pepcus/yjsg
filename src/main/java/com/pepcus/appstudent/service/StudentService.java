@@ -841,7 +841,7 @@ public class StudentService {
 					|| compressFatherName.contains(compressFatherNameDB.toLowerCase())) && (compressStudentNameDB.toLowerCase().contains(compressStudentName)
 							|| compressStudentName.contains(compressStudentNameDB.toLowerCase()))) {
 				duplicateStudent = students.stream().findFirst().get();
-				duplicateStudent.setPartialMatch(true);
+				//duplicateStudent.setPartialMatch(true);
 				return duplicateStudent;
 			}
 			
