@@ -82,4 +82,17 @@ public class GmsStudentValidator {
 				Arrays.asList(ApplicationConstants.REG_STATUS_REG, ApplicationConstants.REG_STATUS_CNF));
 	}
 
+	/**
+	 * Used to validate student payment status
+	 * 
+	 * @param registrationStatus
+	 */
+	public static void validateStudentPaymentStatus(String paymentStatus) {
+		validate("paymentStatus", paymentStatus, expect(nonEmpty));
+		validateValues("paymentStatus", paymentStatus,
+				Arrays.asList(ApplicationConstants.PAYMENT_STATUS_COMPLETE, ApplicationConstants.PAYMENT_STATUS_PENDING,
+						ApplicationConstants.PAYMENT_STATUS_NA));
+		
+	}
+
 }

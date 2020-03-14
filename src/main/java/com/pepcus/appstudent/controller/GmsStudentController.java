@@ -101,12 +101,27 @@ public class GmsStudentController {
 	 * @param requestVariables
 	 * @return
 	 */
-	@PatchMapping("/{id}")
+	@PatchMapping("/registration-status/{id}")
 	public ResponseEntity<GmsStudent> updateStudentRegistrationStatus(@PathVariable("id") Integer id,
 			@RequestBody Map<String, String> requestVariables) {
 		String registrationStatus = requestVariables.get("registrationStatus");
 		GmsStudentValidator.validateStudentRegistrationStatus(registrationStatus);
-		GmsStudent gmsStudentEntity = gmsStudentService.updateStudentStatus(id, registrationStatus);
+		GmsStudent gmsStudentEntity = gmsStudentService.updateStudentRegistrationStatus(id, registrationStatus);
+		return new ResponseEntity<GmsStudent>(gmsStudentEntity, HttpStatus.OK);
+	}
+	
+	/**
+	 * Used to update student registration status
+	 * @param id
+	 * @param requestVariables
+	 * @return
+	 */
+	@PatchMapping("/payment-status/{id}")
+	public ResponseEntity<GmsStudent> updateStudentPaymentStatus(@PathVariable("id") Integer id,
+			@RequestBody Map<String, String> requestVariables) {
+		String paymentStatus = requestVariables.get("paymentStatus");
+		GmsStudentValidator.validateStudentPaymentStatus(paymentStatus);
+		GmsStudent gmsStudentEntity = gmsStudentService.updateStudentPaymentStatus(id, paymentStatus);
 		return new ResponseEntity<GmsStudent>(gmsStudentEntity, HttpStatus.OK);
 	}
 

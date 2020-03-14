@@ -101,5 +101,6 @@ public class ApplicationConstants {
   // Student GMS Constants
   public static final String GMS_WELCOME_SMS="Dear {{name}}, We have received your registration for 'Gommatsar Shivir'. Your ID number is {{studentid}}. Thanks!";
   public static final String GMS_PAYMENT_SMS= "You need to do payment of INR {{gmsRegPayment}} on PayTm number {{paymentContactNumber}}. Once Payment is received you will be notified to complete your registration.";
-
+  public static final String GMS_PAYMENT_CNF_SMS = "We have received your registration fee. Now you can register for rituals camp from here (http://yjsg.in/gms/reg)";
+  
 }

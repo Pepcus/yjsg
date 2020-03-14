@@ -168,12 +168,38 @@ public class GmsStudentService {
 	 * @param registrationStatus
 	 * @return
 	 */
-	public GmsStudent updateStudentStatus(Integer id, String registrationStatus) {
+	public GmsStudent updateStudentRegistrationStatus(Integer id, String registrationStatus) {
 		GmsStudent gmsStudentEntity = getGmsStudentEntity(id);
 		gmsStudentEntity.setRegistrationStatus(registrationStatus);
 		gmsStudentEntity.setDateLastModifiedInDB(Calendar.getInstance().getTime());
 		gmsStudentEntity = persistStudentGMSEntity(gmsStudentEntity);
 		return GmsStudentEntityConvertor.setDateInGmsStudentEntity(gmsStudentEntity);
+	}
+
+	
+	/**
+	 * Method to update existing gms student payment status for given studentId
+	 * @param id
+	 * @param paymentStatus
+	 * @return
+	 */
+	public GmsStudent updateStudentPaymentStatus(Integer id, String paymentStatus) {
+		GmsStudent gmsStudentEntity = getGmsStudentEntity(id);
+		gmsStudentEntity.setPaymentStatus(paymentStatus);
+		gmsStudentEntity.setDateLastModifiedInDB(Calendar.getInstance().getTime());
+		gmsStudentEntity = persistStudentGMSEntity(gmsStudentEntity);
+		if(ApplicationConstants.PAYMENT_STATUS_COMPLETE.equalsIgnoreCase(gmsStudentEntity.getPaymentStatus())){
+			// TODO : Send SMS based on flag
+			// sendPaymentCompleteSms(gmsStudentEntity);
+		}
+		return GmsStudentEntityConvertor.setDateInGmsStudentEntity(gmsStudentEntity);
+	}
+
+	private void sendPaymentCompleteSms(GmsStudent gmsStudentEntity) {
+		String name = gmsStudentEntity.getName();
+		String message = ApplicationConstants.GMS_PAYMENT_CNF_SMS;
+		SMSUtil.sendSMS(null, name, gmsStudentEntity.getMobile(), message);
+		
 	}
 
 }
