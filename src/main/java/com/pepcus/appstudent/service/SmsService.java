@@ -5,8 +5,8 @@ import static com.pepcus.appstudent.util.ApplicationConstants.ATTENDANCE;
 import static com.pepcus.appstudent.util.ApplicationConstants.DATE_FORMAT_DDMMYYYY;
 import static com.pepcus.appstudent.util.ApplicationConstants.IS_ABSENT;
 import static com.pepcus.appstudent.util.ApplicationConstants.ON;
-import static com.pepcus.appstudent.util.ApplicationConstants.OPTINMESSAGECONTENT;
-import static com.pepcus.appstudent.util.ApplicationConstants.OPTOUTMESSAGECONTENT;
+import static com.pepcus.appstudent.util.ApplicationConstants.OPT_IN_SMS;
+import static com.pepcus.appstudent.util.ApplicationConstants.OPT_OUT_SMS;
 import static com.pepcus.appstudent.util.ApplicationConstants.PRESENT_MESSAGE_CONTENT;
 
 import java.io.IOException;
@@ -176,7 +176,7 @@ public class SmsService {
             try {
                 queryParamMap.put("number", numbers);
                 if (!StringUtils.isEmpty(numbers) && student.getOptIn2020().equalsIgnoreCase("N")) {
-                    String message = OPTOUTMESSAGECONTENT.replace("{{name}}", student.getName());
+                    String message = OPT_OUT_SMS.replace("{{name}}", student.getName());
                     message = message.replace("<ID>", String.valueOf(student.getId()));
                     message = message.replace("<Code>",
                             StringUtils.isEmpty(student.getSecretKey()) ? "<Code>" : student.getSecretKey());
@@ -203,7 +203,7 @@ public class SmsService {
             try {
                 queryParamMap.put("number", numbers);
                 if (!StringUtils.isEmpty(numbers) && student.getOptIn2020().equalsIgnoreCase("Y")) {
-                    String message = OPTINMESSAGECONTENT.replace("{{name}}", student.getName());
+                    String message = OPT_IN_SMS.replace("{{name}}", student.getName());
                     message = message.replace("<ID>", String.valueOf(student.getId()));
                     message = message.replace("<Code>",
                             StringUtils.isEmpty(student.getSecretKey()) ? "<Code>" : student.getSecretKey());
@@ -349,10 +349,6 @@ public class SmsService {
 			if (!StringUtils.isEmpty(numbers) && student.getOptIn2020().equalsIgnoreCase("Y")) {
 				String message = ApplicationConstants.ALREADY_REGISTER_SMS.replace("{{name}}", student.getName());
 				message = message.replace("{{studentid}}", String.valueOf(student.getId()));
-				message = message.replace("{{secretCode}}", String.valueOf(student.getSecretKey()));
-				message = message.replace("<ID>", String.valueOf(student.getId()));
-				message = message.replace("<Code>",
-						StringUtils.isEmpty(student.getSecretKey()) ? "<Code>" : student.getSecretKey());
 				queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
 				SMSUtil.invokeSendSMSAPI(queryParamMap);
 			}

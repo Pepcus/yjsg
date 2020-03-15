@@ -178,7 +178,6 @@ public class SMSUtil {
             String numbers = student.getMobile();
             if (!"".equals(numbers)) {
                 String message = ApplicationConstants.PARTIAL_DUPLICATE_SMS.replace("{{name}}", student.getName());
-                message = message.replace("{{studentid}}", String.valueOf(student.getId()));
 
                 queryParamMap.put("number", student.getMobile());
                 queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
