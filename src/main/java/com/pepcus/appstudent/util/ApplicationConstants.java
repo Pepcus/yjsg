@@ -26,7 +26,7 @@ public class ApplicationConstants {
   public static final String COMMA_SEPARATOR = ",";
   public static final String OPTIN = "optin";
   public static final String ATTENDANCE = "attendance";
-  public static final String OPTOUTMESSAGECONTENT = " Dear {{name}}, We heard you will not attend ‘YJSG - Jain Shivir’ in Sanmati school from 4 May to 11 May, 2020. If you change your mind, please register by clicking on– https://yjsg.in/reg?id=<ID>&secretCode=<Code>. Thanks! YJSG.";
+  public static final String OPTOUTMESSAGECONTENT = " Dear {{name}}, We heard you will not attend ‘YJSG - Jain Shivir’ in Sanmati school from 4 May to 12 May, 2020. If you change your mind, please register by clicking on– https://yjsg.in/reg?id=<ID>&secretCode=<Code>. Thanks! YJSG.";
   public static final String OPTINMESSAGECONTENT="Dear {{name}}, We have received your confirmation for attending ‘YJSG – Jain Shivir’ in Sanmati school from 4 May to 12 May, 2020. If you wish to change your personal information, please click on – https://yjsg.in/reg?id=<ID>&secretCode=<Code>. Thanks! YJSG.";
   public static final String ISPRESENT="Y";
   public static final String PRESENT_MESSAGE_CONTENT="Dear {{name}}, We appreciate your presence in Shivir today. Thanks! YJSG Group.";
