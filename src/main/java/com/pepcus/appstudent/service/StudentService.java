@@ -154,7 +154,6 @@ public class StudentService {
 				throw new BadRequestException("Dear " + savedStudent.getName() + " (ID # " + savedStudent.getId() + "), "
 						+ ApplicationConstants.EXACT_DUPLICATE + "(# " + savedStudent.getMobile() + ").", 1000);
 			} else {
-				student.setPotentialMatch(true);
 				DuplicateRegistration duplicateRegistration = getDuplicateRegistrationEntity(student, duplicateStudent);
 				duplicateRegistration = duplicateRegistrationRepository.save(duplicateRegistration);
 				if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
