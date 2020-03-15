@@ -211,7 +211,9 @@ public class StudentService {
         updatedStudent.setDateLastModifiedInDB(currentDate);
 
         Student studentInDB = studentRepository.save(updatedStudent);
-        if (!StringUtils.isEmpty(std.getOptIn2020()) && (optIn2020!=null && !optIn2020.equalsIgnoreCase(updatedStudent.getOptIn2020()))) {
+        
+        // Per discussion with Ajay (15/03/2020) SMS should not be trigger for update student.
+        /*if (!StringUtils.isEmpty(std.getOptIn2020()) && (optIn2020!=null && !optIn2020.equalsIgnoreCase(updatedStudent.getOptIn2020()))) {
             if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTIN)) {
                 if (updatedStudent.getOptIn2020().equalsIgnoreCase(ISPRESENT)) {
                     studentList.add(updatedStudent);
@@ -224,7 +226,7 @@ public class StudentService {
                     smsService.sendOptOutSMS(studentList);
                 }
             }
-        }
+        }*/
 
         if (null != studentInDB.getDateCreatedInDB()) {
             studentInDB.setCreatedDate(convertDateToString(studentInDB.getDateCreatedInDB()));
