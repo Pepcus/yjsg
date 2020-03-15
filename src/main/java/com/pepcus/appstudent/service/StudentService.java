@@ -254,7 +254,7 @@ public class StudentService {
             }
             studentRepository.save(studentList);
             // Send Opt SMS
-            if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTIN)) {
+            if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTIN) && student.getOptIn2020().equalsIgnoreCase(ISPRESENT)) {
                 smsService.sendOptInSMS(studentList);
                 response.setSmsMessage(
                         ApplicationConstants.SMS_SENT_SUCCESSFULLY + ApplicationConstants.FOR_OPTIN_STUDENTS);
@@ -262,7 +262,7 @@ public class StudentService {
                 response.setSmsMessage(
                         ApplicationConstants.SMS_NOT_SENT + ApplicationConstants.SMS_OPTIN_FEATURE_DISABLE);
             }
-            if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTOUT)) {
+            if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_OPTOUT) &&  student.getOptIn2020().equalsIgnoreCase(ApplicationConstants.NO)) {
                 smsService.sendOptOutSMS(studentList);
                 response.setSmsMessage(response.getSmsMessage().concat(
                         "," + ApplicationConstants.SMS_SENT_SUCCESSFULLY + ApplicationConstants.FOR_OPTOUT_STUDENTS));
