@@ -64,16 +64,16 @@ public class GmsStudentEntityConvertor {
 		return gmsStudentEntity;
 	}
 
-	public static List<GmsStudent> setDateInGmsStudentEntityList(List<GmsStudent> students) {
+	public static List<GmsStudent> setDateInGmsStudent(List<GmsStudent> students) {
 		if (students != null && !students.isEmpty()) {
 			for (GmsStudent student : students) {
-				setDateInGmsStudentEntity(student);
+				setDateInGmsStudent(student);
 			}
 		}
 		return students;
 	}
 
-	public static GmsStudent setDateInGmsStudentEntity(GmsStudent student) {
+	public static GmsStudent setDateInGmsStudent(GmsStudent student) {
 		if (null != student.getDateLastModifiedInDB()) {
 			student.setLastModifiedDate(convertDateToString(student.getDateLastModifiedInDB()));
 		}

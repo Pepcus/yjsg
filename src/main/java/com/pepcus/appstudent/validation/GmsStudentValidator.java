@@ -1,6 +1,5 @@
 package com.pepcus.appstudent.validation;
 
-import static com.pepcus.appstudent.validation.DataValidator.alphabetOnly;
 import static com.pepcus.appstudent.validation.DataValidator.between;
 import static com.pepcus.appstudent.validation.DataValidator.expect;
 import static com.pepcus.appstudent.validation.DataValidator.nonEmpty;

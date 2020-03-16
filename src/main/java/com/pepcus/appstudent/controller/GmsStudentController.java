@@ -43,6 +43,63 @@ public class GmsStudentController {
 
 	@Autowired
 	GmsStudentService gmsStudentService;
+	
+	/**
+	 * Used to create student record
+	 * 
+	 * @param request
+	 * @return
+	 */
+	@PostMapping
+	public ResponseEntity<GmsStudent> createStudent(@RequestBody GmsStudent request) {
+		GmsStudentValidator.validateCreateStudentRequest(request);
+		GmsStudent gmsStudent = gmsStudentService.createStudent(request);
+		return new ResponseEntity<GmsStudent>(gmsStudent, HttpStatus.OK);
+	}
+
+	/**
+	 * Used to update student record
+	 * 
+	 * @param id
+	 * @param request
+	 * @return
+	 */
+	@PutMapping("/{id}")
+	public ResponseEntity<GmsStudent> updateStudent(@PathVariable("id") Integer id, @RequestBody GmsStudent request) {
+		GmsStudentValidator.validateUpdateStudentRequest(request);
+		GmsStudent gmsStudent = gmsStudentService.updateStudent(id, request);
+		return new ResponseEntity<GmsStudent>(gmsStudent, HttpStatus.OK);
+	}
+
+	/**
+	 * Used to update student registration status
+	 * @param id
+	 * @param requestVariables
+	 * @return
+	 */
+	@PatchMapping("/registration-status/{id}")
+	public ResponseEntity<GmsStudent> updateStudentRegistrationStatus(@PathVariable("id") Integer id,
+			@RequestBody Map<String, String> requestVariables) {
+		String registrationStatus = requestVariables.get("registrationStatus");
+		GmsStudentValidator.validateStudentRegistrationStatus(registrationStatus);
+		GmsStudent gmsStudent = gmsStudentService.updateStudentRegistrationStatus(id, registrationStatus);
+		return new ResponseEntity<GmsStudent>(gmsStudent, HttpStatus.OK);
+	}
+	
+	/**
+	 * Used to update student registration status
+	 * @param id
+	 * @param requestVariables
+	 * @return
+	 */
+	@PatchMapping("/payment-status/{id}")
+	public ResponseEntity<GmsStudent> updateStudentPaymentStatus(@PathVariable("id") Integer id,
+			@RequestBody Map<String, String> requestVariables) {
+		String paymentStatus = requestVariables.get("paymentStatus");
+		GmsStudentValidator.validateStudentPaymentStatus(paymentStatus);
+		GmsStudent gmsStudent = gmsStudentService.updateStudentPaymentStatus(id, paymentStatus);
+		return new ResponseEntity<GmsStudent>(gmsStudent, HttpStatus.OK);
+	}
 
 	/**
 	 * Method to return list of all document
@@ -79,62 +136,7 @@ public class GmsStudentController {
 		return new ResponseEntity<List<GmsStudent>>(gmsStudentList, HttpStatus.OK);
 	}
 
-	/**
-	 * Used to create student record
-	 * 
-	 * @param request
-	 * @return
-	 */
-	@PostMapping
-	public ResponseEntity<GmsStudent> createStudent(@RequestBody GmsStudent request) {
-		GmsStudentValidator.validateCreateStudentRequest(request);
-		GmsStudent gmsStudentEntity = gmsStudentService.createStudent(request);
-		return new ResponseEntity<GmsStudent>(gmsStudentEntity, HttpStatus.OK);
-	}
-
-	/**
-	 * Used to update student record
-	 * 
-	 * @param id
-	 * @param gmsStudent
-	 * @return
-	 */
-	@PutMapping("/{id}")
-	public ResponseEntity<GmsStudent> updateStudent(@PathVariable("id") Integer id, @RequestBody GmsStudent request) {
-		GmsStudentValidator.validateUpdateStudentRequest(request);
-		GmsStudent gmsStudentEntity = gmsStudentService.updateStudent(id, request);
-		return new ResponseEntity<GmsStudent>(gmsStudentEntity, HttpStatus.OK);
-	}
-
-	/**
-	 * Used to update student registration status
-	 * @param id
-	 * @param requestVariables
-	 * @return
-	 */
-	@PatchMapping("/registration-status/{id}")
-	public ResponseEntity<GmsStudent> updateStudentRegistrationStatus(@PathVariable("id") Integer id,
-			@RequestBody Map<String, String> requestVariables) {
-		String registrationStatus = requestVariables.get("registrationStatus");
-		GmsStudentValidator.validateStudentRegistrationStatus(registrationStatus);
-		GmsStudent gmsStudentEntity = gmsStudentService.updateStudentRegistrationStatus(id, registrationStatus);
-		return new ResponseEntity<GmsStudent>(gmsStudentEntity, HttpStatus.OK);
-	}
 	
-	/**
-	 * Used to update student registration status
-	 * @param id
-	 * @param requestVariables
-	 * @return
-	 */
-	@PatchMapping("/payment-status/{id}")
-	public ResponseEntity<GmsStudent> updateStudentPaymentStatus(@PathVariable("id") Integer id,
-			@RequestBody Map<String, String> requestVariables) {
-		String paymentStatus = requestVariables.get("paymentStatus");
-		GmsStudentValidator.validateStudentPaymentStatus(paymentStatus);
-		GmsStudent gmsStudentEntity = gmsStudentService.updateStudentPaymentStatus(id, paymentStatus);
-		return new ResponseEntity<GmsStudent>(gmsStudentEntity, HttpStatus.OK);
-	}
 	
 	/**
 	 * Method to export all student data as CSV file

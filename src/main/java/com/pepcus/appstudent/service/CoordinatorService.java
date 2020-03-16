@@ -1,28 +1,16 @@
 package com.pepcus.appstudent.service;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.opencsv.CSVReader;
-import com.opencsv.bean.ColumnPositionMappingStrategy;
-import com.opencsv.bean.CsvToBean;
+import com.pepcus.appstudent.convertor.CoordinatorEntityConvertor;
 import com.pepcus.appstudent.entity.Coordinator;
 import com.pepcus.appstudent.entity.WrapperCoordinator;
 import com.pepcus.appstudent.exception.BadRequestException;
@@ -43,160 +31,119 @@ public class CoordinatorService {
 	
 	@Autowired
 	SmsService smsService;
+	
+	
+	/**
+	 * Method to get Coordinator entity
+	 * @param firstName
+	 * @param lastName
+	 * @param primaryContactNumber
+	 * @param dob
+	 * @return
+	 */
+	public List<Coordinator> getCoordinatorEntityList(String firstName, String lastName, String primaryContactNumber, String dob) {
+		return coordinatorRepository.findAll(CoordinatorSpecification.getCoordinators(firstName, lastName, primaryContactNumber, dob));
+	}
+	
+	/**
+	 * Method to get Coordinator entity for id
+	 * @param id
+	 * @return
+	 */
+	private Coordinator getCoordinatorEntity(Integer id) {
+		Coordinator coordinator = coordinatorRepository.findById(id);
+		if (coordinator == null) {
+			throw new BadRequestException(ErrorMessageConstants.INVALID_ID + " {" + id + "}");
+		}
+		return coordinator;
+	}
+	
 
-	public Coordinator createCoordinator(Coordinator coordinator) throws ParseException {
-		List<Coordinator> coordinators = getCoordinatorList(coordinator.getFirstName(), coordinator.getLastName(), null , coordinator.getDob());
+	/**
+	 * Method to create/register new Coordinator
+	 * 
+	 * @param request
+	 */
+	public Coordinator createCoordinator(Coordinator request) throws ParseException {
+		List<Coordinator> coordinators = getCoordinatorEntityList(request.getFirstName(), request.getLastName(), null , request.getDob());
 		if(CollectionUtils.isNotEmpty(coordinators)) {
 			Integer duplicateCoordinatorId = coordinators.stream().findFirst().get().getId();
 			throw new BadRequestException(
 					ErrorMessageConstants.ALREADY_REGISTRATION + "{" + duplicateCoordinatorId + "}", 1000);
 		}
-		tranformRequest(coordinator);
-		coordinator = saveAndSendSMStoCoordinate(coordinator);
-		transformResponse(coordinator);
-		return coordinator;
-	}
-
-	public Coordinator getCoordinator(Integer id) {
-		Coordinator coordinator = coordinatorRepository.findById(id);
-		if (coordinator == null) {
-			throw new BadRequestException(ErrorMessageConstants.INVALID_ID + " {" + id + "}");
-		}
-		transformResponse(coordinator);
-		return coordinator;
-	}
-
-	public List<Coordinator> getCoordinators(String firstName, String lastName, String primaryContactNumber, String dob) {
-		List<Coordinator> coordinators = getCoordinatorList(firstName, lastName, primaryContactNumber, dob);
-		if (CollectionUtils.isNotEmpty(coordinators)) {
-			for (Coordinator coordinator : coordinators) {
-				transformResponse(coordinator);
-			}
-		}
-		return coordinators;
-	}
-
-	public Coordinator deleteCoordinator(Integer id) {
-		Coordinator coordinator = coordinatorRepository.findById(id);
-		if (coordinator == null) {
-			throw new BadRequestException(ErrorMessageConstants.INVALID_ID + " {" + id + "}");
-		}
-
-		coordinatorRepository.delete(coordinator);
-		return coordinator;
-	}
-
-	public Coordinator updateCoordinator(Integer id, Coordinator coordinatorRequest) throws ParseException {
-		Coordinator coordinator = coordinatorRepository.findById(id);
-		if (coordinator == null) {
-			throw new BadRequestException(ErrorMessageConstants.INVALID_ID + " {" + id + "}");
-		}
-		tranformRequest(coordinatorRequest);
-		ConvertToEntity(coordinator, coordinatorRequest);
-		coordinator = coordinatorRepository.save(coordinator);
-		transformResponse(coordinator);
-		return coordinator;
-	}
-
-	public void tranformRequest(Coordinator coordinator) throws ParseException {
-		if (CollectionUtils.isNotEmpty(coordinator.getAssignedDepartments())) {
-			coordinator.setAssignedDepartment(StringUtils.join(coordinator.getAssignedDepartments(), ","));
-		}
-		if (CollectionUtils.isNotEmpty(coordinator.getInterestedDepartments())) {
-			coordinator.setInterestedDepartment(StringUtils.join(coordinator.getInterestedDepartments(), ","));
-		}
-
-		if (StringUtils.isNotEmpty(coordinator.getFirstName())) {
-			String firstName = coordinator.getFirstName().toLowerCase();
-			String firstLetter = firstName.substring(0, 1);
-			coordinator.setFirstName(firstName.replaceFirst("[" + firstLetter + "]", firstLetter.toUpperCase()));
-
-		}
-		if (StringUtils.isNotEmpty(coordinator.getLastName())) {
-			String lastName = coordinator.getLastName().toLowerCase();
-			String lastLetter = coordinator.getLastName().substring(0, 1);
-			coordinator.setLastName(lastName.replaceFirst("[" + lastLetter + "]", lastLetter.toUpperCase()));
-		}
-	}
-
-	public Coordinator ConvertToEntity(Coordinator coordinator, Coordinator coordinatorRequest) {
+		CoordinatorEntityConvertor.convertCoordinatorEntity(request);
+		String secretKey = CommonUtil.generateSecretKey();
+		request.setSecretKey(secretKey);
 		
-		if (StringUtils.isNotEmpty(coordinatorRequest.getRemarks())) {
-			coordinator.setRemarks(coordinatorRequest.getRemarks());
+		Coordinator coordinator =  coordinatorRepository.save(request);
+		if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
+			SMSUtil.sendSMStoCoordinator(coordinator);
 		}
-		if (StringUtils.isNotEmpty(coordinatorRequest.getAddress())) {
-			coordinator.setAddress(coordinatorRequest.getAddress());
-		}
-		if (coordinatorRequest.getIsPrimaryNumberOnWhatsapp() != null) {
-			coordinator.setIsPrimaryNumberOnWhatsapp(coordinatorRequest.getIsPrimaryNumberOnWhatsapp());
-		}
-		if (StringUtils.isNotEmpty(coordinatorRequest.getAssignedDepartment())) {
-			coordinator.setAssignedDepartment(coordinatorRequest.getAssignedDepartment());
-		}
-
-		if (StringUtils.isNotEmpty(coordinatorRequest.getInterestedDepartment())) {
-			coordinator.setInterestedDepartment(coordinatorRequest.getInterestedDepartment());
-		}
-
-		if (StringUtils.isNotEmpty(coordinatorRequest.getAlternateContactNumber())) {
-			coordinator.setAlternateContactNumber(coordinatorRequest.getAlternateContactNumber());
-		}
-
-		if (StringUtils.isNotEmpty(coordinatorRequest.getPrimaryContactNumber())) {
-			coordinator.setPrimaryContactNumber(coordinatorRequest.getPrimaryContactNumber());
-		}
-
-		if (StringUtils.isNotEmpty(coordinatorRequest.getArea())) {
-			coordinator.setArea(coordinatorRequest.getArea());
-		}
-
-		if (coordinatorRequest.getBusNumber() != null) {
-			coordinator.setBusNumber(coordinatorRequest.getBusNumber());
-		}
-
-		if (StringUtils.isNotEmpty(coordinatorRequest.getDob())) {
-			coordinator.setDob(coordinatorRequest.getDob());
-		}
-
-		if (StringUtils.isNotEmpty(coordinatorRequest.getEmail())) {
-			coordinator.setEmail(coordinatorRequest.getEmail());
-		}
-
-		if (StringUtils.isNotEmpty(coordinatorRequest.getFirstName())) {
-			coordinator.setFirstName(coordinatorRequest.getFirstName());
-		}
-
-		if (StringUtils.isNotEmpty(coordinatorRequest.getLastName())) {
-			coordinator.setLastName(coordinatorRequest.getLastName());
-		}
-
-		if (StringUtils.isNotEmpty(coordinatorRequest.getGender())) {
-			coordinator.setGender(coordinatorRequest.getGender());
-		}
-
-		if (coordinatorRequest.getClassNumber() != null) {
-			coordinator.setClassNumber(coordinatorRequest.getClassNumber());
-		}
-
-		if (coordinatorRequest.getIsActive() != null) {
-			coordinator.setIsActive(coordinatorRequest.getIsActive());
-		}
-		return coordinator;
-	}
-
-	public void transformResponse(Coordinator coordinator) {
-		if (StringUtils.isNotEmpty(coordinator.getAssignedDepartment())) {
-			coordinator.setAssignedDepartments(Arrays.asList(coordinator.getAssignedDepartment().split(",")));
-		}
-		if (StringUtils.isNotEmpty(coordinator.getInterestedDepartment())) {
-			coordinator.setInterestedDepartments(Arrays.asList(coordinator.getInterestedDepartment().split(",")));
-		}
+		return CoordinatorEntityConvertor.setDepartmentsInCoordinator(coordinator);
 	}
 	
-	public List<Coordinator> getCoordinatorList(String firstName, String lastName, String primaryContactNumber, String dob) {
-		return coordinatorRepository.findAll(CoordinatorSpecification.getCoordinators(firstName, lastName, primaryContactNumber, dob));
+	/**
+	 * Method to update coordinator
+	 * @param id
+	 * @param coordinatorRequest
+	 * @return
+	 * @throws ParseException
+	 */
+	public Coordinator updateCoordinator(Integer id, Coordinator coordinatorRequest) throws ParseException {
+		Coordinator coordinator = getCoordinatorEntity(id);
+		CoordinatorEntityConvertor.convertCoordinatorEntity(coordinatorRequest);
+		CoordinatorEntityConvertor.convertCoordinatorEntity(coordinator, coordinatorRequest);
+		coordinator = coordinatorRepository.save(coordinator);
+		return CoordinatorEntityConvertor.setDepartmentsInCoordinator(coordinator);
 	}
+
+
 	
+	/**
+	 * Method to get coordinator for id
+	 * @param id
+	 * @return
+	 */
+	public Coordinator getCoordinator(Integer id) {
+		Coordinator coordinator = getCoordinatorEntity(id);
+		return CoordinatorEntityConvertor.setDepartmentsInCoordinator(coordinator);
+	}
+
+	/**
+	 * Method to get coordinator
+	 * @param firstName
+	 * @param lastName
+	 * @param primaryContactNumber
+	 * @param dob
+	 * @return
+	 */
+	public List<Coordinator> getCoordinators(String firstName, String lastName, String primaryContactNumber, String dob) {
+		List<Coordinator> coordinators = getCoordinatorEntityList(firstName, lastName, primaryContactNumber, dob);
+		return CoordinatorEntityConvertor.setDepartmentsInCoordinators(coordinators);
+	}
+
+	/**
+	 * Method to delete coordinator
+	 * @param id
+	 * @return
+	 */
+	public boolean deleteCoordinator(Integer id) {
+		Coordinator coordinator = getCoordinatorEntity(id);
+		try {
+			coordinatorRepository.delete(coordinator);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	
+	/**
+	 * Method to upload & save coordinators 
+	 * @param file
+	 * @return
+	 * @throws ParseException
+	 */
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public ApiResponse uploadCoordinators(MultipartFile file) throws ParseException {
 		List<String> invalidRecordsInCSV = new ArrayList<String>();
@@ -208,10 +155,10 @@ public class CoordinatorService {
 		List<Coordinator> validCoordinatorRecords = new ArrayList<Coordinator>();
 		for (int rowNumber = 0; rowNumber < coordinators.size(); rowNumber++) {
 			Coordinator coordinator = (Coordinator) coordinators.get(rowNumber);
-			tranformRequest(coordinator);
+			CoordinatorEntityConvertor.convertCoordinatorEntity(coordinator);
 			try {
-				CoordinatorValidation.validateCoordinatorRequest(coordinator);
-				List<Coordinator> duplicateCoordinator = getCoordinatorList(coordinator.getFirstName(),
+				CoordinatorValidation.validateCreateCoordinatorRequest(coordinator);
+				List<Coordinator> duplicateCoordinator = getCoordinatorEntityList(coordinator.getFirstName(),
 						coordinator.getLastName(), null, coordinator.getDob());
 				if (CollectionUtils.isNotEmpty(duplicateCoordinator)) {
 					recordsAlreadyExist.add("Row Number - "+rowNumber+ " Record already available with Id "+duplicateCoordinator.stream().findFirst().get().getId());

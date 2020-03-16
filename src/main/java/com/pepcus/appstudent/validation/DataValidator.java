@@ -1,5 +1,7 @@
 package com.pepcus.appstudent.validation;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -7,6 +9,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 import com.pepcus.appstudent.exception.BadRequestException;
+import com.pepcus.appstudent.util.ApplicationConstants;
 
 public class DataValidator {
 
@@ -457,5 +460,35 @@ public class DataValidator {
 						"Invalid value for " + propName + ", valid values are " + possibleValues.toString());
 			}
 		}
+	}
+
+	/**
+	 * This method is validate date format 'YYYY-MM-DD' and check valid date
+	 * 
+	 * @param propName
+	 * @param value
+	 */
+	public static void validateDate(String propName, String value) {
+		if ((!validateDateFormat(value)) || !isValidDate(value, ApplicationConstants.DATE_FORMAT_YYYY_MM_DD)) {
+			throw new BadRequestException("Invalid value for " + propName + ", Acceptable date formats are "
+					+ ApplicationConstants.DATE_FORMAT_YYYY_MM_DD);
+		}
+	}
+
+	private static boolean validateDateFormat(String date) {
+		return (date.matches("\\d{4}-\\d{2}-\\d{2}")) ? true : false;
+	}
+
+	private static boolean isValidDate(String dateStr, String format) {
+		boolean isValidDate = false;
+		try {
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
+			simpleDateFormat.setLenient(false);
+			simpleDateFormat.parse(dateStr);
+			isValidDate = true;
+		} catch (ParseException e) {
+			isValidDate = false;
+		}
+		return isValidDate;
 	}
 }

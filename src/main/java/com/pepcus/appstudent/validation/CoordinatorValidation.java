@@ -1,93 +1,69 @@
 package com.pepcus.appstudent.validation;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import static com.pepcus.appstudent.validation.DataValidator.alphabetOnly;
+import static com.pepcus.appstudent.validation.DataValidator.email;
+import static com.pepcus.appstudent.validation.DataValidator.expect;
+import static com.pepcus.appstudent.validation.DataValidator.nonEmpty;
+import static com.pepcus.appstudent.validation.DataValidator.phone;
+import static com.pepcus.appstudent.validation.DataValidator.validate;
+import static com.pepcus.appstudent.validation.DataValidator.validateValues;
+
+import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.pepcus.appstudent.entity.Coordinator;
-import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.util.ApplicationConstants;
-import com.pepcus.appstudent.util.CommonUtil;
-import com.pepcus.appstudent.util.ErrorMessageConstants;
 
 public class CoordinatorValidation {
 
-	public static void validateCoordinatorRequest(Coordinator coordinator) {
+	public static void validateCreateCoordinatorRequest(Coordinator request) {
 
-		if (StringUtils.isEmpty(coordinator.getFirstName())) {
-			throw new BadRequestException("firstName " + ErrorMessageConstants.EMPTY_FIELD);
-		}
-		if (!CommonUtil.isContentAlphabetsOnly(coordinator.getFirstName())) {
-			throw new BadRequestException("firstName " + ErrorMessageConstants.INVALID_CHARACTERS);
-		}
-		if (StringUtils.isEmpty(coordinator.getLastName())) {
-			throw new BadRequestException("lastName " + ErrorMessageConstants.EMPTY_FIELD);
-		}
-		if (!CommonUtil.isContentAlphabetsOnly(coordinator.getLastName())) {
-			throw new BadRequestException("lastName " + ErrorMessageConstants.INVALID_CHARACTERS);
-		}
-		if (StringUtils.isEmpty(coordinator.getGender())) {
-			throw new BadRequestException("gender " + ErrorMessageConstants.EMPTY_FIELD);
-		}
-		if (StringUtils.isEmpty(coordinator.getPrimaryContactNumber())) {
-			throw new BadRequestException("primaryContactNumber " + ErrorMessageConstants.EMPTY_FIELD);
-		}
-		if (!CommonUtil.isValidMobileNumber(coordinator.getPrimaryContactNumber())) {
-			throw new BadRequestException(ErrorMessageConstants.INVALID_MOBILE_NUMBER);
-		}
-		if (StringUtils.isEmpty(coordinator.getDob())) {
-			throw new BadRequestException("dob " + ErrorMessageConstants.EMPTY_FIELD);
-		}
-		if(!CommonUtil.validateStringDateWithFormat(coordinator.getDob(), ApplicationConstants.DATE_FORMAT_YYYY_MM_DD)) {
-			throw new BadRequestException("dob " + ErrorMessageConstants.INVALID_DATE);
-		}
+		validate("firstName", request.getFirstName(), expect(nonEmpty, alphabetOnly));
+		validate("lastName", request.getLastName(), expect(nonEmpty, alphabetOnly));
+		validate("gender", request.getGender(), expect(nonEmpty));
+		validateValues("gender", request.getGender(),
+				Arrays.asList(ApplicationConstants.GENDER_MALE, ApplicationConstants.GENDER_FEMALE));
+		validate("primaryContactNumber", request.getPrimaryContactNumber(), expect(nonEmpty, phone));
+		validate("dob", request.getDob(), expect(nonEmpty));
+		DataValidator.validateDate("dob", request.getDob());
 
-		if (StringUtils.isEmpty(coordinator.getAddress())) {
-			throw new BadRequestException("address " + ErrorMessageConstants.EMPTY_FIELD);
+		validate("address", request.getAddress(), expect(nonEmpty));
+		validate("area", request.getArea(), expect(nonEmpty));
+		validate("email", request.getEmail(), expect(nonEmpty, email));
+		validate("alternateContactNumber", request.getAlternateContactNumber(), expect(phone));
+
+		if(StringUtils.isEmpty(request.getAlternateContactNumber())) {
+			request.setAlternateContactNumber(null);
 		}
-		if (StringUtils.isEmpty(coordinator.getArea())) {
-			throw new BadRequestException("area " + ErrorMessageConstants.EMPTY_FIELD);
-		}
-		if (StringUtils.isNotEmpty(coordinator.getAlternateContactNumber()) && !CommonUtil.isValidMobileNumber(coordinator.getAlternateContactNumber())) {
-			throw new BadRequestException(ErrorMessageConstants.INVALID_MOBILE_NUMBER);
-		}
-		if(StringUtils.isNotEmpty(coordinator.getEmail()) && !CommonUtil.isValidateEmail(coordinator.getEmail())) {
-			throw new BadRequestException(ErrorMessageConstants.INVALID_EMAIL);
-		}
-		
-		if(StringUtils.isEmpty(coordinator.getAlternateContactNumber())) {
-			coordinator.setAlternateContactNumber(null);
-		}
-		if(StringUtils.isEmpty(coordinator.getRemarks())) {
-			coordinator.setRemarks(null);
+		if(StringUtils.isEmpty(request.getRemarks())) {
+			request.setRemarks(null);
 		}
 
 	}
 
-	public static void validateCoordinatorUpdateRequest(Coordinator coordinator) {
-		if (StringUtils.isNotEmpty(coordinator.getFirstName())
-				&& !CommonUtil.isContentAlphabetsOnly(coordinator.getFirstName())) {
-			throw new BadRequestException("firstName " + ErrorMessageConstants.INVALID_CHARACTERS);
+	public static void validateUpdateCoordinatorRequest(Coordinator request) {
+		
+		validate("firstName", request.getFirstName(), expect(alphabetOnly));
+		validate("lastName", request.getLastName(), expect(alphabetOnly));
+		validate("email", request.getEmail(), expect(email));
+		validate("primaryContactNumber", request.getPrimaryContactNumber(), expect(phone));
+		validate("alternateContactNumber", request.getAlternateContactNumber(), expect(phone));
+		validateValues("gender", request.getGender(),
+				Arrays.asList(ApplicationConstants.GENDER_MALE, ApplicationConstants.GENDER_FEMALE));
+		
+		if (StringUtils.isNotEmpty(request.getDob())) {
+			DataValidator.validateDate("dob", request.getDob());
 		}
-		if (StringUtils.isNotEmpty(coordinator.getLastName())
-				&& !CommonUtil.isContentAlphabetsOnly(coordinator.getLastName())) {
-			throw new BadRequestException("lastName " + ErrorMessageConstants.INVALID_CHARACTERS);
-		}
-		if (StringUtils.isNotEmpty(coordinator.getPrimaryContactNumber())
-				&& !CommonUtil.isValidMobileNumber(coordinator.getPrimaryContactNumber())) {
-			throw new BadRequestException(ErrorMessageConstants.INVALID_MOBILE_NUMBER);
-		}
-		if (StringUtils.isNotEmpty(coordinator.getAlternateContactNumber())
-				&& !CommonUtil.isValidMobileNumber(coordinator.getAlternateContactNumber())) {
-			throw new BadRequestException(ErrorMessageConstants.INVALID_MOBILE_NUMBER);
-		}
-		if (StringUtils.isNotEmpty(coordinator.getEmail()) && !CommonUtil.isValidateEmail(coordinator.getEmail())) {
-			throw new BadRequestException(ErrorMessageConstants.INVALID_EMAIL);
-		}
-		if (StringUtils.isNotEmpty(coordinator.getDob()) && !CommonUtil
-				.validateStringDateWithFormat(coordinator.getDob(), ApplicationConstants.DATE_FORMAT_YYYY_MM_DD)) {
-			throw new BadRequestException("dob " + ErrorMessageConstants.INVALID_DATE);
+	}
+
+	public static void validateGetCoordinatorRequest(String firstName, String lastName, String primaryContactNumber,
+			String dob) {
+		validate("firstName", firstName, expect(alphabetOnly));
+		validate("lastName", lastName, expect(alphabetOnly));
+		validate("primaryContactNumber", primaryContactNumber, expect(phone));
+		if (StringUtils.isNotEmpty(dob)) {
+			DataValidator.validateDate("dob", dob);
 		}
 	}
 

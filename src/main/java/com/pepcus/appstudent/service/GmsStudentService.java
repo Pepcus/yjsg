@@ -104,7 +104,7 @@ public class GmsStudentService extends GmsStudentServiceHelper{
 	 * @return
 	 */
 	public List<GmsStudent> getStudentList() {
-		return GmsStudentEntityConvertor.setDateInGmsStudentEntityList(gmsStudentRepository.findAll());
+		return GmsStudentEntityConvertor.setDateInGmsStudent(gmsStudentRepository.findAll());
 	}
 
 	/**
@@ -115,7 +115,7 @@ public class GmsStudentService extends GmsStudentServiceHelper{
 	 */
 	public GmsStudent getStudent(Integer id) {
 		GmsStudent gmsStudentEntity = getGmsStudentEntity(id);
-		return GmsStudentEntityConvertor.setDateInGmsStudentEntity(gmsStudentEntity);
+		return GmsStudentEntityConvertor.setDateInGmsStudent(gmsStudentEntity);
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class GmsStudentService extends GmsStudentServiceHelper{
 	 */
 	public List<GmsStudent> getStudentsByMobileNumber(String mobileNumber) {
 		List<GmsStudent> gmsStudents = getStudentsByAttributes(null, mobileNumber);
-		return GmsStudentEntityConvertor.setDateInGmsStudentEntityList(gmsStudents);
+		return GmsStudentEntityConvertor.setDateInGmsStudent(gmsStudents);
 	}
 
 	/**
@@ -147,7 +147,7 @@ public class GmsStudentService extends GmsStudentServiceHelper{
 			// send welcome sms to student
 			sendRegistrationSms(gmsStudentEntity);
 		}
-		return GmsStudentEntityConvertor.setDateInGmsStudentEntity(gmsStudentEntity);
+		return GmsStudentEntityConvertor.setDateInGmsStudent(gmsStudentEntity);
 	}
 
 	private void sendPaymentSms(GmsStudent gmsStudentEntity) {
@@ -179,7 +179,7 @@ public class GmsStudentService extends GmsStudentServiceHelper{
 			// send welcome sms to student
 			sendRegistrationSms(gmsStudentEntity);
 		}
-		return GmsStudentEntityConvertor.setDateInGmsStudentEntity(gmsStudentEntity);
+		return GmsStudentEntityConvertor.setDateInGmsStudent(gmsStudentEntity);
 	}
 
 	/**
@@ -193,7 +193,7 @@ public class GmsStudentService extends GmsStudentServiceHelper{
 		gmsStudentEntity.setRegistrationStatus(registrationStatus);
 		gmsStudentEntity.setDateLastModifiedInDB(Calendar.getInstance().getTime());
 		gmsStudentEntity = persistStudentGMSEntity(gmsStudentEntity);
-		return GmsStudentEntityConvertor.setDateInGmsStudentEntity(gmsStudentEntity);
+		return GmsStudentEntityConvertor.setDateInGmsStudent(gmsStudentEntity);
 	}
 
 	
@@ -212,7 +212,7 @@ public class GmsStudentService extends GmsStudentServiceHelper{
 			// TODO : Send SMS based on flag
 			// sendPaymentCompleteSms(gmsStudentEntity);
 		}
-		return GmsStudentEntityConvertor.setDateInGmsStudentEntity(gmsStudentEntity);
+		return GmsStudentEntityConvertor.setDateInGmsStudent(gmsStudentEntity);
 	}
 
 	private void sendPaymentCompleteSms(GmsStudent gmsStudentEntity) {
