@@ -95,7 +95,7 @@ public class ApplicationConstants {
   // YJSG SMS Constants
   public static final String WELCOME_SMS="Dear {{name}}, We have received your registration for 'YJSG - Jain Shivir' in Sanmati school from 4 May to 12 May, 2020. Your ID number is {{studentid}}. Thanks! YJSG.";
   public static final String OPT_OUT_SMS = "Dear {{name}}, We heard you will not attend ‘YJSG - Jain Shivir’ in Sanmati school from 4 May to 12 May, 2020. If you change your mind, please register by clicking on– https://yjsg.in/reg?id=<ID>&secretCode=<Code>. Thanks! YJSG.";
-  public static final String OPT_IN_SMS="Dear {{name}}, We have received your confirmation for attending ‘YJSG – Jain Shivir’ in Sanmati school from 4 May to 12 May, 2020. If you wish to change your personal information, please click on – https://yjsg.in/reg?id=<ID>&secretCode=<Code>. Thanks! YJSG.";
+  public static final String OPT_IN_SMS="Dear {{name}}, We have received your confirmation for attending ‘YJSG – Jain Shivir’ in Sanmati school from 4 May to 12 May, 2020. You can change your registration data by clicking on– https://yjsg.in/reg?mode=e&id=<ID>&secretCode=<Code>. Thanks! YJSG.";
 
   public static final String ALREADY_REGISTER_SMS = "Dear {{name}}, We have received your registration for 'YJSG - Jain Shivir' in Sanmati school from 4 May to 12 May, 2020. Your ID number is {{studentid}}. Thanks! YJSG.";
   public static final String PARTIAL_DUPLICATE_SMS = "Dear {{name}}, We have received your registration for 'YJSG - Jain Shivir' in Sanmati school from 4 May to 12 May, 2020. You will receive ID & other information shortly via SMS. Thanks! YJSG.";
@@ -103,8 +103,8 @@ public class ApplicationConstants {
 
   
   // GMS SMS Constants
-  public static final String GMS_WELCOME_SMS="प्रिय  {{name}}, आपका रजिस्ट्रशन गोम्मटसार कर्मकांड शिविर के लिए प्राप्त हुआ । आपका ID {{studentid}} है।";
-  public static final String GMS_PAYMENT_SMS= "रजिस्ट्रेशन शुल्क ₹{{gmsRegPayment}} है। कृपया यह शुल्क paytm नंबर {{paymentContactNumber}} पर भेजें। शुल्क भरने के बाद इसी नंबर पर अपना नाम और फोन नंबर WhatsApp पर भेजें। शुल्क प्राप्त होने के बाद आप इसी वेबसाइट https://yjsg.in/gms पर रजिस्ट्रेशन कर सकेंगे।";
+  public static final String GMS_WELCOME_SMS="प्रिय  {{name}}, आपका रजिस्ट्रेशन गोम्मटसार कर्मकांड शिविर के लिए प्राप्त हुआ । आपका ID {{studentid}} है।";
+  public static final String GMS_PAYMENT_SMS= "रजिस्ट्रेशन शुल्क ₹{{gmsRegPayment}} है। कृपया यह शुल्क paytm नंबर {{paymentContactNumber}} पर भेजें। शुल्क भरने के बाद इसी नंबर पर अपना नाम और फोन नंबर WhatsApp पर भेजें। शुल्क प्राप्त होने के बाद आप इसी वेबसाइट पर रजिस्ट्रेशन कर सकेंगे।";
   public static final String GMS_PAYMENT_CNF_SMS = "We have received your registration fee. Now you can register for rituals camp from here (http://yjsg.in/gms/reg)";
   
 }
