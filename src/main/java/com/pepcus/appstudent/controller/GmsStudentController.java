@@ -3,7 +3,10 @@ package com.pepcus.appstudent.controller;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,10 +16,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.opencsv.CSVWriter;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.pepcus.appstudent.entity.GmsStudent;
+import com.pepcus.appstudent.response.ApiResponse;
 import com.pepcus.appstudent.service.GmsStudentService;
+import com.pepcus.appstudent.util.ApplicationConstants;
 import com.pepcus.appstudent.validation.GmsStudentValidator;
 
 /**
@@ -124,5 +135,41 @@ public class GmsStudentController {
 		GmsStudent gmsStudentEntity = gmsStudentService.updateStudentPaymentStatus(id, paymentStatus);
 		return new ResponseEntity<GmsStudent>(gmsStudentEntity, HttpStatus.OK);
 	}
+	
+	/**
+	 * Method to export all student data as CSV file
+	 * @param response
+	 * @throws Exception
+	 */
+	@GetMapping("/export")
+	public void exportStudents(HttpServletResponse response) throws Exception {
+
+		// set file name and content type
+		String filename = "students.csv";
+
+		response.setContentType("text/csv");
+		response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
+
+		// create a csv writer
+		StatefulBeanToCsv<GmsStudent> writer = new StatefulBeanToCsvBuilder<GmsStudent>(response.getWriter())
+				.withQuotechar(CSVWriter.NO_QUOTE_CHARACTER).withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+				.withOrderedResults(true).build();
+
+		// write all users to csv file
+		List<GmsStudent> gmsStudentList = gmsStudentService.getStudentList();
+		writer.write(gmsStudentList);
+	}
+	
+    /**
+     * Used to update students record by CSV File
+     * 
+     * @param MultipartFile
+     * @return response
+     */
+    @RequestMapping(value = "/upload/db-update", method = RequestMethod.PUT)
+    public ResponseEntity<ApiResponse> updateStudent(@RequestParam(value = "file", required = false) MultipartFile file) {
+        ApiResponse response = gmsStudentService.updateStudentInBulk(file, ApplicationConstants.BULK_UPDATE);
+        return new ResponseEntity<ApiResponse>(response, HttpStatus.MULTI_STATUS);
+    }
 
 }

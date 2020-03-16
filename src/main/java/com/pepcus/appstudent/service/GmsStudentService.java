@@ -2,18 +2,26 @@ package com.pepcus.appstudent.service;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.pepcus.appstudent.convertor.GmsStudentEntityConvertor;
 import com.pepcus.appstudent.entity.GmsStudent;
+import com.pepcus.appstudent.entity.GmsStudentWrapper;
+import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.exception.ResourceNotFoundException;
 import com.pepcus.appstudent.repository.GmsStudentRepository;
+import com.pepcus.appstudent.response.ApiResponse;
 import com.pepcus.appstudent.specifications.GmsStudentSpecification;
 import com.pepcus.appstudent.util.ApplicationConstants;
+import com.pepcus.appstudent.util.CsvFileUtil;
+import com.pepcus.appstudent.util.GmsStudentNullAwareBeanUtil;
 import com.pepcus.appstudent.util.SMSUtil;
 
 /**
@@ -24,7 +32,7 @@ import com.pepcus.appstudent.util.SMSUtil;
  *
  */
 @Service
-public class GmsStudentService {
+public class GmsStudentService extends GmsStudentServiceHelper{
 	
 	@Value("${send_reg_sms_gms_student}")
 	String sendRegistrationSms;
@@ -64,7 +72,19 @@ public class GmsStudentService {
 			throw new ResourceNotFoundException("No Student found for id : " + id);
 		}
 		return gmsStudentEntity;
-
+	}
+	
+	/**
+	 * Method to get gms student entity list for Id list
+	 * @param ids
+	 * @return
+	 */
+	private List<GmsStudent> getStudentEntityList(List<Integer> ids) {
+		List<GmsStudent> gmsStudentEntityList = gmsStudentRepository.findByIdIn(ids);
+		if (gmsStudentEntityList == null || gmsStudentEntityList.isEmpty()) {
+			throw new ResourceNotFoundException("student not found by studentIds=" + ids);
+		}
+		return gmsStudentEntityList;
 	}
 
 	/**
@@ -200,6 +220,39 @@ public class GmsStudentService {
 		String message = ApplicationConstants.GMS_PAYMENT_CNF_SMS;
 		SMSUtil.sendSMS(null, name, gmsStudentEntity.getMobile(), message);
 		
+	}
+	
+	/**
+	 * Method to read csv file and update student record based on Id
+	 * @param file
+	 * @param flag
+	 * @return
+	 */
+	public ApiResponse updateStudentInBulk(MultipartFile file, String flag) {
+		ApiResponse apiResponse = new ApiResponse();
+		List<GmsStudentWrapper> uploadedGmsStudentList = CsvFileUtil.convertToCsvBean(file, flag, GmsStudentWrapper.class, null);
+		
+		List<Integer> studentIdList = getStudentIdsFromFile(uploadedGmsStudentList);
+		List<GmsStudent> studentListDB = getStudentEntityList(studentIdList);
+
+		Map<String, List<Integer>> validVsInvalidMap = getInvalidIdsList(studentIdList, studentListDB);
+
+		if (validVsInvalidMap.get(ApplicationConstants.INVALID).size() > 0) {
+			throw new BadRequestException(
+					"Id's" + validVsInvalidMap.get(ApplicationConstants.INVALID) + " not exist.Failed to processed");
+		}
+		
+		GmsStudentNullAwareBeanUtil onlyNotNullCopyProperty = new GmsStudentNullAwareBeanUtil();
+		copyBeanProperty(studentListDB, uploadedGmsStudentList, onlyNotNullCopyProperty);
+
+		// getting inValidIdList whose data is not correct
+		Set<Integer> invalidDataIdList = onlyNotNullCopyProperty.getInvalidDataList();
+		if (invalidDataIdList.size() > 0) {
+			throw new BadRequestException("Id's " + invalidDataIdList + " data is not correct.Failed to processed");
+		}
+		gmsStudentRepository.save(studentListDB);
+		apiResponse = populateUpdateStudentsInBulkResponse(validVsInvalidMap);
+		return apiResponse;
 	}
 
 }
