@@ -77,7 +77,7 @@ public class CoordinatorService {
 		
 		Coordinator coordinator =  coordinatorRepository.save(request);
 		if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
-			SMSUtil.sendSMStoCoordinator(coordinator);
+			//SMSUtil.sendSMStoCoordinator(coordinator);
 		}
 		return CoordinatorEntityConvertor.setDepartmentsInCoordinator(coordinator);
 	}
@@ -185,7 +185,7 @@ public class CoordinatorService {
 		
 		Coordinator coordinatorDB =  coordinatorRepository.save(coordinator);
 		if (smsService.isSMSFlagEnabled(ApplicationConstants.SMS_CREATE)) {
-			SMSUtil.sendSMStoCoordinator(coordinatorDB);
+			//SMSUtil.sendSMStoCoordinator(coordinatorDB);
 		}
 		return coordinatorDB;
 	}
