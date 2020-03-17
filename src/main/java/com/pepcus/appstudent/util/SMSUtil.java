@@ -17,6 +17,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pepcus.appstudent.entity.Coordinator;
+import com.pepcus.appstudent.entity.DuplicateRegistration;
 import com.pepcus.appstudent.entity.Student;
 import com.pepcus.appstudent.exception.BadRequestException;
 
@@ -63,6 +65,53 @@ public class SMSUtil {
                     invokeSendSMSAPI(queryParamMap);
                 } catch (Exception e) {
                     throw new BadRequestException("Unable to send the SMS to the user" + student.getId());
+                }
+            }
+
+        } catch (Exception e) {
+            throw new BadRequestException("Unable to send the SMS to the user" + e.getMessage());
+        }
+
+    }
+    
+    public static void sendSMSForDuplicateRegistration(Student student) {
+        Map<String, String> queryParamMap = new HashMap<String, String>();
+
+        try {
+            String numbers = student.getMobile();
+            if (!"".equals(numbers)) {
+                String message = ApplicationConstants.ALREADY_REGISTER_SMS.replace("{{name}}", student.getName());
+                message = message.replace("{{studentid}}", String.valueOf(student.getId()));
+
+                queryParamMap.put("number", numbers);
+                queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
+                try {
+                    invokeSendSMSAPI(queryParamMap);
+                } catch (Exception e) {
+                    throw new BadRequestException("Unable to send the SMS to the user" + student.getId());
+                }
+            }
+
+        } catch (Exception e) {
+            throw new BadRequestException("Unable to send the SMS to the user" + e.getMessage());
+        }
+
+    }
+    
+    public static void sendSMSForDuplicateRegistrationToAdmin(DuplicateRegistration duplicateRegistration, String adminNumber) {
+        Map<String, String> queryParamMap = new HashMap<String, String>();
+
+        try {
+            if (!"".equals(adminNumber)) {
+                String message = ApplicationConstants.PARTIAL_DUPLICATE_SMS_TO_ADMIN.replace("{{DuplicateRegistrationId}}", duplicateRegistration.getId().toString());
+                message = message.replace("{{studentId}}", String.valueOf(duplicateRegistration.getDuplicateOfStudentId()));
+
+                queryParamMap.put("number", adminNumber);
+                queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
+                try {
+                    invokeSendSMSAPI(queryParamMap);
+                } catch (Exception e) {
+                    throw new BadRequestException("Unable to send the SMS to Admin for Duplicate Registration");
                 }
             }
 
@@ -118,6 +167,75 @@ public class SMSUtil {
             request.setURI(new URI(url.toString()));
             response = client.execute(request);
         } catch (Exception e) {
+        }
+
+    }
+    
+    public static void sendSMSForDuplicateRegistrationToStudent(Student student) {
+        Map<String, String> queryParamMap = new HashMap<String, String>();
+
+        try {
+            String numbers = student.getMobile();
+            if (!"".equals(numbers)) {
+                String message = ApplicationConstants.PARTIAL_DUPLICATE_SMS.replace("{{name}}", student.getName());
+
+                queryParamMap.put("number", student.getMobile());
+                queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
+                try {
+                    invokeSendSMSAPI(queryParamMap);
+                } catch (Exception e) {
+                    throw new BadRequestException("Unable to send the SMS to the user" + student.getId());
+                }
+            }
+
+        } catch (Exception e) {
+            throw new BadRequestException("Unable to send the SMS to the user" + e.getMessage());
+        }
+
+    }
+    
+    public static void sendSMStoCoordinator(Coordinator coordinator) {
+        Map<String, String> queryParamMap = new HashMap<String, String>();
+
+        try {
+            String numbers = coordinator.getPrimaryContactNumber();
+            if (!"".equals(numbers)) {
+                String message = ApplicationConstants.COORDINATOR_WELCOME_SMS.replace("{{name}}", coordinator.getFirstName());
+                message = message.replace("{{coordinatorId}}", String.valueOf(coordinator.getId()));
+                message = message.replace("{{secretCode}}", String.valueOf(coordinator.getSecretKey()));
+
+                queryParamMap.put("number", numbers);
+                queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
+                try {
+                    invokeSendSMSAPI(queryParamMap);
+                } catch (Exception e) {
+                    throw new BadRequestException("Unable to send the SMS to the user" + coordinator.getId());
+                }
+            }
+
+        } catch (Exception e) {
+            throw new BadRequestException("Unable to send the SMS to the user" + e.getMessage());
+        }
+
+    }
+    
+    public static void sendSMS(Integer id, String userName, String mobile, String message) {
+        Map<String, String> queryParamMap = new HashMap<String, String>();
+        
+        try {
+            String numbers = mobile;
+            if (!"".equals(numbers)) {
+                queryParamMap.put("number", numbers);
+                queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
+                try {
+                    invokeSendSMSAPI(queryParamMap);
+                } catch (Exception e) {
+                    throw new BadRequestException("Unable to send the SMS to the user " + userName + " with id "+id);
+                }
+            }
+
+        } catch (Exception e) {
+            throw new BadRequestException("Unable to send the SMS to the user" + e.getMessage());
         }
 
     }

@@ -36,6 +36,7 @@ public class ApiExceptionHandler {
 		response.setError(HttpStatus.BAD_REQUEST.name());
 		response.setStatus(HttpStatus.BAD_REQUEST.value());
 		response.setUrl(req.getRequestURI());
+		response.setErrorCode(ex.errorCode);
 		return response;
 	}
 	

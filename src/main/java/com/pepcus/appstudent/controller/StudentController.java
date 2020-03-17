@@ -93,8 +93,9 @@ public class StudentController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<Student> createStudent(@RequestBody Student student) {
+    public ResponseEntity<Student> createStudent(@RequestBody Student student, @RequestParam(value = "isAllowDuplicate", required=false) boolean isAllowDuplicate) {
         student.setPrintStatus(ISPRESENT);
+        student.setAllowDuplicate(isAllowDuplicate);
         Student savedStudent = studentService.createStudent(student);
         return new ResponseEntity<Student>(savedStudent, HttpStatus.CREATED);
     }
@@ -287,6 +288,11 @@ public class StudentController {
         ApiResponse response = studentService.updateStudentInBulk(file, ApplicationConstants.BULK_UPDATE);
         return new ResponseEntity<ApiResponse>(response, HttpStatus.MULTI_STATUS);
     }
+    
+    @GetMapping(value = "/phone/{phone}")
+	public  List<Student> getStudents(@PathVariable("phone") String phoneNumber) {
+    	 return studentService.getStudentsByMobileNumber(phoneNumber);
+	}
 
 
 }

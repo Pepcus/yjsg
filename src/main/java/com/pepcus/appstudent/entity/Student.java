@@ -30,7 +30,7 @@ import lombok.Data;
 @Entity
 @Table(name = "student")
 @Data
-@JsonInclude(Include.ALWAYS)
+@JsonInclude(Include.NON_EMPTY)
 public class Student {
 
     public Student() {
@@ -88,7 +88,7 @@ public class Student {
     @Column(name = "printStatus")
     private String printStatus;
 
-    @Column(name = "remark", insertable = false)
+    @Column(name = "remark")
     private String remark;
 
     @Column(name = "secret_key")
@@ -106,6 +106,9 @@ public class Student {
 
     @Column(name = "class_attended_2019")
     private String classAttended2019;
+    
+    @Column(name = "class_attended_2020")
+    private String classAttended2020;
 
     @Column(name = "class_room_no_2016")
     private String classRoomNo2016;
@@ -118,6 +121,9 @@ public class Student {
 
     @Column(name = "class_room_no_2019")
     private String classRoomNo2019;
+    
+    @Column(name = "class_room_no_2020")
+    private String classRoomNo2020;
 
     @Column(name = "attendance_2016")
     private String attendance2016;
@@ -130,6 +136,9 @@ public class Student {
 
     @Column(name = "attendance_2019")
     private String attendance2019;
+    
+    @Column(name = "attendance_2020")
+    private String attendance2020;
 
     @Column(name = "marks_2016")
     private String marks2016;
@@ -142,12 +151,18 @@ public class Student {
 
     @Column(name = "marks_2019")
     private String marks2019;
+    
+    @Column(name = "marks_2020")
+    private String marks2020;
 
     @Column(name = "opt_in_2018")
     private Integer optIn2018;
 
     @Column(name = "opt_in_2019")
     private String optIn2019;
+    
+    @Column(name = "opt_in_2020")
+    private String optIn2020;
 
     @Column(name = "day1")
     private String day1;
@@ -190,5 +205,13 @@ public class Student {
     @Transient
     @JsonProperty(access = Access.READ_ONLY)
     private String lastModifiedDate;
+    
+    @Transient
+    @JsonProperty(access = Access.READ_ONLY)
+    private boolean isAllowDuplicate;
+    
+    @Transient
+    @JsonProperty(access = Access.READ_ONLY)
+    private boolean isPotentialMatch;
 
 }

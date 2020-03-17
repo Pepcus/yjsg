@@ -26,8 +26,6 @@ public class ApplicationConstants {
   public static final String COMMA_SEPARATOR = ",";
   public static final String OPTIN = "optin";
   public static final String ATTENDANCE = "attendance";
-  public static final String OPTOUTMESSAGECONTENT = " Dear {{name}}, We heard you will not attend ‘Jain Bal & Yuva Sanskar Sikshan Shivir’ in Shri Digambar Jain H.S. School from 9 June to 16 June, 2019. If you change your mind, please register by clicking on– https://yjsg.in/reg?id=<ID>&secretCode=<Code>. Thanks! YJSG Group.";
-  public static final String OPTINMESSAGECONTENT="Dear {{name}}, We have received your confirmation for attending ‘Jain Bal & Yuva Sanskar Sikshan Shivir’ in Shri Digambar Jain H.S. School from 9 June to 16 June, 2019. If you wish to change your personal information, please click on – https://yjsg.in/reg?id=<ID>&secretCode=<Code>. Thanks! YJSG Group.";
   public static final String ISPRESENT="Y";
   public static final String PRESENT_MESSAGE_CONTENT="Dear {{name}}, We appreciate your presence in Shivir today. Thanks! YJSG Group.";
   public static final String ABSENT_MESSAGE_CONTENT="Dear {{name}}, We missed you in Shivir today. Please try to attend for remaining days. Thanks! YJSG Group.";
@@ -37,7 +35,6 @@ public class ApplicationConstants {
   public static final String INVALID="invalid";
   public static final String IS_ABSENT = "isabsent";
   public static final String OPTOUT = "optout";
-  public static final String WELCOME_SMS="Dear {{name}}, We have received your registration for 'Jain Bal & Yuva Sanskar Sikshan Shivir' in Shri Digambar Jain H.S. School from 9 June to 16 June, 2019. Your ID number is {{studentid}}. Thanks! YJSG Group.";
   public static final String SMS_CREATE="smsCreate";
   public static final String SMS_OPTIN="smsOptIn";
   public static final String SMS_OPTOUT="smsOptOut";
@@ -80,4 +77,37 @@ public class ApplicationConstants {
   public static final String MOBILE="mobile";
   public static final String ID="id";
   public static final String NULL="NULL";
+  public static final String EXACT_DUPLICATE = " We already have your registration. To login you will receive an SMS on your registered phone number ";
+  public static final String DATE_FORMAT_YYYY_MM_DD = "yyyy-MM-dd";
+  
+  public static final String VAL_Y = "Y";
+  public static final String VAL_N = "N";
+  public static final String VAL_TRUE = "true";
+  public static final String VAL_FALSE = "false";
+  public static final String REG_STATUS_REG = "REG";
+  public static final String REG_STATUS_CNF = "CNF";
+  public static final String PAYMENT_STATUS_COMPLETE = "Complete";
+  public static final String PAYMENT_STATUS_NA = "NA";
+  public static final String PAYMENT_STATUS_PENDING = "Pending";
+  public static final String GENDER_MALE = "Male";
+  public static final String GENDER_FEMALE = "FeMale";
+  
+  
+  // YJSG SMS Constants
+  public static final String WELCOME_SMS="प्रिय  {{name}}, YJSG जैन शिविर (सन्मति स्कूल - ४ मई से १२ मई २०२० तक) के लिए आपका रजिस्ट्रेशन प्राप्त हुआ।  आपका ID {{studentid}} है। Thanks, YJSG.";
+  public static final String OPT_OUT_SMS = "प्रिय {{name}}, YJSG जैन शिविर (सन्मति स्कूल - ४ मई से १२ मई २०२० तक) के लिए आपकी अस्वीकृति प्राप्त हुई। अगर आप वापस आना चाहते है तो https://yjsg.in/reg?id=<ID>&secretCode=<Code> पर क्लिक करें। Thanks! YJSG.";
+  public static final String OPT_IN_SMS="प्रिय {{name}}, YJSG जैन शिविर (सन्मति स्कूल - ४ मई से १२ मई २०२० तक) के लिए आपका रजिस्ट्रेशन कन्फर्म है। किसी भी परिवर्तन के लिए - https://yjsg.in/reg?mode=e&id=<ID>&secretCode=<Code>. Thanks! YJSG.";
+
+  public static final String ALREADY_REGISTER_SMS = "प्रिय {{name}}, YJSG जैन शिविर (सन्मति स्कूल - ४ मई से १२ मई २०२० तक) के लिए आपका रजिस्ट्रेशन प्राप्त हुआ। आपका ID {{studentid}} है। Thanks, YJSG.";
+  public static final String PARTIAL_DUPLICATE_SMS = "प्रिय {{name}}, YJSG जैन शिविर (सन्मति स्कूल - ४ मई से १२ मई २०२० तक) के लिए आपका रजिस्ट्रेशन प्राप्त हुआ। आपका ID एवं अन्य जानकारी शीघ्र ही SMS पर भेजी जाएगी। Thanks, YJSG.";
+  public static final String PARTIAL_DUPLICATE_SMS_TO_ADMIN = "Potential Duplicate Entry Created with Duplicate Record ID # {{DuplicateRegistrationId}} matching with Student ID # {{studentId}}.";
+
+  public static final String COORDINATOR_WELCOME_SMS="Dear {{name}}, We have received your coordinator registration for 'YJSG - Jain Shivir' in Sanmati school from 4 May to 12 May, 2020. Your ID # {{coordinatorId}} & SecretCode # {{secretCode}}. Thanks! YJSG.";
+
+  
+  // GMS SMS Constants
+  public static final String GMS_WELCOME_SMS="प्रिय  {{name}}, आपका रजिस्ट्रेशन गोम्मटसार कर्मकांड शिविर के लिए प्राप्त हुआ । आपका ID {{studentid}} है।";
+  public static final String GMS_PAYMENT_SMS= "रजिस्ट्रेशन शुल्क ₹{{gmsRegPayment}} है। कृपया यह शुल्क paytm नंबर {{paymentContactNumber}} पर भेजें। शुल्क भरने के बाद इसी नंबर पर अपना नाम और फोन नंबर WhatsApp पर भेजें। शुल्क प्राप्त होने के बाद आप इसी वेबसाइट पर रजिस्ट्रेशन कर सकेंगे।";
+  public static final String GMS_PAYMENT_CNF_SMS = "We have received your registration fee. Now you can register for rituals camp from here (http://yjsg.in/gms/reg)";
+  
 }

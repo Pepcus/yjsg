@@ -5,8 +5,8 @@ import static com.pepcus.appstudent.util.ApplicationConstants.ATTENDANCE;
 import static com.pepcus.appstudent.util.ApplicationConstants.DATE_FORMAT_DDMMYYYY;
 import static com.pepcus.appstudent.util.ApplicationConstants.IS_ABSENT;
 import static com.pepcus.appstudent.util.ApplicationConstants.ON;
-import static com.pepcus.appstudent.util.ApplicationConstants.OPTINMESSAGECONTENT;
-import static com.pepcus.appstudent.util.ApplicationConstants.OPTOUTMESSAGECONTENT;
+import static com.pepcus.appstudent.util.ApplicationConstants.OPT_IN_SMS;
+import static com.pepcus.appstudent.util.ApplicationConstants.OPT_OUT_SMS;
 import static com.pepcus.appstudent.util.ApplicationConstants.PRESENT_MESSAGE_CONTENT;
 
 import java.io.IOException;
@@ -112,7 +112,7 @@ public class SmsService {
     }
 
     /**
-     * Method to get List of Students who is Opted In 2019 and who is not
+     * Method to get List of Students who is Opted In 2020 and who is not
      * present on particular day
      */
     private List<Student> getAbsentStudents(String day) {
@@ -121,7 +121,7 @@ public class SmsService {
         Root<Student> root = criteriaQuery.from(Student.class);
         ParameterExpression<String> optInExp = criteriaBuilder.parameter(String.class);
         ParameterExpression<String> dayExp = criteriaBuilder.parameter(String.class);
-        Predicate predicate = criteriaBuilder.and(criteriaBuilder.equal(root.get("optIn2019"), optInExp),
+        Predicate predicate = criteriaBuilder.and(criteriaBuilder.equal(root.get("optIn2020"), optInExp),
                 criteriaBuilder.or(criteriaBuilder.equal(root.get(day), ""), criteriaBuilder.isNull(root.get(day)),
                         criteriaBuilder.equal(root.get(day), dayExp)));
         criteriaQuery.where(predicate);
@@ -164,7 +164,7 @@ public class SmsService {
     }
 
     /**
-     * Method to Send SMS to students who are opted out for 2019 season
+     * Method to Send SMS to students who are opted out for 2020 season
      * 
      * @param studentList
      */
@@ -175,8 +175,8 @@ public class SmsService {
             String numbers = student.getMobile();
             try {
                 queryParamMap.put("number", numbers);
-                if (!StringUtils.isEmpty(numbers) && student.getOptIn2019().equalsIgnoreCase("N")) {
-                    String message = OPTOUTMESSAGECONTENT.replace("{{name}}", student.getName());
+                if (!StringUtils.isEmpty(numbers) && student.getOptIn2020().equalsIgnoreCase("N")) {
+                    String message = OPT_OUT_SMS.replace("{{name}}", student.getName());
                     message = message.replace("<ID>", String.valueOf(student.getId()));
                     message = message.replace("<Code>",
                             StringUtils.isEmpty(student.getSecretKey()) ? "<Code>" : student.getSecretKey());
@@ -191,7 +191,7 @@ public class SmsService {
     }
 
     /**
-     * Method to Send SMS to students who are opted in for 2019 season
+     * Method to Send SMS to students who are opted in for 2020 season
      * 
      * @param studentList
      */
@@ -202,8 +202,8 @@ public class SmsService {
             String numbers = student.getMobile();
             try {
                 queryParamMap.put("number", numbers);
-                if (!StringUtils.isEmpty(numbers) && student.getOptIn2019().equalsIgnoreCase("Y")) {
-                    String message = OPTINMESSAGECONTENT.replace("{{name}}", student.getName());
+                if (!StringUtils.isEmpty(numbers) && student.getOptIn2020().equalsIgnoreCase("Y")) {
+                    String message = OPT_IN_SMS.replace("{{name}}", student.getName());
                     message = message.replace("<ID>", String.valueOf(student.getId()));
                     message = message.replace("<Code>",
                             StringUtils.isEmpty(student.getSecretKey()) ? "<Code>" : student.getSecretKey());
@@ -319,12 +319,14 @@ public class SmsService {
      * @param flagName
      * @return boolean
      */
-    public boolean isSMSFlagEnabled(String flagName) {
-        List<SMSFlags> smsFlagsList = smsService.getAllFlags();
-        SMSFlags filterFlag = smsFlagsList.stream()
-                .filter(predicate -> predicate.getFlagName().equalsIgnoreCase(flagName)).findFirst().get();
-        return filterFlag.getFlagValue() == 1 ? true : false;
-    }
+	public boolean isSMSFlagEnabled(String flagName) {
+		try {
+			SMSFlags smsFlag = validateFlag(flagName);
+			return smsFlag.getFlagValue() == 1 ? true : false;
+		} catch (Exception e) {
+			return false;
+		}
+	}
 
     /**
      * Method used to get All flags
@@ -336,4 +338,24 @@ public class SmsService {
         List<SMSFlags> smsFlagList = SMSRepository.findAll();
         return smsFlagList;
     }
+    
+	public void sendAlreadyRegisterSMS(Student student) {
+		logger.info("##### ######### sendAlreadyRegisterSMS method invoked  ######### #####");
+		Map<String, String> queryParamMap = new HashMap<String, String>();
+
+		String numbers = student.getMobile();
+		try {
+			queryParamMap.put("number", numbers);
+			if (!StringUtils.isEmpty(numbers) && student.getOptIn2020().equalsIgnoreCase("Y")) {
+				String message = ApplicationConstants.ALREADY_REGISTER_SMS.replace("{{name}}", student.getName());
+				message = message.replace("{{studentid}}", String.valueOf(student.getId()));
+				queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
+				SMSUtil.invokeSendSMSAPI(queryParamMap);
+			}
+		} catch (IOException | GeneralSecurityException e) {
+			logger.info("Exception: inside sendAlreadyRegisterSMS method ", e);
+			throw new BadRequestException("Unable to send the SMS to the user" + student.getId());
+		}
+
+	}
 }

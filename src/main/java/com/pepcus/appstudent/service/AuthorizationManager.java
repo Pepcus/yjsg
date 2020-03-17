@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pepcus.appstudent.exception.AuthorizationFailedException;
+import com.pepcus.appstudent.repository.CoordinatorRepository;
 import com.pepcus.appstudent.repository.StudentRepository;
 
 /**
@@ -19,6 +20,8 @@ public class AuthorizationManager {
 	
 	@Autowired
 	private StudentRepository studentRepository;
+	@Autowired
+	private CoordinatorRepository coordinatorRepository;
 	
 	/**
 	 * Method to check valid studentId and secret key 
@@ -26,10 +29,9 @@ public class AuthorizationManager {
 	 * @param secretKey
 	 * @return
 	 */
-	public boolean checkAuthorization(Integer studentId, String secretKey) {
-
+	public boolean checkAuthorization(Integer coordinatorId, Integer studentId, String secretKey) {
         //Validate studentId and secretKey
-        if (null == studentRepository.findByIdAndSecretKey(studentId, secretKey)) {  
+        if (null == studentRepository.findByIdAndSecretKey(studentId, secretKey) && null == coordinatorRepository.findByIdAndSecretKey(coordinatorId, secretKey)) {  
             throw new AuthorizationFailedException("Unauthorized to access the service");
         }
         

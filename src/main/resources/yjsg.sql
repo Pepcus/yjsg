@@ -2113,7 +2113,7 @@ insert into `student` (`id`,`name`,`father_name`,`gender`,`age`,`education`,`occ
 insert into `student` (`id`,`name`,`father_name`,`gender`,`age`,`education`,`occupation`,`mother_mobile`,`father_mobile`,`email`,`address`,`bus_stop`,`class_attended_2016`,`class_room_no_2016`,`attendance_2016`,`marks_2016`,`class_attended_2017`,`class_room_no_2017`,`attendance_2017`,`marks_2017`,`course_2018`,`opt_in_2018`,`created_date`,`last_modified_date`) values (2691,'Kriya  Jain','Sandim Jain','F','13','6th Class','','','9009604999','','186  Tilak gar ','','','','','','BALBODH - 2','108','4','85',NULL,NULL,NULL,NULL);
 insert into `student` (`id`,`name`,`father_name`,`gender`,`age`,`education`,`occupation`,`mother_mobile`,`father_mobile`,`email`,`address`,`bus_stop`,`class_attended_2016`,`class_room_no_2016`,`attendance_2016`,`marks_2016`,`class_attended_2017`,`class_room_no_2017`,`attendance_2017`,`marks_2017`,`course_2018`,`opt_in_2018`,`created_date`,`last_modified_date`) values (2692,'Harshita  Jain','Sandip Jain','F','13','10th Class','','','9009604999','','186  Tilak gar ','','','','','','','','0','',NULL,NULL,NULL,NULL);
 insert into `student` (`id`,`name`,`father_name`,`gender`,`age`,`education`,`occupation`,`mother_mobile`,`father_mobile`,`email`,`address`,`bus_stop`,`class_attended_2016`,`class_room_no_2016`,`attendance_2016`,`marks_2016`,`class_attended_2017`,`class_room_no_2017`,`attendance_2017`,`marks_2017`,`course_2018`,`opt_in_2018`,`created_date`,`last_modified_date`) values (2693,'Sarvesh  Jain ','Vint Jain','M','13','8th Class','','','9039745175','','85 Tilak gar ','','','','','','','','0','',NULL,NULL,NULL,NULL);
-insert into `student` (`id`,`name`,`father_name`,`gender`,`age`,`education`,`occupation`,`mother_mobile`,`father_mobile`,`email`,`address`,`bus_stop`,`class_attended_2016`,`class_room_no_2016`,`attendance_2016`,`marks_2016`,`class_attended_2017`,`class_room_no_2017`,`attendance_2017`,`marks_2017`,`course_2018`,`opt_in_2018`,`created_date`,`last_modified_date`) values (2694,'Mohita Tongya','Vijaykumarji kasliwal','F','27','B\'com','House wife','','9300515551','','191 Se special Gandhigar','','','','','','CHAHDHALA - 1','340','1','74',NULL,NULL,NULL,NULL);
+insert into `student` (`id`,`name`,`father_name`,`gender`,`age`,`education`,`occupation`,`mother_mobile`,`father_mobile`,`email`,`address`,`bus_stop`,`class_attended_2016`,`class_room_no_2016`,`attendance_2016`,`marks_2016`,`class_attended_2017`,`class_room_no_2017`,`attendance_2017`,`marks_2017`,`course_2018`,`opt_in_2018`,`created_date`,`last_modified_date`) values (2694,'Mohita Tongya','Vijaykumarji kasliwal','F','27','B com','House wife','','9300515551','','191 Se special Gandhigar','','','','','','CHAHDHALA - 1','340','1','74',NULL,NULL,NULL,NULL);
 insert into `student` (`id`,`name`,`father_name`,`gender`,`age`,`education`,`occupation`,`mother_mobile`,`father_mobile`,`email`,`address`,`bus_stop`,`class_attended_2016`,`class_room_no_2016`,`attendance_2016`,`marks_2016`,`class_attended_2017`,`class_room_no_2017`,`attendance_2017`,`marks_2017`,`course_2018`,`opt_in_2018`,`created_date`,`last_modified_date`) values (2695,'Pulkit Barjatya','Tapan Barjatya','M','11','6th','','','8989006495','','265, Palhar gar,Aerodrum gar, Indore ','','','','','','','','0','',NULL,NULL,NULL,NULL);
 insert into `student` (`id`,`name`,`father_name`,`gender`,`age`,`education`,`occupation`,`mother_mobile`,`father_mobile`,`email`,`address`,`bus_stop`,`class_attended_2016`,`class_room_no_2016`,`attendance_2016`,`marks_2016`,`class_attended_2017`,`class_room_no_2017`,`attendance_2017`,`marks_2017`,`course_2018`,`opt_in_2018`,`created_date`,`last_modified_date`) values (2696,'Swasti Chhabra','Sheetal Chhabra','F','12','6th','','','8889405051','profchhabra@gmail.com','Veer Mala, 527-Alok gar, Indore, kadia Road','','','','','','BALBODH - 1','A5','3','72',NULL,NULL,NULL,NULL);
 insert into `student` (`id`,`name`,`father_name`,`gender`,`age`,`education`,`occupation`,`mother_mobile`,`father_mobile`,`email`,`address`,`bus_stop`,`class_attended_2016`,`class_room_no_2016`,`attendance_2016`,`marks_2016`,`class_attended_2017`,`class_room_no_2017`,`attendance_2017`,`marks_2017`,`course_2018`,`opt_in_2018`,`created_date`,`last_modified_date`) values (2697,'Himanshi Chhabra','Aaditya Chhabra','F','12','6th','','','9424493113','varsha010111@gmail.com','Veer Mala, 527-Alok gar, Indore, kadia Road','','','','','','BALBODH - 1','A5','3','94',NULL,NULL,NULL,NULL);
@@ -2425,6 +2425,42 @@ ALTER TABLE `student` ADD COLUMN `bus_num` varchar(20) AFTER `bus_stop`;
 /*Add a new column `class_room_no_2018` for table `student` */
 
 ALTER TABLE `student` ADD COLUMN `class_room_no_2018` int AFTER `marks_2017`;
+
+/*Table structure for table `document` */
+
+DROP TABLE IF EXISTS `document`;
+
+CREATE TABLE `document` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `display_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `document_rank` int(11) DEFAULT NULL,
+   `document_url` varchar(2056) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+   `document_uploaded_date` date DEFAULT NULL,
+   `created_date` date DEFAULT NULL,
+   `last_modified_date` date DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+/*Table structure for table `student_gms` */
+
+DROP TABLE IF EXISTS `student_gms`;
+
+CREATE TABLE `student_gms` (
+   `id` int(11) NOT NULL AUTO_INCREMENT,
+   `name` varchar(255) DEFAULT NULL,
+   `age` int(3) DEFAULT NULL,
+   `mobile` varchar(20) DEFAULT NULL,
+   `city` varchar(28) DEFAULT NULL,
+   `address` varchar(255) DEFAULT NULL,
+   `is_whatsapp` varchar(6) DEFAULT NULL,
+   `status` varchar(3) DEFAULT NULL,
+   `payment_status` varchar(8) DEFAULT NULL,
+   `food_opt` varchar(2) DEFAULT NULL,
+   `created_date` datetime DEFAULT NULL,
+   `last_modified_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
