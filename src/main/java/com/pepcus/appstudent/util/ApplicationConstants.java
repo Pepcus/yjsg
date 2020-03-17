@@ -94,12 +94,12 @@ public class ApplicationConstants {
   
   
   // YJSG SMS Constants
-  public static final String WELCOME_SMS="Dear {{name}}, We have received your registration for 'YJSG - Jain Shivir' in Sanmati school from 4 May to 12 May, 2020. Your ID number is {{studentid}}. Thanks! YJSG.";
-  public static final String OPT_OUT_SMS = "Dear {{name}}, We heard you will not attend ‘YJSG - Jain Shivir’ in Sanmati school from 4 May to 12 May, 2020. If you change your mind, please register by clicking on– https://yjsg.in/reg?id=<ID>&secretCode=<Code>. Thanks! YJSG.";
-  public static final String OPT_IN_SMS="Dear {{name}}, We have received your confirmation for attending ‘YJSG – Jain Shivir’ in Sanmati school from 4 May to 12 May, 2020. You can change your registration data by clicking on– https://yjsg.in/reg?mode=e&id=<ID>&secretCode=<Code>. Thanks! YJSG.";
+  public static final String WELCOME_SMS="प्रिय  {{name}}, YJSG जैन शिविर (सन्मति स्कूल - ४ मई से १२ मई २०२० तक) के लिए आपका रजिस्ट्रेशन प्राप्त हुआ।  आपका ID {{studentid}} है। Thanks, YJSG.";
+  public static final String OPT_OUT_SMS = "प्रिय {{name}}, YJSG जैन शिविर (सन्मति स्कूल - ४ मई से १२ मई २०२० तक) के लिए आपकी अस्वीकृति प्राप्त हुई। अगर आप वापस आना चाहते है तो https://yjsg.in/reg?id=<ID>&secretCode=<Code>पर क्लिक करें। Thanks! YJSG";
+  public static final String OPT_IN_SMS="प्रिय {{name}}, YJSG जैन शिविर (सन्मति स्कूल - ४ मई से १२ मई २०२० तक) के लिए आपका रजिस्ट्रेशन कन्फर्म है। किसी भी परिवर्तन के लिए - https://yjsg.in/reg?mode=e&id=<ID>&secretCode=<Code>. Thanks! YJSG.";
 
-  public static final String ALREADY_REGISTER_SMS = "Dear {{name}}, We have received your registration for 'YJSG - Jain Shivir' in Sanmati school from 4 May to 12 May, 2020. Your ID number is {{studentid}}. Thanks! YJSG.";
-  public static final String PARTIAL_DUPLICATE_SMS = "Dear {{name}}, We have received your registration for 'YJSG - Jain Shivir' in Sanmati school from 4 May to 12 May, 2020. You will receive ID & other information shortly via SMS. Thanks! YJSG.";
+  public static final String ALREADY_REGISTER_SMS = "प्रिय {{name}}, YJSG जैन शिविर (सन्मति स्कूल - ४ मई से १२ मई २०२० तक) के लिए आपका रजिस्ट्रेशन प्राप्त हुआ। आपका ID {{studentid}} है। Thanks, YJSG";
+  public static final String PARTIAL_DUPLICATE_SMS = "प्रिय {{name}}, YJSG जैन शिविर (सन्मति स्कूल - ४ मई से १२ मई २०२० तक) के लिए आपका रजिस्ट्रेशन प्राप्त हुआ। आपका ID एवं अन्य जानकारी शीघ्र ही SMS पर भेजी जाएगी। Thanks, YJSG.";
   public static final String PARTIAL_DUPLICATE_SMS_TO_ADMIN = "Potential Duplicate Entry Created with Duplicate Record ID # {{DuplicateRegistrationId}} matching with Student ID # {{studentId}}.";
 
   public static final String COORDINATOR_WELCOME_SMS="Dear {{name}}, We have received your coordinator registration for 'YJSG - Jain Shivir' in Sanmati school from 4 May to 12 May, 2020. Your ID # {{coordinatorId}} & SecretCode # {{secretCode}}. Thanks! YJSG.";
