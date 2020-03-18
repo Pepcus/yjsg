@@ -6,6 +6,7 @@ import static com.pepcus.appstudent.validation.DataValidator.nonEmpty;
 import static com.pepcus.appstudent.validation.DataValidator.nonNegative;
 import static com.pepcus.appstudent.validation.DataValidator.notNull;
 import static com.pepcus.appstudent.validation.DataValidator.phone;
+import static com.pepcus.appstudent.validation.DataValidator.nonZero;
 import static com.pepcus.appstudent.validation.DataValidator.validate;
 import static com.pepcus.appstudent.validation.DataValidator.validateValues;
 
@@ -27,9 +28,9 @@ public class GmsStudentValidator {
 		validate("mobile", request.getMobile(), expect(nonEmpty, phone));
 		if (request.getPaymentStatus() != null
 				&& request.getPaymentStatus().equalsIgnoreCase(ApplicationConstants.PAYMENT_STATUS_PENDING)) {
-			validate("age", request.getAge(), expect(nonNegative, between(0, 100)));
+			validate("age", request.getAge(), expect(nonNegative, nonZero));
 		} else {
-			validate("age", request.getAge(), expect(notNull, nonNegative, between(0, 100)));
+			validate("age", request.getAge(), expect(notNull, nonNegative, nonZero));
 			validate("city", request.getCity(), expect(nonEmpty));
 			validate("isWhatsApp", request.getIsWhatsApp(), expect(nonEmpty));
 		}
@@ -54,7 +55,7 @@ public class GmsStudentValidator {
 	 * @param request
 	 */
 	public static void validateUpdateStudentRequest(GmsStudent request) {
-		validate("age", request.getAge(), expect(nonNegative, between(0, 100)));
+		validate("age", request.getAge(), expect(notNull, nonNegative, nonZero));
 		validate("mobile", request.getMobile(), expect(phone));
 
 		validateValues("isWhatsApp", request.getIsWhatsApp(),
