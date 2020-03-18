@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -139,7 +140,8 @@ public class GmsStudentService extends GmsStudentServiceHelper{
 		GmsStudent gmsStudentEntity = persistStudentGMSEntity(
 				GmsStudentEntityConvertor.convertGmsStudentEntity(request));
 
-		if (gmsStudentEntity.getPaymentStatus().equalsIgnoreCase(ApplicationConstants.PAYMENT_STATUS_PENDING)
+		if (StringUtils.isNotEmpty(gmsStudentEntity.getPaymentStatus())
+				&& gmsStudentEntity.getPaymentStatus().equalsIgnoreCase(ApplicationConstants.PAYMENT_STATUS_PENDING)
 				&& Boolean.parseBoolean(sendPaymentSms)) {
 			// send welcome sms to student
 			sendPaymentSms(gmsStudentEntity);
