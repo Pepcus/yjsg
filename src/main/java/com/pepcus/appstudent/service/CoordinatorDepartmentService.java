@@ -129,13 +129,13 @@ public class CoordinatorDepartmentService {
 	public Set<Integer> getCoordinatorIdsByDepartments(String assignedDepartments, String interestedDepartments) {
 		Set<Integer> coordinatorIds = new HashSet<>();
 		if (StringUtils.isNotBlank(assignedDepartments)) {
-			List<String> internalNameList = Arrays.asList(assignedDepartments);
+			List<String> internalNameList = Arrays.asList(assignedDepartments.split("\\s*,\\s*"));
 			coordinatorIds
 					.addAll(getAssignedDepartmentsCoordinatorIds(internalNameList));
 		}
 
 		if (StringUtils.isNotBlank(interestedDepartments)) {
-			List<String> internalNameList = Arrays.asList(interestedDepartments);
+			List<String> internalNameList = Arrays.asList(interestedDepartments.split("\\s*,\\s*"));
 			coordinatorIds
 					.addAll(getInterestedDepartmentsCoordinatorIds(internalNameList));
 		}
