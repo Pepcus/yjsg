@@ -1,120 +1,199 @@
 package com.pepcus.appstudent.convertor;
 
-import java.text.ParseException;
-import java.util.Arrays;
+import static com.pepcus.appstudent.util.CommonUtil.convertDateToString;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.pepcus.appstudent.entity.Coordinator;
+import com.pepcus.appstudent.entity.CoordinatorAssignedDepartment;
+import com.pepcus.appstudent.entity.CoordinatorInterestedDepartment;
+import com.pepcus.appstudent.entity.Department;
+import com.pepcus.appstudent.util.ApplicationConstants;
 
 public class CoordinatorEntityConvertor {
 
-	public static void convertCoordinatorEntity(Coordinator coordinator) throws ParseException {
-		if (CollectionUtils.isNotEmpty(coordinator.getAssignedDepartments())) {
-			coordinator.setAssignedDepartment(StringUtils.join(coordinator.getAssignedDepartments(), ","));
-		}
-		if (CollectionUtils.isNotEmpty(coordinator.getInterestedDepartments())) {
-			coordinator.setInterestedDepartment(StringUtils.join(coordinator.getInterestedDepartments(), ","));
-		}
+	public static Coordinator convertCoordinatorEntity(Coordinator request) {
+		Coordinator coordinatorEntity = new Coordinator();
 
-		if (StringUtils.isNotEmpty(coordinator.getFirstName())) {
-			String firstName = coordinator.getFirstName().toLowerCase();
-			String firstLetter = firstName.substring(0, 1);
-			coordinator.setFirstName(firstName.replaceFirst("[" + firstLetter + "]", firstLetter.toUpperCase()));
-
+		Date currentDate = Calendar.getInstance().getTime();
+		coordinatorEntity.setDateCreatedInDB(currentDate);
+		coordinatorEntity.setDateLastModifiedInDB(currentDate);
+		if (request.getIsActive() == null) {
+			coordinatorEntity.setIsActive(ApplicationConstants.VAL_FALSE);
 		}
-		if (StringUtils.isNotEmpty(coordinator.getLastName())) {
-			String lastName = coordinator.getLastName().toLowerCase();
-			String lastLetter = coordinator.getLastName().substring(0, 1);
-			coordinator.setLastName(lastName.replaceFirst("[" + lastLetter + "]", lastLetter.toUpperCase()));
-		}
+		return convertCoordinatorEntity(coordinatorEntity, request);
 	}
 
-	public static Coordinator convertCoordinatorEntity(Coordinator coordinator, Coordinator coordinatorRequest) {
-		
-		if (StringUtils.isNotEmpty(coordinatorRequest.getRemarks())) {
-			coordinator.setRemarks(coordinatorRequest.getRemarks());
-		}
-		if (StringUtils.isNotEmpty(coordinatorRequest.getAddress())) {
-			coordinator.setAddress(coordinatorRequest.getAddress());
-		}
-		if (coordinatorRequest.getIsPrimaryNumberOnWhatsapp() != null) {
-			coordinator.setIsPrimaryNumberOnWhatsapp(coordinatorRequest.getIsPrimaryNumberOnWhatsapp());
-		}
-		if (StringUtils.isNotEmpty(coordinatorRequest.getAssignedDepartment())) {
-			coordinator.setAssignedDepartment(coordinatorRequest.getAssignedDepartment());
+	public static Coordinator convertCoordinatorEntity(Coordinator coordinatorEntity, Coordinator request) {
+		coordinatorEntity.setDateLastModifiedInDB(Calendar.getInstance().getTime());
+		if (StringUtils.isNotEmpty(request.getFirstName())) {
+			String firstName = request.getFirstName().toLowerCase();
+			String firstLetter = firstName.substring(0, 1);
+			coordinatorEntity.setFirstName(firstName.replaceFirst("[" + firstLetter + "]", firstLetter.toUpperCase()));
 		}
 
-		if (StringUtils.isNotEmpty(coordinatorRequest.getInterestedDepartment())) {
-			coordinator.setInterestedDepartment(coordinatorRequest.getInterestedDepartment());
+		if (StringUtils.isNotEmpty(request.getLastName())) {
+			String lastName = request.getLastName().toLowerCase();
+			String lastLetter = lastName.substring(0, 1);
+			coordinatorEntity.setLastName(lastName.replaceFirst("[" + lastLetter + "]", lastLetter.toUpperCase()));
 		}
 
-		if (StringUtils.isNotEmpty(coordinatorRequest.getAlternateContactNumber())) {
-			coordinator.setAlternateContactNumber(coordinatorRequest.getAlternateContactNumber());
+		if (StringUtils.isNotEmpty(request.getDob())) {
+			coordinatorEntity.setDob(request.getDob());
 		}
 
-		if (StringUtils.isNotEmpty(coordinatorRequest.getPrimaryContactNumber())) {
-			coordinator.setPrimaryContactNumber(coordinatorRequest.getPrimaryContactNumber());
+		if (StringUtils.isNotEmpty(request.getGender())) {
+			coordinatorEntity.setGender(request.getGender());
 		}
 
-		if (StringUtils.isNotEmpty(coordinatorRequest.getArea())) {
-			coordinator.setArea(coordinatorRequest.getArea());
+		if (StringUtils.isNotEmpty(request.getEmail())) {
+			coordinatorEntity.setEmail(request.getEmail());
 		}
 
-		if (coordinatorRequest.getBusNumber() != null) {
-			coordinator.setBusNumber(coordinatorRequest.getBusNumber());
+		if (request.getWhatsappNumber() != null) {
+			coordinatorEntity.setWhatsappNumber(request.getWhatsappNumber());
 		}
 
-		if (StringUtils.isNotEmpty(coordinatorRequest.getDob())) {
-			coordinator.setDob(coordinatorRequest.getDob());
+		if (StringUtils.isNotEmpty(request.getAlternateNumber())) {
+			coordinatorEntity.setAlternateNumber(request.getAlternateNumber());
 		}
 
-		if (StringUtils.isNotEmpty(coordinatorRequest.getEmail())) {
-			coordinator.setEmail(coordinatorRequest.getEmail());
+		if (StringUtils.isNotEmpty(request.getAddress())) {
+			coordinatorEntity.setAddress(request.getAddress());
 		}
 
-		if (StringUtils.isNotEmpty(coordinatorRequest.getFirstName())) {
-			coordinator.setFirstName(coordinatorRequest.getFirstName());
+		if (StringUtils.isNotEmpty(request.getArea())) {
+			coordinatorEntity.setArea(request.getArea());
 		}
 
-		if (StringUtils.isNotEmpty(coordinatorRequest.getLastName())) {
-			coordinator.setLastName(coordinatorRequest.getLastName());
+		if (StringUtils.isNotEmpty(request.getRemarks())) {
+			coordinatorEntity.setRemarks(request.getRemarks());
 		}
 
-		if (StringUtils.isNotEmpty(coordinatorRequest.getGender())) {
-			coordinator.setGender(coordinatorRequest.getGender());
+		if (request.getIsActive() != null) {
+			String isActive = request.getIsActive().equalsIgnoreCase(ApplicationConstants.VAL_TRUE)
+					? ApplicationConstants.VAL_TRUE : ApplicationConstants.VAL_FALSE;
+			coordinatorEntity.setIsActive(isActive);
 		}
 
-		if (coordinatorRequest.getClassNumber() != null) {
-			coordinator.setClassNumber(coordinatorRequest.getClassNumber());
+		return coordinatorEntity;
+	}
+
+	public static Set<CoordinatorInterestedDepartment> convertToCoordinatorInterestedDepartmentsEntitySet(
+			Coordinator coordinatorEntity, Set<CoordinatorInterestedDepartment> requestedInterestedDepartmentList,
+			Map<String, Department> departmentMap) {
+		Set<CoordinatorInterestedDepartment> coordinatorInterestedDepartmentEntitySet = new HashSet<>();
+		if (CollectionUtils.isNotEmpty(requestedInterestedDepartmentList)) {
+			// convert requested list to entity list
+			for (CoordinatorInterestedDepartment requestedInterestedDepartment : requestedInterestedDepartmentList) {
+				coordinatorInterestedDepartmentEntitySet.add(convertToCoordinatorInterestedDepartmentEntity(
+						coordinatorEntity, departmentMap, requestedInterestedDepartment));
+			}
+		}
+		return coordinatorInterestedDepartmentEntitySet;
+	}
+
+	private static CoordinatorInterestedDepartment convertToCoordinatorInterestedDepartmentEntity(
+			Coordinator coordinatorEntity, Map<String, Department> departmentMap,
+			CoordinatorInterestedDepartment requestedInterestedDepartment) {
+
+		CoordinatorInterestedDepartment coordinatorInterestedDepartmentEntity = new CoordinatorInterestedDepartment();
+		coordinatorInterestedDepartmentEntity.setCoordinator(coordinatorEntity);
+		coordinatorInterestedDepartmentEntity
+				.setDepartment(departmentMap.get(requestedInterestedDepartment.getInternalName()));
+		return coordinatorInterestedDepartmentEntity;
+	}
+
+	public static Set<CoordinatorAssignedDepartment> convertToCoordinatorAssignedDepartmentsEntitySet(
+			Coordinator coordinatorEntity, Set<CoordinatorAssignedDepartment> requestedAssignedDepartmentList,
+			Map<String, Department> departmentMap) {
+		Set<CoordinatorAssignedDepartment> coordinatorAssignedDepartmentEntitySet = new HashSet<>();
+		if (CollectionUtils.isNotEmpty(requestedAssignedDepartmentList)) {
+			// convert requested list to entity list
+			for (CoordinatorAssignedDepartment requestedAssignedDepartment : requestedAssignedDepartmentList) {
+				coordinatorAssignedDepartmentEntitySet.add(convertToCoordinatorAssignedDepartmentEntity(
+						coordinatorEntity, departmentMap, requestedAssignedDepartment));
+			}
+		}
+		return coordinatorAssignedDepartmentEntitySet;
+	}
+
+	private static CoordinatorAssignedDepartment convertToCoordinatorAssignedDepartmentEntity(
+			Coordinator coordinatorEntity, Map<String, Department> departmentMap,
+			CoordinatorAssignedDepartment requestedAssignedDepartment) {
+
+		CoordinatorAssignedDepartment coordinatorAssignedDepartmentEntity = new CoordinatorAssignedDepartment();
+		coordinatorAssignedDepartmentEntity.setCoordinator(coordinatorEntity);
+		coordinatorAssignedDepartmentEntity
+				.setDepartment(departmentMap.get(requestedAssignedDepartment.getInternalName()));
+		coordinatorAssignedDepartmentEntity.setValue(requestedAssignedDepartment.getValue());
+		return coordinatorAssignedDepartmentEntity;
+	}
+
+	public static void convertAndSetInterestedDepartmentsInEntity(Map<String, Department> departmentMap,
+			Coordinator coordinatorEntity, Set<CoordinatorInterestedDepartment> interestedDepartmentsSet) {
+		// Set coordinator interested departments
+		Set<CoordinatorInterestedDepartment> interestedDepartmentEntitySet = convertToCoordinatorInterestedDepartmentsEntitySet(
+				coordinatorEntity, interestedDepartmentsSet, departmentMap);
+		coordinatorEntity.setInterestedDepartments(interestedDepartmentEntitySet);
+
+	}
+
+	public static void convertAndSetAssignedDepartmentInEntity(Map<String, Department> departmentMap,
+			Coordinator coordinatorEntity, Set<CoordinatorAssignedDepartment> assignedDepartmentsRequest) {
+		// Set coordinator assigned departments
+		Set<CoordinatorAssignedDepartment> assignedDepartmentEntitySet = convertToCoordinatorAssignedDepartmentsEntitySet(
+				coordinatorEntity, assignedDepartmentsRequest, departmentMap);
+		coordinatorEntity.setAssignedDepartments(assignedDepartmentEntitySet);
+	}
+
+	public static Coordinator setDateAndDepartmentsInCoordinator(Coordinator coordinator) {
+
+		if (CollectionUtils.isNotEmpty(coordinator.getAssignedDepartments())) {
+			for (CoordinatorAssignedDepartment coordinatorAssignedDepartment : coordinator.getAssignedDepartments()) {
+				coordinatorAssignedDepartment
+						.setInternalName(coordinatorAssignedDepartment.getDepartment().getInternalName());
+				coordinatorAssignedDepartment
+						.setDisplayName(coordinatorAssignedDepartment.getDepartment().getDisplayName());
+			}
 		}
 
-		if (coordinatorRequest.getIsActive() != null) {
-			coordinator.setIsActive(coordinatorRequest.getIsActive());
+		if (CollectionUtils.isNotEmpty(coordinator.getInterestedDepartments())) {
+			for (CoordinatorInterestedDepartment coordinatorInterestedDepartment : coordinator
+					.getInterestedDepartments()) {
+				coordinatorInterestedDepartment
+						.setInternalName(coordinatorInterestedDepartment.getDepartment().getInternalName());
+				coordinatorInterestedDepartment
+						.setDisplayName(coordinatorInterestedDepartment.getDepartment().getDisplayName());
+
+			}
 		}
+
+		if (null != coordinator.getDateLastModifiedInDB()) {
+			coordinator.setLastModifiedDate(convertDateToString(coordinator.getDateLastModifiedInDB()));
+		}
+		if (null != coordinator.getDateCreatedInDB()) {
+			coordinator.setCreatedDate(convertDateToString(coordinator.getDateCreatedInDB()));
+		}
+
 		return coordinator;
 	}
-	
-	
-	public static List<Coordinator> setDepartmentsInCoordinators(List<Coordinator> coordinators) {
-		if (coordinators != null && !coordinators.isEmpty()) {
+
+	public static List<Coordinator> setDateAndDepartmentsInCoordinators(List<Coordinator> coordinators) {
+		if (CollectionUtils.isNotEmpty(coordinators)) {
 			for (Coordinator coordinator : coordinators) {
-				setDepartmentsInCoordinator(coordinator);
+				setDateAndDepartmentsInCoordinator(coordinator);
 			}
 		}
 		return coordinators;
 	}
-	
-	
-	public static Coordinator setDepartmentsInCoordinator(Coordinator coordinator) {
-		if (StringUtils.isNotEmpty(coordinator.getAssignedDepartment())) {
-			coordinator.setAssignedDepartments(Arrays.asList(coordinator.getAssignedDepartment().split(",")));
-		}
-		if (StringUtils.isNotEmpty(coordinator.getInterestedDepartment())) {
-			coordinator.setInterestedDepartments(Arrays.asList(coordinator.getInterestedDepartment().split(",")));
-		}
-		return coordinator;
-	}
+
 }

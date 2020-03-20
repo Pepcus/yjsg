@@ -10,8 +10,5 @@ public interface CoordinatorRepository
 	
 	public Coordinator findById(Integer id);
 
-	public Coordinator findByPrimaryContactNumberOrAlternateContactNumber(String primaryContactNumber,
-			String alternateContactNumber);
-	
 	public Coordinator findByIdAndSecretKey(Integer id, String secretKey);
 }
