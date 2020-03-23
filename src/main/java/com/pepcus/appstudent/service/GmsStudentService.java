@@ -177,10 +177,6 @@ public class GmsStudentService extends GmsStudentServiceHelper{
 		GmsStudent gmsStudentEntity = getGmsStudentEntity(id);
 		gmsStudentEntity = persistStudentGMSEntity(
 				GmsStudentEntityConvertor.convertGmsStudentEntity(gmsStudentEntity, request));
-		if (Boolean.parseBoolean(sendRegistrationSms)) {
-			// send welcome sms to student
-			sendRegistrationSms(gmsStudentEntity);
-		}
 		return GmsStudentEntityConvertor.setDateInGmsStudent(gmsStudentEntity);
 	}
 
