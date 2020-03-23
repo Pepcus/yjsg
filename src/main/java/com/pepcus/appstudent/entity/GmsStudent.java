@@ -74,7 +74,6 @@ public class GmsStudent {
 	private Date dateCreatedInDB;
 
 	@Column(name = "last_modified_date")
-	@Temporal(TemporalType.TIMESTAMP)
 	@JsonIgnore
 	private Date dateLastModifiedInDB;
 

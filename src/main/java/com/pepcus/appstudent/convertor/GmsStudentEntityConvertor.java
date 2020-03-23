@@ -33,7 +33,7 @@ public class GmsStudentEntityConvertor {
 	}
 
 	public static GmsStudent convertGmsStudentEntity(GmsStudent gmsStudentEntity, GmsStudent request) {
-		request.setDateLastModifiedInDB(new Date());
+		gmsStudentEntity.setDateLastModifiedInDB(Calendar.getInstance().getTime());
 		if (Optional.ofNullable(request.getName()).isPresent()) {
 			gmsStudentEntity.setName(request.getName());
 		}
