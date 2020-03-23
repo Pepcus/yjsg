@@ -57,5 +57,8 @@ public class CoordinatorAssignedDepartment implements Serializable{
 	private String displayName;
 	
 	@Transient
+	private String departmentValueType;
+	
+	@Transient
 	private Set<DepartmentValue> departmentValues;
 }

@@ -39,6 +39,9 @@ public class Department implements Serializable{
 
 	@Column(name = "display_name")
 	private String displayName;
+	
+	@Column(name = "department_value_type")
+	private String departmentValueType;
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "department", cascade = CascadeType.REMOVE, orphanRemoval = false)
 	private Set<DepartmentValue> departmentValues;

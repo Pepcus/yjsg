@@ -192,11 +192,12 @@ public class CoordinatorEntityConvertor {
 		if (CollectionUtils.isNotEmpty(coordinator.getInterestedDepartments())) {
 			for (CoordinatorInterestedDepartment coordinatorInterestedDepartment : coordinator
 					.getInterestedDepartments()) {
+				Department coordinatorDepartment = coordinatorInterestedDepartment.getDepartment();
 				coordinatorInterestedDepartment
-						.setInternalName(coordinatorInterestedDepartment.getDepartment().getInternalName());
+						.setInternalName(coordinatorDepartment.getInternalName());
 				coordinatorInterestedDepartment
-						.setDisplayName(coordinatorInterestedDepartment.getDepartment().getDisplayName());
-
+						.setDisplayName(coordinatorDepartment.getDisplayName());
+				coordinatorInterestedDepartment.setDepartmentValueType(coordinatorDepartment.getDepartmentValueType());
 			}
 		}
 	}
@@ -238,6 +239,7 @@ public class CoordinatorEntityConvertor {
 				reformedCoordinatorAssignedDepartment.setId(departmentId);
 				reformedCoordinatorAssignedDepartment.setInternalName(coordinatorDepartment.getInternalName());
 				reformedCoordinatorAssignedDepartment.setDisplayName(coordinatorDepartment.getDisplayName());
+				reformedCoordinatorAssignedDepartment.setDepartmentValueType(coordinatorDepartment.getDepartmentValueType());
 				reformedCoordinatorAssignedDepartment.setDepartmentValues(coordinatorDepartment.getDepartmentValues());
 				reformedCoordinatorAssignedDepartments.add(reformedCoordinatorAssignedDepartment);
 				coordinatorDepartmentMap.remove(departmentId);

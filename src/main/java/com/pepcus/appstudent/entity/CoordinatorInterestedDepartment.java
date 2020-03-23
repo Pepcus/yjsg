@@ -1,7 +1,5 @@
 package com.pepcus.appstudent.entity;
 
-import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -47,4 +45,7 @@ public class CoordinatorInterestedDepartment {
 
 	@Transient
 	private String displayName;
+	
+	@Transient
+	private String departmentValueType;
 }
