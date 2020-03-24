@@ -43,6 +43,9 @@ public class GmsStudentEntityConvertor {
 		if (Optional.ofNullable(request.getMobile()).isPresent()) {
 			gmsStudentEntity.setMobile(request.getMobile());
 		}
+		if (Optional.ofNullable(request.getEmail()).isPresent()) {
+			gmsStudentEntity.setEmail(request.getEmail());
+		}
 		if (Optional.ofNullable(request.getCity()).isPresent()) {
 			gmsStudentEntity.setCity(request.getCity());
 		}
@@ -60,6 +63,9 @@ public class GmsStudentEntityConvertor {
 		}
 		if (Optional.ofNullable(request.getFoodOpt()).isPresent()) {
 			gmsStudentEntity.setFoodOpt(request.getFoodOpt());
+		}
+		if (Optional.ofNullable(request.getPreviousShivir()).isPresent()) {
+			gmsStudentEntity.setPreviousShivir(request.getPreviousShivir());
 		}
 		return gmsStudentEntity;
 	}
