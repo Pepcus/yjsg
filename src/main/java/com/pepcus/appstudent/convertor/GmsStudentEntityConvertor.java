@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.pepcus.appstudent.entity.GmsStudent;
 import com.pepcus.appstudent.util.ApplicationConstants;
 
@@ -29,6 +31,11 @@ public class GmsStudentEntityConvertor {
 		if (request.getPaymentStatus() == null) {
 			request.setPaymentStatus(ApplicationConstants.PAYMENT_STATUS_NA);
 		}
+		
+		String previousShivirValue = (StringUtils.isNotBlank(request.getPreviousShivir())) ? request.getPreviousShivir()
+				: null;
+		request.setPreviousShivir(previousShivirValue);
+		
 		return request;
 	}
 
@@ -65,7 +72,9 @@ public class GmsStudentEntityConvertor {
 			gmsStudentEntity.setFoodOpt(request.getFoodOpt());
 		}
 		if (Optional.ofNullable(request.getPreviousShivir()).isPresent()) {
-			gmsStudentEntity.setPreviousShivir(request.getPreviousShivir());
+			String previousShivirValue = (StringUtils.isNotBlank(request.getPreviousShivir())) ? request.getPreviousShivir()
+					: null;
+			gmsStudentEntity.setPreviousShivir(previousShivirValue);
 		}
 		return gmsStudentEntity;
 	}
