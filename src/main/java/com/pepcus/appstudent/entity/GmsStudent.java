@@ -8,8 +8,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -59,6 +57,9 @@ public class GmsStudent {
 
 	@Column(name = "is_whatsapp")
 	private String isWhatsApp;
+	
+	@Column(name = "email")
+	private String email;
 
 	@Column(name = "status")
 	private String registrationStatus;
@@ -68,6 +69,9 @@ public class GmsStudent {
 
 	@Column(name = "food_opt")
 	private String foodOpt;
+
+	@Column(name = "previous_shivir")
+	private String previousShivir;
 
 	@Column(name = "created_date")
 	@JsonIgnore
