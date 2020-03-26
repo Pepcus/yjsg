@@ -1,11 +1,15 @@
 package com.pepcus.appstudent.interceptor;
 
+import static com.pepcus.appstudent.validation.DataValidator.expect;
+import static com.pepcus.appstudent.validation.DataValidator.integer;
+import static com.pepcus.appstudent.validation.DataValidator.nonNegative;
+import static com.pepcus.appstudent.validation.DataValidator.nonZero;
+import static com.pepcus.appstudent.validation.DataValidator.validate;
+
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import lombok.AllArgsConstructor;
 
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -13,8 +17,9 @@ import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.pepcus.appstudent.exception.AuthorizationFailedException;
-import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.service.AuthorizationManager;
+
+import lombok.AllArgsConstructor;
 
 /**
  * This layer is used to intercept requests coming from client and send them to
@@ -42,40 +47,39 @@ public class ApiSecretKeyInterceptor extends HandlerInterceptorAdapter {
         Map<String, String> pathVariables = (Map<String, String>) request
                 .getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 
-        Integer studentId = null;
-        Integer coordinatorId = null;
-        String id = pathVariables.get("studentId");
+       
         String secretKey = key;
-        String coordinatorRequestId= pathVariables.get("id");
-        
-        if(!StringUtils.isEmpty(coordinatorRequestId)) {
-        	 try {
-        		 coordinatorId = Integer.valueOf(coordinatorRequestId);
-             } catch (NumberFormatException e) {
-                 throw new BadRequestException(id + " is not a valid coordinator Id");
-             }
-        }
-
         if (StringUtils.isEmpty(secretKey)) {
             throw new AuthorizationFailedException("Unauthorized to access the service");
         }
+        
+		if (secretKey.equals(adminSecretKey)) { 
+			// admin doesn't require individual security code for access
+			return true;
+		}
+        
+        Integer studentId = null;
+        Integer coordinatorId = null;        
+        String studentRequestId = pathVariables.get("studentId");
+        String coordinatorRequestId= pathVariables.get("coordinatorId");
+        
+        
+        if (!StringUtils.isEmpty(studentRequestId)) {
+        	validate("studentId", studentRequestId, expect(integer,nonNegative, nonZero));
+        	studentId = Integer.valueOf(studentRequestId);
+		}
+        
+		if (!StringUtils.isEmpty(coordinatorRequestId)) {
+			validate("coordinatorId", coordinatorRequestId, expect(integer, nonNegative, nonZero));
+			coordinatorId = Integer.valueOf(coordinatorRequestId);
+		}
 
-        if (secretKey.equals(adminSecretKey)) { // admin doesn't require
-                                                // individual security code for
-                                                // access
-            return true;
-        }
+		if (studentId == null && coordinatorId == null) {
+			throw new AuthorizationFailedException("Unauthorized to access the service");
+		}
 
-        if (StringUtils.isEmpty(id)) {
-            throw new AuthorizationFailedException("Unauthorized to access the service");
-        }
-
-        try {
-            studentId = Integer.valueOf(id);
-        } catch (NumberFormatException e) {
-            throw new BadRequestException(id + " is not a valid studentId");
-        }
-        return authManager.checkAuthorization(coordinatorId, studentId, secretKey);
+        
+        return authManager.checkAuthorization(studentId, coordinatorId, secretKey);
     }
 
 }
