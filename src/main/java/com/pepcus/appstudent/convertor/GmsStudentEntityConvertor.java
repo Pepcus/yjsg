@@ -32,10 +32,6 @@ public class GmsStudentEntityConvertor {
 			request.setPaymentStatus(ApplicationConstants.PAYMENT_STATUS_NA);
 		}
 		
-		String previousShivirValue = (StringUtils.isNotBlank(request.getPreviousShivir())) ? request.getPreviousShivir()
-				: null;
-		request.setPreviousShivir(previousShivirValue);
-		
 		return request;
 	}
 
@@ -51,7 +47,8 @@ public class GmsStudentEntityConvertor {
 			gmsStudentEntity.setMobile(request.getMobile());
 		}
 		if (Optional.ofNullable(request.getEmail()).isPresent()) {
-			gmsStudentEntity.setEmail(request.getEmail());
+			String email = (StringUtils.isNotBlank(request.getEmail())) ? request.getEmail() : null;
+			gmsStudentEntity.setEmail(email);
 		}
 		if (Optional.ofNullable(request.getCity()).isPresent()) {
 			gmsStudentEntity.setCity(request.getCity());
@@ -72,9 +69,7 @@ public class GmsStudentEntityConvertor {
 			gmsStudentEntity.setFoodOpt(request.getFoodOpt());
 		}
 		if (Optional.ofNullable(request.getPreviousShivir()).isPresent()) {
-			String previousShivirValue = (StringUtils.isNotBlank(request.getPreviousShivir())) ? request.getPreviousShivir()
-					: null;
-			gmsStudentEntity.setPreviousShivir(previousShivirValue);
+			gmsStudentEntity.setPreviousShivir(request.getPreviousShivir());
 		}
 		return gmsStudentEntity;
 	}
