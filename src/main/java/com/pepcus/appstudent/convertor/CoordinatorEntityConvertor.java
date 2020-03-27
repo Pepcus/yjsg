@@ -200,6 +200,7 @@ public class CoordinatorEntityConvertor {
 			for (CoordinatorInterestedDepartment coordinatorInterestedDepartment : coordinator
 					.getInterestedDepartments()) {
 				Department coordinatorDepartment = coordinatorInterestedDepartment.getDepartment();
+				coordinatorInterestedDepartment.setId(coordinatorDepartment.getId());
 				coordinatorInterestedDepartment
 						.setInternalName(coordinatorDepartment.getInternalName());
 				coordinatorInterestedDepartment
