@@ -194,31 +194,6 @@ public class SMSUtil {
 
     }
     
-    public static void sendSMStoCoordinator(Coordinator coordinator) {
-        Map<String, String> queryParamMap = new HashMap<String, String>();
-
-        try {
-            String numbers = coordinator.getPrimaryContactNumber();
-            if (!"".equals(numbers)) {
-                String message = ApplicationConstants.COORDINATOR_WELCOME_SMS.replace("{{name}}", coordinator.getFirstName());
-                message = message.replace("{{coordinatorId}}", String.valueOf(coordinator.getId()));
-                message = message.replace("{{secretCode}}", String.valueOf(coordinator.getSecretKey()));
-
-                queryParamMap.put("number", numbers);
-                queryParamMap.put("sms", URLEncoder.encode(message, "UTF-8"));
-                try {
-                    invokeSendSMSAPI(queryParamMap);
-                } catch (Exception e) {
-                    throw new BadRequestException("Unable to send the SMS to the user" + coordinator.getId());
-                }
-            }
-
-        } catch (Exception e) {
-            throw new BadRequestException("Unable to send the SMS to the user" + e.getMessage());
-        }
-
-    }
-    
     public static void sendSMS(Integer id, String userName, String mobile, String message) {
         Map<String, String> queryParamMap = new HashMap<String, String>();
         
