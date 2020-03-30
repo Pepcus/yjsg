@@ -9,7 +9,6 @@ import static com.pepcus.appstudent.validation.DataValidator.phone;
 import static com.pepcus.appstudent.validation.DataValidator.validate;
 import static com.pepcus.appstudent.validation.DataValidator.validateValues;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,7 +26,6 @@ import com.pepcus.appstudent.entity.Department;
 import com.pepcus.appstudent.entity.DepartmentValue;
 import com.pepcus.appstudent.exception.BadRequestException;
 import com.pepcus.appstudent.service.DepartmentService;
-import com.pepcus.appstudent.util.ApplicationConstants;
 import com.pepcus.appstudent.util.Gender;
 
 @Component
@@ -52,8 +50,6 @@ public class CoordinatorValidator {
 		DataValidator.validateDate("dob", request.getDob());
 		validate("address", request.getAddress(), expect(nonEmpty));
 		validate("area", request.getArea(), expect(nonEmpty));
-		validateValues("isActive", request.getIsActive(),
-				Arrays.asList(ApplicationConstants.VAL_TRUE, ApplicationConstants.VAL_FALSE));
 		
 		if(StringUtils.isNotBlank(request.getEmail())){
 			validate("email", request.getEmail(), expect(email));	
@@ -80,8 +76,6 @@ public class CoordinatorValidator {
 				Stream.of(Gender.values()).map(Enum::name).collect(Collectors.toList()));
 		validate("dob", request.getDob(), expect(nonEmpty));
 		DataValidator.validateDate("dob", request.getDob());
-		validateValues("isActive", request.getIsActive(),
-				Arrays.asList(ApplicationConstants.VAL_TRUE, ApplicationConstants.VAL_FALSE));
 		
 		if(StringUtils.isNotBlank(request.getEmail())){
 			validate("email", request.getEmail(), expect(email));	

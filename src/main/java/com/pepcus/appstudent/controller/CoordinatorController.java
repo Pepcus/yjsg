@@ -52,7 +52,7 @@ public class CoordinatorController {
 	 * @return
 	 */
 	@PutMapping("/{coordinatorId}")
-	public ResponseEntity<Coordinator> updateStudent(@PathVariable("coordinatorId") Integer id, @RequestBody Coordinator request) {
+	public ResponseEntity<Coordinator> updateCoordinator(@PathVariable("coordinatorId") Integer id, @RequestBody Coordinator request) {
 		coordinatorValidator.validateUpdateCoordinatorRequest(request);
 		Coordinator coordinator = coordinatorService.updateCoordinator(id, request);
 		return new ResponseEntity<Coordinator>(coordinator, HttpStatus.OK);

@@ -20,7 +20,6 @@ import com.pepcus.appstudent.entity.CoordinatorInterestedDepartment;
 import com.pepcus.appstudent.entity.Department;
 import com.pepcus.appstudent.entity.DepartmentValue;
 import com.pepcus.appstudent.service.DepartmentService;
-import com.pepcus.appstudent.util.ApplicationConstants;
 
 public class CoordinatorEntityConvertor {
 
@@ -32,8 +31,8 @@ public class CoordinatorEntityConvertor {
 		Date currentDate = Calendar.getInstance().getTime();
 		coordinatorEntity.setDateCreatedInDB(currentDate);
 		coordinatorEntity.setDateLastModifiedInDB(currentDate);
-		if (request.getIsActive() == null || StringUtils.isBlank(request.getIsActive())) {
-			coordinatorEntity.setIsActive(ApplicationConstants.VAL_TRUE);
+		if (request.getIsActive() == null || request.getIsActive()) {
+			coordinatorEntity.setIsActive(Boolean.TRUE);
 		}
 		return convertCoordinatorEntity(coordinatorEntity, request);
 	}
@@ -66,8 +65,7 @@ public class CoordinatorEntityConvertor {
 		}
 
 		if (Optional.ofNullable(request.getIsActive()).isPresent()) {
-			String isActive = request.getIsActive().equalsIgnoreCase(ApplicationConstants.VAL_TRUE)
-					? ApplicationConstants.VAL_TRUE : ApplicationConstants.VAL_FALSE;
+			Boolean isActive = (request.getIsActive())? Boolean.TRUE : Boolean.FALSE;
 			coordinatorEntity.setIsActive(isActive);
 		}
 
@@ -138,18 +136,24 @@ public class CoordinatorEntityConvertor {
 					coordinatorAssignedDepartmentEntitySet
 							.add(convertToCoordinatorAssignedDepartmentEntity(coordinatorEntity, department, null));
 				} else {
-					Map<Integer, DepartmentValue> departmentValueMap = DepartmentService
-							.getDepartmentValueMap(department);
-					for (DepartmentValue requestedDepartmentValue : requestedDepartmentValueSet) {
-						
-						coordinatorAssignedDepartmentEntitySet
-								.add(convertToCoordinatorAssignedDepartmentEntity(coordinatorEntity, department,
-										departmentValueMap.get(requestedDepartmentValue.getId())));
-					}
+					convertToCoordinatorAssignedDepartmentEntityWithValues(coordinatorEntity, department,
+							coordinatorAssignedDepartmentEntitySet, requestedDepartmentValueSet);
 				}
 			}
 		}
 		return coordinatorAssignedDepartmentEntitySet;
+	}
+
+	private static void convertToCoordinatorAssignedDepartmentEntityWithValues(Coordinator coordinatorEntity,
+			Department department, Set<CoordinatorAssignedDepartment> coordinatorAssignedDepartmentEntitySet,
+			Set<DepartmentValue> requestedDepartmentValueSet) {
+		Map<Integer, DepartmentValue> departmentValueMap = DepartmentService
+				.getDepartmentValueMap(department);
+		for (DepartmentValue requestedDepartmentValue : requestedDepartmentValueSet) {
+			coordinatorAssignedDepartmentEntitySet
+					.add(convertToCoordinatorAssignedDepartmentEntity(coordinatorEntity, department,
+							departmentValueMap.get(requestedDepartmentValue.getId())));
+		}
 	}
 
 	private static CoordinatorAssignedDepartment convertToCoordinatorAssignedDepartmentEntity(
