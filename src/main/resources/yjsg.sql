@@ -171,7 +171,7 @@ CREATE TABLE `coordinator` (
   `area` varchar(255) DEFAULT NULL,
   `remarks` varchar(255) DEFAULT NULL,
   `secret_key` varchar(255) DEFAULT NULL,
-  `is_active` varchar(6) DEFAULT NULL,
+  `is_active` boolean DEFAULT true,
   `created_date` datetime DEFAULT NULL,
   `last_modified_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)

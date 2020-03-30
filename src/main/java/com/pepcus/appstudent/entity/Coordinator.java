@@ -75,7 +75,7 @@ public class Coordinator implements Serializable{
 	private String secretKey;
 
 	@Column(name = "is_active")
-	private String isActive;
+	private Boolean isActive;
 
 	@Column(name = "created_date")
 	@JsonIgnore
