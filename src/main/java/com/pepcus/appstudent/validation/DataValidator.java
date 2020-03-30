@@ -469,14 +469,14 @@ public class DataValidator {
 	 * @param value
 	 */
 	public static void validateDate(String propName, String value) {
-		if ((!validateDateFormat(value)) || !isValidDate(value, ApplicationConstants.DATE_FORMAT_YYYY_MM_DD)) {
+		if ((!validateDateFormat(value)) || !isValidDate(value, ApplicationConstants.DATE_FORMAT_DD_MM_YYYY)) {
 			throw new BadRequestException("Invalid value for " + propName + ", Acceptable date formats are "
-					+ ApplicationConstants.DATE_FORMAT_YYYY_MM_DD);
+					+ ApplicationConstants.DATE_FORMAT_DD_MM_YYYY);
 		}
 	}
 
 	private static boolean validateDateFormat(String date) {
-		return (date.matches("\\d{4}-\\d{2}-\\d{2}")) ? true : false;
+		return (date.matches("\\d{2}/\\d{2}/\\d{4}")) ? true : false;
 	}
 
 	private static boolean isValidDate(String dateStr, String format) {

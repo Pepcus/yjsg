@@ -78,7 +78,7 @@ public class ApplicationConstants {
   public static final String ID="id";
   public static final String NULL="NULL";
   public static final String EXACT_DUPLICATE = " We already have your registration. To login you will receive an SMS on your registered phone number ";
-  public static final String DATE_FORMAT_YYYY_MM_DD = "yyyy-MM-dd";
+  public static final String DATE_FORMAT_DD_MM_YYYY = "dd/MM/yyyy";
   
   public static final String VAL_Y = "Y";
   public static final String VAL_N = "N";
