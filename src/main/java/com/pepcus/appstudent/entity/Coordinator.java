@@ -1,84 +1,103 @@
 package com.pepcus.appstudent.entity;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Set;
 
-import java.util.List;
-
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
-@Table(name="coordinator")
+@Table(name = "coordinator")
+@ToString
+@EqualsAndHashCode(exclude = { "interestedDepartments", "assignedDepartments" })
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
-public class Coordinator {
-@Id
-@GeneratedValue(strategy=GenerationType.AUTO)
-@Column(name = "id")
-private Integer id;
+public class Coordinator implements Serializable{
 
-@Column(name="first_name")
-private String firstName;
+	private static final long serialVersionUID = 1L;
 
-@Column(name="last_name")
-private String lastName;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "id")
+	private Integer id;
 
-@Column(name="gender")
-private String gender;
+	@Column(name = "first_name")
+	private String firstName;
 
-@Column(name="primary_contact_number")
-private String primaryContactNumber;
+	@Column(name = "last_name")
+	private String lastName;
 
-@Column(name="is_primary_number_on_whatsapp")
-private Boolean isPrimaryNumberOnWhatsapp;
+	@Column(name = "dob")
+	private String dob;
 
-@Column(name="alternate_contact_number")
-private String alternateContactNumber;
+	@Column(name = "gender")
+	private String gender;
 
-@Column(name="email")
-private String email;
+	@Column(name = "email")
+	private String email;
 
-@Column(name="dob")
-private String dob;
+	@Column(name = "whatsapp_number")
+	private String whatsappNumber;
 
-@Column(name="address")
-private String address;
+	@Column(name = "alternate_number")
+	private String alternateNumber;
 
-@Column(name = "area")
-private String area;
+	@Column(name = "address")
+	private String address;
 
-@Column(name = "interested_departments")
-private String interestedDepartment;
+	@Column(name = "area")
+	private String area;
 
-@Column(name = "assigned_departments")
-private String assignedDepartment;
+	@Column(name = "remarks")
+	private String remarks;
 
-@Transient
-List<String> interestedDepartments;
+	@Column(name = "secret_key")
+	private String secretKey;
 
-@Transient
-List<String> assignedDepartments;
+	@Column(name = "is_active")
+	private Boolean isActive;
 
-@Column(name = "remarks")
-private String remarks;
+	@Column(name = "created_date")
+	@JsonIgnore
+	private Date dateCreatedInDB;
 
-@Column(name="bus_number")
-private Integer busNumber;
+	@Column(name = "last_modified_date")
+	@Temporal(TemporalType.TIMESTAMP)
+	@JsonIgnore
+	private Date dateLastModifiedInDB;
+	
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "coordinator", cascade = CascadeType.REMOVE, orphanRemoval = false)
+	private Set<CoordinatorInterestedDepartment> interestedDepartments;
 
-@Column(name="class_number")
-private Integer classNumber;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "coordinator", cascade = CascadeType.REMOVE, orphanRemoval = false)
+	private Set<CoordinatorAssignedDepartment> assignedDepartments;
+	
+	@Transient
+	@JsonProperty(access = Access.READ_ONLY)
+	private String createdDate;
 
-@Column(name="isActive")
-private Boolean isActive;
-
-@Column(name = "secret_key")
-private String secretKey;
+	@Transient
+	@JsonProperty(access = Access.READ_ONLY)
+	private String lastModifiedDate;
 
 }
-
-

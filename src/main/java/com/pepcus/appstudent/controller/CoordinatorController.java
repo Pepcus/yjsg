@@ -2,6 +2,7 @@ package com.pepcus.appstudent.controller;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,20 +16,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.pepcus.appstudent.entity.Coordinator;
-import com.pepcus.appstudent.entity.GmsStudent;
-import com.pepcus.appstudent.response.ApiResponse;
 import com.pepcus.appstudent.service.CoordinatorService;
-import com.pepcus.appstudent.validation.CoordinatorValidation;
+import com.pepcus.appstudent.validation.CoordinatorValidator;
 
 @RestController
-@RequestMapping("v1/coordinator")
+@RequestMapping("v1/coordinators")
 public class CoordinatorController {
 
 	@Autowired
-	CoordinatorService coordinatorservice;
+	CoordinatorValidator coordinatorValidator;
+
+	@Autowired
+	CoordinatorService coordinatorService;
 
 	/**
 	 * Used to create coordinator record
@@ -38,56 +39,60 @@ public class CoordinatorController {
 	 */
 	@PostMapping
 	public ResponseEntity<Coordinator> createCoordinator(@RequestBody Coordinator request) throws ParseException {
-		CoordinatorValidation.validateCreateCoordinatorRequest(request);
-		Coordinator coordinator = coordinatorservice.createCoordinator(request);
+		coordinatorValidator.validateCreateCoordinatorRequest(request);
+		Coordinator coordinator = coordinatorService.createCoordinator(request);
 		return new ResponseEntity<Coordinator>(coordinator, HttpStatus.OK);
 	}
 
 	/**
-	 * Used to update existing coordinator record
+	 * Used to update coordinator record by id
+	 * 
 	 * @param id
 	 * @param request
 	 * @return
-	 * @throws ParseException
 	 */
-	@PutMapping("/{id}")
-	public ResponseEntity<Coordinator> updateCoordinator(@PathVariable Integer id, @RequestBody Coordinator request)
-			throws ParseException {
-		CoordinatorValidation.validateUpdateCoordinatorRequest(request);
-		Coordinator coordinator = coordinatorservice.updateCoordinator(id, request);
+	@PutMapping("/{coordinatorId}")
+	public ResponseEntity<Coordinator> updateCoordinator(@PathVariable("coordinatorId") Integer id, @RequestBody Coordinator request) {
+		coordinatorValidator.validateUpdateCoordinatorRequest(request);
+		Coordinator coordinator = coordinatorService.updateCoordinator(id, request);
 		return new ResponseEntity<Coordinator>(coordinator, HttpStatus.OK);
+	}
+	
+	/**
+	 * Used to delete coordinator record  by id
+	 * @param id
+	 * @return
+	 */
+	@DeleteMapping("/{coordinatorId}")
+	public HttpStatus deleteCoordinator(@PathVariable("coordinatorId") Integer id) {
+		return coordinatorService.deleteCoordinator(id) ? HttpStatus.ACCEPTED : HttpStatus.BAD_REQUEST;
 	}
 
 	/**
 	 * Used to fetch coordinator record by id
+	 * 
 	 * @param id
 	 * @return
 	 */
-	@GetMapping("/{id}")
-	public ResponseEntity<Coordinator> getCoordinator(@PathVariable Integer id) {
-		Coordinator coordinator = coordinatorservice.getCoordinator(id);
+	@GetMapping("/{coordinatorId}")
+	public ResponseEntity<Coordinator> getCoordinator(@PathVariable("coordinatorId") Integer id) {
+		Coordinator coordinator = coordinatorService.getCoordinator(id);
 		return new ResponseEntity<Coordinator>(coordinator, HttpStatus.OK);
 	}
 
+	/**
+	 * Used to fetch coordinator list
+	 * 
+	 * @param firstName
+	 * @param lastName
+	 * @param whatsappnumber
+	 * @param dob
+	 * @return
+	 */
 	@GetMapping
-	public ResponseEntity<List<Coordinator>> getCoordinators(@RequestParam(value = "firstName", required = false) String firstName,
-			@RequestParam(value = "lastName", required = false) String lastName,
-			@RequestParam(value = "primaryContactNumber", required = false) String primaryContactNumber,
-			@RequestParam(value = "dob", required = false) String dob) {
-		CoordinatorValidation.validateGetCoordinatorRequest(firstName, lastName, primaryContactNumber, dob);
-		List<Coordinator> coordinatorList = coordinatorservice.getCoordinators(firstName, lastName, primaryContactNumber, dob);
+	public ResponseEntity<List<Coordinator>> getCoordinator(@RequestParam Map<String, String> allRequestParams) {
+		List<Coordinator> coordinatorList = coordinatorService.getCoordinators(allRequestParams);
 		return new ResponseEntity<List<Coordinator>>(coordinatorList, HttpStatus.OK);
-	}
-
-	@DeleteMapping("/{id}")
-	public HttpStatus deleteCoordinator(@PathVariable Integer id) {
-		return coordinatorservice.deleteCoordinator(id) ? HttpStatus.ACCEPTED : HttpStatus.BAD_REQUEST;
-	}
-	
-	@PostMapping("/bulk-upload")
-	public ResponseEntity<ApiResponse> uploadCoordinators(
-			@RequestParam(value = "file", required = true) MultipartFile file) throws ParseException {
-		return new ResponseEntity<ApiResponse>(coordinatorservice.uploadCoordinators(file), HttpStatus.CREATED);
 	}
 
 }
