@@ -22,7 +22,7 @@ import lombok.Data;
 
 /**
  * Entity class used to map table in DB
- * 
+ *
  * @author Shubham Solanki
  * @since 12-02-2018
  *
@@ -106,9 +106,12 @@ public class Student {
 
     @Column(name = "class_attended_2019")
     private String classAttended2019;
-    
+
     @Column(name = "class_attended_2020")
     private String classAttended2020;
+
+    @Column(name = "class_attended_2021")
+    private String classAttended2021;
 
     @Column(name = "class_room_no_2016")
     private String classRoomNo2016;
@@ -121,9 +124,12 @@ public class Student {
 
     @Column(name = "class_room_no_2019")
     private String classRoomNo2019;
-    
+
     @Column(name = "class_room_no_2020")
     private String classRoomNo2020;
+
+    @Column(name = "class_room_no_2021")
+    private String classRoomNo2021;
 
     @Column(name = "attendance_2016")
     private String attendance2016;
@@ -136,9 +142,12 @@ public class Student {
 
     @Column(name = "attendance_2019")
     private String attendance2019;
-    
+
     @Column(name = "attendance_2020")
     private String attendance2020;
+
+    @Column(name = "attendance_2021")
+    private String attendance2021;
 
     @Column(name = "marks_2016")
     private String marks2016;
@@ -151,18 +160,24 @@ public class Student {
 
     @Column(name = "marks_2019")
     private String marks2019;
-    
+
     @Column(name = "marks_2020")
     private String marks2020;
+
+    @Column(name = "marks_2021")
+    private String marks2021;
 
     @Column(name = "opt_in_2018")
     private Integer optIn2018;
 
     @Column(name = "opt_in_2019")
     private String optIn2019;
-    
+
     @Column(name = "opt_in_2020")
     private String optIn2020;
+
+    @Column(name = "opt_in_2021")
+    private String optIn2021;
 
     @Column(name = "day1")
     private String day1;
@@ -205,11 +220,11 @@ public class Student {
     @Transient
     @JsonProperty(access = Access.READ_ONLY)
     private String lastModifiedDate;
-    
+
     @Transient
     @JsonProperty(access = Access.READ_ONLY)
     private boolean isAllowDuplicate;
-    
+
     @Transient
     @JsonProperty(access = Access.READ_ONLY)
     private boolean isPotentialMatch;
